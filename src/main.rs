@@ -11,6 +11,7 @@ struct Question {
     skips: u32,      // veces saltada
 }
 
+/* Progreso */
 fn save_progress(questions: &Vec<Question>) {
     let json = serde_json::to_string(questions).unwrap();
     std::fs::write("quiz_progress.json", json).unwrap();
@@ -25,6 +26,11 @@ fn load_progress() -> Option<Vec<Question>> {
     None
 }
 
+fn delete_progress() {
+    let _ = std::fs::remove_file("quiz_progress.json");
+}
+
+
 fn normalize_code(input: &str) -> String {
     input
         .lines()
@@ -33,7 +39,6 @@ fn normalize_code(input: &str) -> String {
         .collect::<Vec<_>>()
         .join("")
         .replace(char::is_whitespace, "")
-        .to_lowercase()
 }
 
 fn read_questions_embedded() -> Vec<Question> {
@@ -58,6 +63,11 @@ fn read_questions_embedded() -> Vec<Question> {
     questions
 }
 
+enum AppState {
+    Welcome,
+    Quiz,
+    Summary,
+}
 
 struct QuizApp {
     questions: Vec<Question>,
@@ -67,6 +77,7 @@ struct QuizApp {
     finished: bool,
     round: u32,
     shown_this_round: Vec<usize>,
+    state: AppState,
 }
 
 impl QuizApp {
@@ -81,6 +92,7 @@ impl QuizApp {
             finished: false,
             round: 1,
             shown_this_round: vec![],
+            state: AppState::Welcome,
         }
     }
 
@@ -111,6 +123,16 @@ impl QuizApp {
 
 impl eframe::App for QuizApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // BOTÓN SUPERIOR DE REINICIAR
+        egui::TopBottomPanel::top("menu_panel").show(ctx, |ui| {
+            ui.horizontal_centered(|ui| {
+                if ui.button("🔄 Borrar progreso y reiniciar").clicked() {
+                    delete_progress();
+                    *self = QuizApp::new();
+                }
+            });
+        });
+
         egui::CentralPanel::default().show(ctx, |ui| {
             let max_width = 600.0;
             let panel_width = (ui.available_width() * 0.97).min(max_width);
@@ -127,13 +149,42 @@ impl eframe::App for QuizApp {
                             ui.heading("¡Fin del quizz!");
                             ui.add_space(10.0);
                             ui.label("Resumen de preguntas:");
-                            for (i, q) in self.questions.iter().enumerate() {
-                                ui.label(format!(
-                                    "Pregunta {}: intentos {}, fallos {}, saltos {}, {}",
-                                    i+1, q.attempts, q.fails, q.skips,
-                                    if q.is_done {"✅ Correcta"} else {"❌ Sin responder"}
-                                ));
-                            }
+
+                            ui.add_space(5.0);
+
+                            let max_height = 350.0;
+                            egui::ScrollArea::vertical()
+                                .max_height(max_height)
+                                .show(ui, |ui| {
+                                    for (i, q) in self.questions.iter().enumerate() {
+                                        ui.label(format!(
+                                            "Pregunta {}: intentos {}, fallos {}, saltos {}, {}",
+                                            i + 1,
+                                            q.attempts,
+                                            q.fails,
+                                            q.skips,
+                                            if q.is_done { "✅ Correcta" } else { "❌ Sin responder" }
+                                        ));
+                                    }
+                                });
+
+                            ui.add_space(20.0);
+
+                            ui.horizontal_centered(|ui| {
+                                ui.add_space(110.0);
+                                let button_width = (panel_width - 8.0) / 3.0;
+                                let retomar = ui.add_sized([button_width, 36.0], egui::Button::new("Retomar"));
+                                let salir = ui.add_sized([button_width, 36.0], egui::Button::new("Salir"));
+
+                                if retomar.clicked() {
+                                    *self = QuizApp::new();
+                                }
+
+                                if salir.clicked() {
+                                    std::process::exit(0);
+                                }
+                            });
+
                         } else if let Some(idx) = self.current {
                             ui.heading(format!("🌀 Ronda {}", self.round));
                             // Prompt con scroll fijo como ya tienes (puedes copiar tu bloque)
@@ -249,7 +300,7 @@ impl eframe::App for QuizApp {
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions::default();
     eframe::run_native(
-        "C Quiz Game - Brian Ferreira",
+        "C Quiz Game - Telegram: @sugarRayL",
         options,
         Box::new(|_cc| Ok(Box::new(QuizApp::new())),
     ))
