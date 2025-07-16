@@ -1,41 +1,196 @@
 use eframe::egui;
-use serde::{ Serialize, Deserialize };
+use egui::Visuals;
+use serde::{Serialize, Deserialize };
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+enum Language {
+    C,
+    Pseudocode
+}
 
 #[derive(Serialize, Deserialize)]
 struct Question {
+    language: Language,
     week: usize,
     prompt: String,  // Preguntas
     answer: String,  // Respuestas
+    hint:Option<String>,
     is_done: bool,   // true si respondida correctamente
     attempts: u32,   // intentos totales (aciertos+fallos+saltos)
     fails: u32,      // respuestas incorrectas
     skips: u32,      // veces saltadas
 }
 
-/* Progreso */
-fn save_progress(questions: &Vec<Question>) {
-    let json = serde_json::to_string(questions).unwrap();
-    std::fs::write("quiz_progress.json", json).unwrap();
+enum AppState {
+    LanguageSelect,
+    Welcome,
+    WeekMenu,
+    Quiz,
+    Summary,
 }
 
-fn load_progress() -> Option<Vec<Question>> {
-    if let Ok(json) = std::fs::read_to_string("quiz_progress.json") {
-        if let Ok(questions) = serde_json::from_str(&json) {
-            return Some(questions);
+// ¡Implementa Default!
+impl Default for AppState {
+    fn default() -> Self {
+        AppState::Welcome
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct QuizApp {
+    questions: Vec<Question>,
+    selected_language: Option<Language>,
+    current_week: Option<usize>,
+    current_in_week: Option<usize>,
+    input: String,
+    message: String,
+    finished: bool,
+    round: u32,
+    shown_this_round: Vec<usize>,
+    #[serde(skip)]
+    state: AppState,
+}
+
+fn progress_filename(language: Language) -> &'static str {
+    match language {
+        Language::C => "quiz_progress_c.json",
+        Language::Pseudocode => "quiz_progress_pseudocode.json",
+    }
+}
+
+impl QuizApp {
+    pub fn new() -> Self {
+        let questions = read_questions_embedded();
+        Self {
+            questions,
+            selected_language: None,
+            current_week: None,
+            current_in_week: None,
+            input: String::new(),
+            message: String::new(),
+            finished: false,
+            round: 1,
+            shown_this_round: vec![],
+            state: AppState::LanguageSelect,
         }
     }
-    None
+
+    pub fn new_for_language(language: Language) -> Self {
+        let questions = read_questions_embedded()
+            .into_iter()
+            .filter(|q| q.language == language)
+            .collect::<Vec<_>>();
+        let first_week = questions.iter().map(|q| q.week).min().unwrap_or(1);
+        let current_in_week = questions.iter().position(|q| q.week == first_week && !q.is_done);
+        Self {
+            questions,
+            selected_language: Some(language),
+            current_week: Some(first_week),
+            current_in_week,
+            input: String::new(),
+            message: String::new(),
+            finished: false,
+            round: 1,
+            shown_this_round: vec![],
+            state: AppState::Welcome,
+        }
+    }
+    pub fn save_progress(&self) {
+        if let Some(lang) = self.selected_language {
+            let filename = progress_filename(lang);
+            let json = serde_json::to_string(self).unwrap();
+            std::fs::write(filename, json).unwrap();
+        }
+    }
+
+    pub fn load_progress(language: Language) -> Option<Self> {
+        let filename = progress_filename(language);
+        if let Ok(json) = std::fs::read_to_string(filename) {
+            serde_json::from_str(&json).ok()
+        } else {
+            None
+        }
+    }
+
+    pub fn delete_progress(language: Language) {
+        let filename = match language {
+            Language::C => "quiz_progress_c.json",
+            Language::Pseudocode => "quiz_progress_pseudocode.json",
+        };
+        let _ = std::fs::remove_file(filename);
+    }
+
+    pub fn has_saved_progress(language: Language) -> bool {
+        let filename = match language {
+            Language::C => "quiz_progress_c.json",
+            Language::Pseudocode => "quiz_progress_pseudocode.json",
+        };
+        std::fs::metadata(filename).is_ok()
+    }
+
+    fn select_week(&mut self, week: usize) {
+        self.current_week = Some(week);
+        let language = self.selected_language.unwrap_or(Language::C);
+
+        // Busca el índice GLOBAL de la primera pregunta pendiente de esa semana y lenguaje
+        self.current_in_week = self.questions
+            .iter()
+            .enumerate()
+            .find(|(_, q)| q.week == week && q.language == language && !q.is_done)
+            .map(|(idx, _)| idx);
+        self.round = 1;
+        self.shown_this_round.clear();
+    }
+
+
+    // Una semana está desbloqueada si todas las anteriores están completas, o es la primera
+    pub fn is_week_unlocked(&self, week: usize) -> bool {
+        if week == 1 { return true; }
+        let language = self.selected_language.unwrap_or(Language::C);
+        (1..week).all(|w| self.questions
+            .iter()
+            .filter(|q| q.week == w && q.language == language)
+            .all(|q| q.is_done)
+        )
+    }
+
+
+    // Una semana está completa si todas sus preguntas están respondidas correctamente
+    pub fn is_week_completed(&self, week: usize) -> bool {
+        let language = self.selected_language.unwrap_or(Language::C);
+        self.questions
+            .iter()
+            .filter(|q| q.week == week && q.language == language)
+            .all(|q| q.is_done)
+    }
+
+
+
+    /// Busca la próxima pregunta pendiente, o None si no quedan
+    fn next_pending_in_week(&mut self) -> Option<usize> {
+        if let Some(week) = self.current_week {
+            for (idx, q) in self.questions.iter().enumerate() {
+                if q.week == week && !q.is_done && !self.shown_this_round.contains(&idx) {
+                    self.shown_this_round.push(idx);
+                    return Some(idx);
+                }
+            }
+            // Si ya se han mostrado todas las pendientes, empieza nueva ronda
+            if self.questions.iter().any(|q| q.week == week && !q.is_done) {
+                self.round += 1;
+                self.shown_this_round.clear();
+                for (idx, q) in self.questions.iter().enumerate() {
+                    if q.week == week && !q.is_done {
+                        self.shown_this_round.push(idx);
+                        return Some(idx);
+                    }
+                }
+            }
+        }
+        None
+    }
+
 }
-
-fn delete_progress() {
-    let _ = std::fs::remove_file("quiz_progress.json");
-}
-
-fn has_saved_progress() -> bool {
-    std::fs::metadata("quiz_progress.json").is_ok()
-}
-
-
 
 fn normalize_code(input: &str) -> String {
     input
@@ -55,13 +210,27 @@ fn read_questions_embedded() -> Vec<Question> {
     let mut questions = Vec::new();
     for result in rdr.records() {
         let record = result.unwrap();
-        let week = record.get(0).unwrap().parse::<usize>().unwrap();
-        let prompt = record.get(1).unwrap().trim().to_string();
-        let answer = record.get(2).unwrap().trim().to_string();
+        let language_str = record.get(0).unwrap();
+        let language = match language_str.to_lowercase().as_str() {
+            "c" => Language::C,
+            "pseudocode" => Language::Pseudocode,
+            _ => panic!("Unknown language: {language_str}"),
+        };
+        let week = record.get(1).unwrap().parse::<usize>().unwrap();
+        let prompt = record.get(2).unwrap().trim().to_string();
+        let answer = record.get(3).unwrap().trim().to_string();
+
+        let hint = record.get(4).map(|s| {
+            let trimmed = s.trim();
+            if trimmed.is_empty() { None } else { Some(trimmed.to_string()) }
+        }).flatten();
+
         questions.push(Question {
+            language,
             week,
             prompt,
             answer,
+            hint,
             is_done: false,
             attempts: 0,
             fails: 0,
@@ -69,103 +238,6 @@ fn read_questions_embedded() -> Vec<Question> {
         });
     }
     questions
-}
-
-enum AppState {
-    Welcome,
-    WeekMenu,
-    Quiz,
-    Summary,
-}
-
-struct QuizApp {
-    questions: Vec<Question>,
-    current_week: Option<usize>,
-    current_in_week: Option<usize>, // ahora es Option para detectar el fin
-    input: String,
-    message: String,
-    finished: bool,
-    round: u32,
-    shown_this_round: Vec<usize>,
-    state: AppState,
-}
-
-impl QuizApp {
-    fn new() -> Self {
-        let questions = load_progress().unwrap_or_else(read_questions_embedded);
-        let first = questions.iter().position(|q| !q.is_done);
-        Self {
-            questions,
-            current_week: None,
-            current_in_week: first,
-            input: String::new(),
-            message: String::new(),
-            finished: false,
-            round: 1,
-            shown_this_round: vec![],
-            state: AppState::Welcome,
-        }
-    }
-
-    // Devuelve solo las preguntas de la semana activa (¡muy útil!)
-    fn questions_this_week(&self) -> Vec<(usize, &Question)> {
-        if let Some(week) = self.current_week {
-            self.questions
-                .iter()
-                .enumerate()
-                .filter(|(_, q)| q.week == week)
-                .collect()
-        } else {
-            vec![]
-        }
-    }
-
-    fn select_week(&mut self, week: usize) {
-        self.current_week = Some(week);
-        // Busca el primer índice relativo de pregunta pendiente en esa semana
-        let questions = self.questions_this_week();
-        self.current_in_week = questions
-            .iter()
-            .position(|(_, q)| !q.is_done);
-        self.round = 1;
-        self.shown_this_round.clear();
-    }
-
-    // Una semana está desbloqueada si todas las anteriores están completas, o es la primera
-    pub fn is_week_unlocked(&self, week: usize) -> bool {
-        if week == 1 { return true; }
-        (1..week).all(|w| self.is_week_completed(w))
-    }
-
-    // Una semana está completa si todas sus preguntas están respondidas correctamente
-    pub fn is_week_completed(&self, week: usize) -> bool {
-        self.questions.iter().filter(|q| q.week == week).all(|q| q.is_done)
-    }
-
-
-    /// Busca la próxima pregunta pendiente, o None si no quedan
-    fn next_pending(&mut self) -> Option<usize> {
-        // Preguntas aún no respondidas y aún no mostradas en la ronda actual
-        for (idx, q) in self.questions.iter().enumerate() {
-            if !q.is_done && !self.shown_this_round.contains(&idx) {
-                self.shown_this_round.push(idx);
-                return Some(idx);
-            }
-        }
-        // Si ya se han mostrado todas las pendientes, empieza nueva ronda
-        if self.questions.iter().any(|q| !q.is_done) {
-            self.round += 1;
-            self.shown_this_round.clear();
-            // Empieza nueva ronda y muestra la primera pendiente de la nueva ronda
-            for (idx, q) in self.questions.iter().enumerate() {
-                if !q.is_done {
-                    self.shown_this_round.push(idx);
-                    return Some(idx);
-                }
-            }
-        }
-        None
-    }
 }
 
 impl eframe::App for QuizApp {
@@ -176,14 +248,92 @@ impl eframe::App for QuizApp {
             egui::TopBottomPanel::top("menu_panel").show(ctx, |ui| {
                 ui.horizontal_centered(|ui| {
                     if ui.button("🔄 Borrar progreso y reiniciar").clicked() {
-                        delete_progress();
+                        Self::delete_progress(self.selected_language.unwrap());
                         *self = QuizApp::new();
                     }
+
+                    if ui.button("Cambiar lenguaje").clicked() {
+                        self.save_progress();
+                        self.state = AppState::LanguageSelect;
+
+                    }
+
+                });
+            });
+        }else if matches!(self.state, AppState::Quiz | AppState::Summary | AppState::Welcome) {
+            egui::TopBottomPanel::top("menu_panel").show(ctx, |ui| {
+                ui.horizontal_centered(|ui| {
+
+                    if ui.button("Cambiar lenguaje").clicked() {
+                        self.save_progress();
+                        self.state = AppState::LanguageSelect;
+
+                    }
+
                 });
             });
         }
 
+        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
+            // ----------- BOTONES DE TEMA -----------
+            ui.horizontal(|ui| {
+                ui.add_space(595.0);
+                if ui.button("🌙 Modo oscuro").clicked() {
+                    ctx.set_visuals(Visuals::dark());
+                }
+                if ui.button("☀Modo claro").clicked() {
+                    ctx.set_visuals(Visuals::light());
+                }
+            });
+        });
+
+
+
         match self.state {
+            // ----------- BIENVENIDA -----------
+            AppState::LanguageSelect => {
+                egui::CentralPanel::default().show(ctx, |ui| {
+                    let max_width = 600.0;
+                    let panel_width = (ui.available_width() * 0.97).min(max_width);
+                    let button_width = (panel_width - 8.0) / 3.0;
+                    let button_height = 36.0;
+                    let total_height = 240.0;
+                    let extra_space = (ui.available_height() - total_height).max(0.0) / 2.0;
+                    ui.add_space(extra_space);
+
+                    egui::Frame::default()
+                        .fill(ui.visuals().window_fill())
+                        .inner_margin(egui::Margin::symmetric(20, 20))
+                        .show(ui, |ui| {
+                            ui.vertical_centered(|ui| {
+                                ui.heading("👋 ¡Bienvenido a SummerQuiz!");
+                                ui.add_space(30.0);
+
+                                ui.label("Selecciona un lenguaje");
+                                ui.add_space(10.0);
+
+                                let c = ui.add_sized([button_width, button_height], egui::Button::new("Lenguaje C"));
+                                let pseudocode = ui.add_sized([button_width, button_height], egui::Button::new("Pseudocódigo"));
+
+                                if c.clicked() {
+                                    self.selected_language = Some(Language::C);
+                                    *self = QuizApp::load_progress(Language::C).unwrap_or_else(|| QuizApp::new_for_language(Language::C));
+                                    self.state = AppState::Welcome;
+                                }
+
+                                if pseudocode.clicked() {
+                                    self.selected_language = Some(Language::Pseudocode);
+                                    *self = QuizApp::load_progress(Language::Pseudocode).unwrap_or_else(|| QuizApp::new_for_language(Language::Pseudocode));
+                                    self.state = AppState::Welcome;
+                                }
+
+                            });
+                        });
+
+                });
+            }
+
+
             // ----------- BIENVENIDA -----------
             AppState::Welcome => {
                 egui::CentralPanel::default().show(ctx, |ui| {
@@ -191,20 +341,19 @@ impl eframe::App for QuizApp {
                     let panel_width = (ui.available_width() * 0.97).min(max_width);
                     let button_width = (panel_width - 8.0) / 3.0;
                     let button_height = 36.0;
-                    let total_height = 220.0;
+                    let total_height = 240.0;
                     let extra_space = (ui.available_height() - total_height).max(0.0) / 2.0;
                     ui.add_space(extra_space);
 
-                    egui::Frame::none()
+                    egui::Frame::default()
                         .fill(ui.visuals().window_fill())
-                        .inner_margin(egui::Margin::symmetric(120.0, 20.0))
+                        .inner_margin(egui::Margin::symmetric(20, 20))
                         .show(ui, |ui| {
                             ui.vertical_centered(|ui| {
-                                ui.heading("👋 ¡Bienvenido al Quiz de C!");
-                                ui.add_space(10.0);
-                                ui.label("¿Qué deseas hacer?");
 
-                                let hay_guardado = has_saved_progress();
+                                ui.heading("¿Qué deseas hacer?");
+
+                                let hay_guardado = Self::has_saved_progress(self.selected_language.unwrap());
 
                                 ui.vertical_centered(|ui| {
                                     ui.add_space(16.0);
@@ -213,27 +362,30 @@ impl eframe::App for QuizApp {
                                         let continuar = ui.add_sized([button_width, button_height], egui::Button::new("▶ Continuar donde lo dejé"));
 
                                         if continuar.clicked() {
+                                            if self.current_week.is_none() || self.current_in_week.is_none() {
+                                                if let Some(first_week) = self.questions.iter().filter(|q| !q.is_done).map(|q| q.week).min() {
+                                                    self.select_week(first_week);
+                                                } else {
+                                                    let first_week = self.questions.iter().map(|q| q.week).min().unwrap_or(1);
+                                                    self.select_week(first_week);
+                                                }
+                                            }
                                             self.state = AppState::Quiz;
                                             self.finished = false;
-                                            self.current_in_week = self.next_pending();
                                             self.input.clear();
                                             self.message.clear();
                                         }
                                     }
-
 
                                     let empezar = ui.add_sized([button_width, button_height], egui::Button::new("🔄 Empezar de 0"));
                                     let menu_semanal = ui.add_sized([button_width, button_height], egui::Button::new(" 📅 Seleccionar Semana"));
                                     let salir = ui.add_sized([button_width, button_height], egui::Button::new("❌ Salir"));
 
                                     if empezar.clicked() {
-                                        delete_progress();
-                                        *self = QuizApp::new();
+                                        Self::delete_progress(self.selected_language.unwrap());
+
+                                        *self = QuizApp::new_for_language(self.selected_language.unwrap());
                                         self.state = AppState::Quiz;
-                                        self.finished = false;
-                                        self.current_in_week = self.next_pending();
-                                        self.input.clear();
-                                        self.message.clear();
                                     }
 
                                     if menu_semanal.clicked() {
@@ -241,7 +393,8 @@ impl eframe::App for QuizApp {
                                     }
 
                                     if salir.clicked() {
-                                        std::process::exit(0);                                    }
+                                        std::process::exit(0);
+                                    }
                                 });
                             });
                         });
@@ -249,6 +402,7 @@ impl eframe::App for QuizApp {
                     ui.add_space(extra_space);
                 });
             }
+
 
             AppState::WeekMenu => {
                 egui::CentralPanel::default().show(ctx, |ui| {
@@ -262,15 +416,22 @@ impl eframe::App for QuizApp {
                     ui.add_space(extra_space);
 
                     // Frame opcional para visual consistente
-                    egui::Frame::none()
+                    egui::Frame::default()
                         .fill(ui.visuals().window_fill())
-                        .inner_margin(egui::Margin::symmetric(40.0, 20.0))
+                        .inner_margin(egui::Margin::symmetric(40, 20))
                         .show(ui, |ui| {
                             ui.vertical_centered(|ui| {
                                 ui.heading("Selecciona una semana");
                                 ui.add_space(20.0);
 
-                                let total_weeks = self.questions.iter().map(|q| q.week).max().unwrap_or(1);
+                                let language = self.selected_language.unwrap_or(Language::C);
+
+                                let total_weeks = self.questions
+                                    .iter()
+                                    .filter(|q| q.language == language)  // <-- Aquí el filtro por lenguaje
+                                    .map(|q| q.week)
+                                    .max()
+                                    .unwrap_or(1);
 
                                 for week in 1..=total_weeks {
                                     let unlocked = self.is_week_unlocked(week);
@@ -316,9 +477,9 @@ impl eframe::App for QuizApp {
                     let extra_space = (ui.available_height() - total_height).max(0.0) / 2.0;
                     ui.add_space(extra_space);
 
-                    egui::Frame::none()
+                    egui::Frame::default()
                         .fill(ui.visuals().window_fill())
-                        .inner_margin(egui::Margin::symmetric(120.0, 20.0))
+                        .inner_margin(egui::Margin::symmetric(120, 20))
                         .show(ui, |ui| {
                             ui.vertical_centered(|ui| {
                                 if let Some(idx) = self.current_in_week {
@@ -356,6 +517,14 @@ impl eframe::App for QuizApp {
                                         }
                                     );
 
+                                    if self.questions[idx].fails >= 2 {
+                                        if let Some(hint) = &self.questions[idx].hint {
+                                            ui.label(format!("💡 Pista: {hint}"));
+                                        }
+                                    }
+
+                                    ui.add_space(3.0);
+
                                     ui.add_space(5.0);
                                     let max_input_height = 245.0;
                                     egui::ScrollArea::vertical()
@@ -382,6 +551,12 @@ impl eframe::App for QuizApp {
                                             let user_code = normalize_code(&self.input);
                                             let answer_code = normalize_code(&self.questions[idx].answer);
                                             self.questions[idx].attempts += 1;
+
+                                            // ¡Marca esta pregunta como mostrada en la ronda actual!
+                                            if !self.shown_this_round.contains(&idx) {
+                                                self.shown_this_round.push(idx);
+                                            }
+
                                             if user_code == answer_code {
                                                 self.questions[idx].is_done = true;
                                                 self.message = "✅ ¡Correcto!".to_string();
@@ -390,27 +565,27 @@ impl eframe::App for QuizApp {
                                                 self.message = "❌ Incorrecto. Intenta de nuevo en otra ronda.".to_string();
                                             }
                                             self.input.clear();
-                                            self.current_in_week = self.next_pending();
+                                            self.current_in_week = self.next_pending_in_week();
                                             if self.current_in_week.is_none() {
-                                                // Quiz terminado → pasa a resumen
                                                 self.state = AppState::Summary;
                                             }
-                                            save_progress(&self.questions);
+                                            self.save_progress();
                                         }
+
                                         if saltar.clicked() {
                                             self.questions[idx].skips += 1;
                                             self.questions[idx].attempts += 1;
                                             self.message = "⏩ Pregunta saltada. La verás más adelante.".to_string();
                                             self.input.clear();
-                                            self.current_in_week = self.next_pending();
+                                            self.current_in_week = self.next_pending_in_week();
                                             if self.current_in_week.is_none() {
                                                 self.state = AppState::Summary;
                                             }
-                                            save_progress(&self.questions);
+                                            self.save_progress();
                                         }
 
 
-                                        save_progress(&self.questions);
+                                        self.save_progress();
                                     });
 
                                     ui.horizontal(|ui| {
@@ -424,7 +599,7 @@ impl eframe::App for QuizApp {
                                         }
 
                                         if guardar.clicked() {
-                                            save_progress(&self.questions);
+                                            self.save_progress();
                                             std::process::exit(0);
                                         }
                                     });
@@ -446,19 +621,19 @@ impl eframe::App for QuizApp {
             AppState::Summary => {
                 egui::CentralPanel::default()
                     .show(ctx, |ui| {
-                        let max_width = 400.0;
+                        let max_width = 600.0;
                         let panel_width = (ui.available_width() * 0.97).min(max_width);
-                        let button_width = (panel_width) / 2.0;
+                        let button_width = (panel_width) / 3.0;
                         let button_height = 36.0;
                         let total_height = 150.0 + 350.0 + 48.0;
                         let extra_space = (ui.available_height() - total_height).max(0.0) / 2.0;
                         ui.add_space(extra_space);
 
-                        egui::Frame::none()
+                        egui::Frame::default()
                             .fill(ui.visuals().window_fill())
-                            .inner_margin(egui::Margin::symmetric(180.0, 20.0))
+                            .inner_margin(egui::Margin::symmetric(127, 20))
                             .show(ui, |ui| {
-                                ui.vertical_centered_justified(|ui| {
+                                ui.vertical_centered(|ui| {
                                     ui.heading("¡Fin del quiz!");
                                     ui.add_space(10.0);
                                     ui.label("Resumen de preguntas:");
@@ -486,19 +661,27 @@ impl eframe::App for QuizApp {
 
                                     ui.add_space(20.0);
 
-                                    ui.horizontal_centered(|ui| {
-                                        let retomar = ui.add_sized([button_width, button_height], egui::Button::new("Retomar"));
-                                        let salir = ui.add_sized([button_width, button_height], egui::Button::new("Salir"));
 
-                                        if retomar.clicked() {
-                                            *self = QuizApp::new();
-                                            self.state = AppState::Quiz;
+                                    ui.horizontal(|ui| {
+                                        ui.add_space(75.0);
+                                        let volver = ui.add_sized([button_width, button_height], egui::Button::new("Volver"));
+                                        let terminar = ui.add_sized([button_width, button_height], egui::Button::new("Terminar"));
+
+                                        if volver.clicked() {
+                                            if let Some(lang) = self.selected_language {
+                                                *self = QuizApp::load_progress(lang)
+                                                    .unwrap_or_else(|| QuizApp::new_for_language(lang));
+                                                self.state = AppState::Quiz;
+                                            }
                                         }
-                                        if salir.clicked() {
-                                            delete_progress();
-                                            self.state = AppState::Welcome;
+                                        if terminar.clicked() {
+                                            if let Some(lang) = self.selected_language {
+                                                Self::delete_progress(lang);
+                                            }
+                                            *self = QuizApp::new();  // Reinicia todo para forzar selección de idioma de nuevo
                                         }
-                                    });
+                                    })
+
                                 });
                             });
 
@@ -516,10 +699,23 @@ impl eframe::App for QuizApp {
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions::default();
     eframe::run_native(
-        "C Quiz Game - Telegram: @sugarRayL",
+        "SummerQuiz - Telegram: @sugarRayL",
         options,
-        Box::new(|_cc| Ok(Box::new(QuizApp::new())),
-        ))
+        Box::new(|cc| {
+            // Detectar tema preferido del sistema
+            let prefers_dark = cc.egui_ctx.style().visuals.dark_mode;
+            if prefers_dark {
+                cc.egui_ctx.set_visuals(Visuals::dark());
+            } else {
+                cc.egui_ctx.set_visuals(Visuals::light());
+            }
+
+            // Arranca SIN progreso porque aún no sabes el idioma
+            let quiz = QuizApp::new();
+            Ok(Box::new(quiz))
+        }),
+    )
 }
+
 
 
