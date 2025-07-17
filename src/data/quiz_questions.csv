@@ -1,9 +1,15 @@
 C,1,"Usando la directiva define, declara una constante para el máximo de un nombre ""MAX_NOMBRE"" con el valor entero 20","#define MAX_NOMBRE 20",""
-Pseudocode,1,"Declara una constante para el máximo de un nombre ""MAX_NOMBRE"" con el valor entero 20","const MAX_NOMBRE: integer = 20; end const",""
+Pseudocode,1,"Declara una constante para el máximo de drones ""MAX_DRONES"" con el valor entero 20","const
+    MAX_DRONES: integer = 20;
+end const",""
 C,1,"Declara una constante local de tipo decimal para la distancia mínima ""DISTANCIA_MINIMA"", asignale el valor 250.0","const float DISTANCIA_MINIMA = 250.0;","Las constantes locales comienzan por const"
-Pseudocode,1,"Declara una constante de tipo decimal para la distancia mínima ""DISTANCIA_MINIMA"", asignale el valor 250.0","const DISTANCIA_MINIMA: real = 250.0; end const","No olvides las palabras reservadas const end const y ;"
+Pseudocode,1,"Declara una constante de tipo decimal para la distancia mínima ""DISTANCIA_MINIMA"", asignale el valor 250.0","const
+    DISTANCIA_MINIMA: real = 250.0;
+end const","No olvides las palabras reservadas const end const y ;"
 C,1,"Declara una cadena de caracteres llamada nombreDron con tamaño 20.","char nombreDron[20];",""
-Pseudocode,1,"Declara una variable de tipo string llamada nombreDron.","var nombreDron: string; end var","Recuerda las palabras reservadas var end var"
+Pseudocode,1,"Declara una variable de tipo string llamada nombreDron.","var
+    nombreDron: string;
+end var","Recuerda las palabras reservadas var end var"
 C,1,"Declara una cadena de caracteres llamada nombreDron con tamaño 20, pero esta vez utiliza la constante ""MAX_NOMBRE"".","char nombreDron[MAX_NOMBRE];",""
 C,1,"Declara una variable llamada distanciaMinima e inicializala con la constante ""DISTANCIA_MINIMA""","float distanciaMinima = DISTANCIA_MINIMA;",""
 Pseudocode,1,"Declara una variable llamada distanciaMinima e inicializala con la constante ""DISTANCIA_MINIMA""","var distanciaMinima: real; end var distanciaMinima:= DISTANCIA_MINIMA;","Aqui es importante recordar que en pseudocodigo no es posible declarar e inicializar a la vez, primero declara y luego asignale el valor, no olvides las palabras reservadas var end var."
@@ -30,7 +36,7 @@ C,1,"Imprime el nombre del dron y su identificador. Usa ""Dron: x, ID: x"" para 
 
 C,1,"Imprime la batería inicial del dron con un decimal. Usa ""Batería: x"" para la impresión, siendo ""x"" el especificador de formato","printf(""Batería: %.1f"", bateriaInicial);","Para imprimir cierto numero de decimales utiliza %.xf, siendo x el numero de decimales"
 C,1,"Imprime la categoría del dron como carácter. Usa ""Categoría: x"" para la impresión, siendo ""x"" el especificador de formato","printf(""Categoría: %c"", categoriaDron);",""
-C,1,"Declara un enumerado tDronEstado con los valores PARADO, EN_VUELO y ESTRELLADO.","typedef enum { PARADO, EN_VUELO, ESTRELLADO } tDronEstado;","la palabra reservada es typedef struct, recuerda poner ; a continuación del nombre del enum"
+C,1,"Declara un enumerado tDronEstado con los valores PARADO, EN_VUELO y ESTRELLADO.","typedef enum { PARADO, EN_VUELO, ESTRELLADO } tDronEstado;","la palabra reservada es typedef enum, recuerda poner ; a continuación del nombre del enum"
 C,1,"Declara una variable tDronEstado llamada estado e inicialízala a EN_VUELO.","tDronEstado estado = EN_VUELO;",""
 C,1,"Lee el valor del estado del dron desde teclado usando scanf y guárdalo en estado.","scanf(""%u"", &estado);","El especificador de formato para leer enumerativos es %u"
 C,1,"Imprime el valor numérico del estado del dron con una explicación. Usa ""Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): x"" para la impresión, siendo ""x"" el especificador de formato","printf(""Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): %d"", estado);","Ejemplo de ejecución: ""Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): 1"""

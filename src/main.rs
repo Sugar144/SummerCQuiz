@@ -16,6 +16,7 @@ struct Question {
     answer: String,  // Respuestas
     hint:Option<String>,
     is_done: bool,   // true si respondida correctamente
+    saw_solution: bool,
     attempts: u32,   // intentos totales (aciertos+fallos+saltos)
     fails: u32,      // respuestas incorrectas
     skips: u32,      // veces saltadas
@@ -47,6 +48,7 @@ struct QuizApp {
     finished: bool,
     round: u32,
     shown_this_round: Vec<usize>,
+    show_solution: bool,
     #[serde(skip)]
     state: AppState,
 }
@@ -71,6 +73,7 @@ impl QuizApp {
             finished: false,
             round: 1,
             shown_this_round: vec![],
+            show_solution: false,
             state: AppState::LanguageSelect,
         }
     }
@@ -92,6 +95,7 @@ impl QuizApp {
             finished: false,
             round: 1,
             shown_this_round: vec![],
+            show_solution: false,
             state: AppState::Welcome,
         }
     }
@@ -232,6 +236,7 @@ fn read_questions_embedded() -> Vec<Question> {
             answer,
             hint,
             is_done: false,
+            saw_solution: false,
             attempts: 0,
             fails: 0,
             skips: 0,
@@ -239,6 +244,17 @@ fn read_questions_embedded() -> Vec<Question> {
     }
     questions
 }
+
+fn show_highlighted_code(ui: &mut egui::Ui, code: &str, _language: Language) {
+    // ... Aquí tu lógica de resaltado, o simplemente:
+    ui.add(
+        egui::TextEdit::multiline(&mut code.to_string())
+            .desired_rows(10)
+            .font(egui::TextStyle::Monospace)
+            .interactive(false)
+    );
+}
+
 
 impl eframe::App for QuizApp {
 
@@ -517,28 +533,68 @@ impl eframe::App for QuizApp {
                                         }
                                     );
 
-                                    if self.questions[idx].fails >= 2 {
+
+
+                                    ui.add_space(5.0);
+
+                                    let max_input_height = 245.0;
+
+                                    let answer_box = |ui: &mut egui::Ui, content: &mut String, editable: bool| {
+                                        egui::ScrollArea::vertical()
+                                            .max_height(max_input_height)
+                                            .auto_shrink([false; 2])
+                                            .show(ui, |ui| {
+                                                let text_edit = egui::TextEdit::multiline(content)
+                                                    .desired_width(panel_width)
+                                                    .desired_rows(16)
+                                                    .font(egui::TextStyle::Monospace)
+                                                    .interactive(editable);
+                                                ui.add(text_edit);
+                                            });
+                                    };
+
+
+                                    if self.questions[idx].fails >= 1 {
+
+                                        // Si no se ha mostrado la solución todavía
+                                        if !self.show_solution {
+                                            ui.horizontal(|ui| {
+                                                if ui.button("Solución").clicked() {
+                                                    self.show_solution = true;
+                                                }
+                                            });
+                                            answer_box(ui, &mut self.input, true);
+                                        } else {
+                                            ui.horizontal(|ui | {
+                                                if ui.button("Siguiente pregunta").clicked() {
+                                                    self.questions[idx].is_done = true;
+                                                    self.questions[idx].saw_solution = true;
+                                                    self.show_solution = false; // Reset
+                                                    self.input.clear();
+                                                    self.current_in_week = self.next_pending_in_week();
+                                                    if self.current_in_week.is_none() {
+                                                        self.state = AppState::Summary;
+                                                    }
+                                                    self.save_progress();
+                                                }
+                                            });
+
+                                            let answer_string = self.questions[idx].answer.clone();
+                                            answer_box(ui, &mut answer_string.clone(), false);
+                                        }
+                                    } else {
+                                        answer_box(ui, &mut self.input, true);
+                                    }
+
+
+                                    if self.questions[idx].fails >= 1 {
                                         if let Some(hint) = &self.questions[idx].hint {
                                             ui.label(format!("💡 Pista: {hint}"));
                                         }
                                     }
 
-                                    ui.add_space(3.0);
-
                                     ui.add_space(5.0);
-                                    let max_input_height = 245.0;
-                                    egui::ScrollArea::vertical()
-                                        .max_height(max_input_height)
-                                        .auto_shrink([false; 2])
-                                        .show(ui, |ui| {
-                                            ui.add(
-                                                egui::TextEdit::multiline(&mut self.input)
-                                                    .desired_width(panel_width)
-                                                    .desired_rows(16)
-                                            );
-                                        });
 
-                                    ui.add_space(1.0);
 
                                     // Botones
                                     ui.horizontal(|ui| {
@@ -548,35 +604,48 @@ impl eframe::App for QuizApp {
                                         let saltar = ui.add_sized([button_width, 36.0], egui::Button::new("Saltar pregunta"));
 
                                         if enviar.clicked() {
-                                            let user_code = normalize_code(&self.input);
-                                            let answer_code = normalize_code(&self.questions[idx].answer);
-                                            self.questions[idx].attempts += 1;
-
-                                            // ¡Marca esta pregunta como mostrada en la ronda actual!
-                                            if !self.shown_this_round.contains(&idx) {
-                                                self.shown_this_round.push(idx);
-                                            }
-
-                                            if user_code == answer_code {
-                                                self.questions[idx].is_done = true;
-                                                self.message = "✅ ¡Correcto!".to_string();
+                                            if self.input.trim().is_empty() {
+                                                self.message = "⚠ Debes escribir una respuesta antes de enviar.".to_string();
                                             } else {
-                                                self.questions[idx].fails += 1;
-                                                self.message = "❌ Incorrecto. Intenta de nuevo en otra ronda.".to_string();
+                                                let user_code = normalize_code(&self.input);
+                                                let answer_code = normalize_code(&self.questions[idx].answer);
+                                                self.questions[idx].attempts += 1;
+
+                                                // ¡Marca esta pregunta como mostrada en la ronda actual!
+                                                if !self.shown_this_round.contains(&idx) {
+                                                    self.shown_this_round.push(idx);
+                                                }
+
+                                                if user_code == answer_code {
+                                                    self.questions[idx].is_done = true;
+                                                    self.message = "✅ ¡Correcto!".to_string();
+                                                    self.input.clear();
+                                                    self.current_in_week = self.next_pending_in_week();
+                                                    if self.current_in_week.is_none() {
+                                                        self.state = AppState::Summary;
+                                                    }
+                                                } else {
+                                                    self.questions[idx].fails += 1;
+                                                    self.message = "❌ Incorrecto. Intenta de nuevo.".to_string();
+                                                    self.input.clear();
+                                                    // ¡NO actualices current_in_week aquí!
+                                                }
+                                                self.save_progress();
                                             }
-                                            self.input.clear();
-                                            self.current_in_week = self.next_pending_in_week();
-                                            if self.current_in_week.is_none() {
-                                                self.state = AppState::Summary;
-                                            }
-                                            self.save_progress();
+
                                         }
+
 
                                         if saltar.clicked() {
                                             self.questions[idx].skips += 1;
                                             self.questions[idx].attempts += 1;
                                             self.message = "⏩ Pregunta saltada. La verás más adelante.".to_string();
                                             self.input.clear();
+
+                                            if !self.shown_this_round.contains(&idx) {
+                                                self.shown_this_round.push(idx);
+                                            }
+
                                             self.current_in_week = self.next_pending_in_week();
                                             if self.current_in_week.is_none() {
                                                 self.state = AppState::Summary;
@@ -609,6 +678,7 @@ impl eframe::App for QuizApp {
                                     if !self.message.is_empty() {
                                         ui.label(&self.message);
                                     }
+
                                 }
                             });
                         });
@@ -645,16 +715,44 @@ impl eframe::App for QuizApp {
                                         .max_width(max_width)
                                         .show(ui, |ui| {
 
-                                            for (i, q) in self.questions.iter().enumerate() {
-                                                ui.label(format!(
-                                                    "Pregunta {}: intentos {}, fallos {}, saltos {}, {}",
-                                                    i + 1,
-                                                    q.attempts,
-                                                    q.fails,
-                                                    q.skips,
-                                                    if q.is_done { "✅ Correcta" } else { "❌ Sin responder" }
-                                                ));
-                                            }
+                                            ui.horizontal(|ui| {
+                                                ui.add_space(85.0);
+                                                egui::Grid::new("quiz_results_grid")
+                                                    .striped(true)
+                                                    .spacing([8.0, 0.0])
+                                                    .show(ui, |ui| {
+                                                        // Cabeceras
+                                                        ui.label("Pregunta");
+                                                        ui.label("Intentos");
+                                                        ui.label("Fallos");
+                                                        ui.label("Saltos");
+                                                        ui.label("Solución vista");
+                                                        ui.label("Estado");
+                                                        ui.end_row();
+
+                                                        for (i, q) in self.questions.iter().enumerate() {
+                                                            let status = if q.is_done && !q.saw_solution && q.fails == 0 {
+                                                                "✅ Correcta"
+                                                            } else if q.is_done && !q.saw_solution && q.fails > 0 {
+                                                                "❌ Fallida"
+                                                            } else if q.saw_solution {
+                                                                "❌ Fallida"
+                                                            } else {
+                                                                "❌ Sin responder"
+                                                            };
+                                                            let solucion_vista = if q.saw_solution { "Sí" } else { "No" };
+                                                            ui.label(format!("{}", i + 1));
+                                                            ui.label(format!("{}", q.attempts));
+                                                            ui.label(format!("{}", q.fails));
+                                                            ui.label(format!("{}", q.skips));
+                                                            ui.label(solucion_vista);
+                                                            ui.label(status);
+                                                            ui.end_row();
+                                                        }
+                                                    });
+                                            })
+
+
 
 
                                         });
@@ -678,7 +776,7 @@ impl eframe::App for QuizApp {
                                             if let Some(lang) = self.selected_language {
                                                 Self::delete_progress(lang);
                                             }
-                                            *self = QuizApp::new();  // Reinicia todo para forzar selección de idioma de nuevo
+                                            *self = QuizApp::new();
                                         }
                                     })
 
@@ -710,7 +808,6 @@ fn main() -> eframe::Result<()> {
                 cc.egui_ctx.set_visuals(Visuals::light());
             }
 
-            // Arranca SIN progreso porque aún no sabes el idioma
             let quiz = QuizApp::new();
             Ok(Box::new(quiz))
         }),
