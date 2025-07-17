@@ -15,10 +15,15 @@ struct Question {
     prompt: String,  // Preguntas
     answer: String,  // Respuestas
     hint:Option<String>,
+    #[serde(default)]
     is_done: bool,   // true si respondida correctamente
+    #[serde(default)]
     saw_solution: bool,
+    #[serde(default)]
     attempts: u32,   // intentos totales (aciertos+fallos+saltos)
+    #[serde(default)]
     fails: u32,      // respuestas incorrectas
+    #[serde(default)]
     skips: u32,      // veces saltadas
 }
 
@@ -206,54 +211,25 @@ fn normalize_code(input: &str) -> String {
         .replace(char::is_whitespace, "")
 }
 
+
 fn read_questions_embedded() -> Vec<Question> {
-    let csv_data = include_str!("data/quiz_questions.csv");
-    let mut rdr = csv::ReaderBuilder::new()
-        .has_headers(false)
-        .from_reader(csv_data.as_bytes());
-    let mut questions = Vec::new();
-    for result in rdr.records() {
-        let record = result.unwrap();
-        let language_str = record.get(0).unwrap();
-        let language = match language_str.to_lowercase().as_str() {
-            "c" => Language::C,
-            "pseudocode" => Language::Pseudocode,
-            _ => panic!("Unknown language: {language_str}"),
-        };
-        let week = record.get(1).unwrap().parse::<usize>().unwrap();
-        let prompt = record.get(2).unwrap().trim().to_string();
-        let answer = record.get(3).unwrap().trim().to_string();
-
-        let hint = record.get(4).map(|s| {
-            let trimmed = s.trim();
-            if trimmed.is_empty() { None } else { Some(trimmed.to_string()) }
-        }).flatten();
-
-        questions.push(Question {
-            language,
-            week,
-            prompt,
-            answer,
-            hint,
-            is_done: false,
-            saw_solution: false,
-            attempts: 0,
-            fails: 0,
-            skips: 0,
-        });
-    }
-    questions
+    // Ruta relativa al archivo fuente donde pongas este código.
+    // Si lo tienes en data/, usa así:
+    let file_content = include_str!("data/quiz_questions.yaml");
+    serde_yaml::from_str(file_content).expect("No se pudo parsear el banco de preguntas YAML")
 }
 
-fn show_highlighted_code(ui: &mut egui::Ui, code: &str, _language: Language) {
-    // ... Aquí tu lógica de resaltado, o simplemente:
-    ui.add(
-        egui::TextEdit::multiline(&mut code.to_string())
-            .desired_rows(10)
-            .font(egui::TextStyle::Monospace)
-            .interactive(false)
-    );
-}
+
+
+// fn show_highlighted_code(ui: &mut egui::Ui, code: &str, _language: Language) {
+//     // ... Aquí tu lógica de resaltado, o simplemente:
+//     ui.add(
+//         egui::TextEdit::multiline(&mut code.to_string())
+//             .desired_rows(10)
+//             .font(egui::TextStyle::Monospace)
+//             .interactive(false)
+//     );
+// }
 
 
 impl eframe::App for QuizApp {
@@ -790,9 +766,6 @@ impl eframe::App for QuizApp {
     }
 
 }
-
-
-
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions::default();
