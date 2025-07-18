@@ -73,6 +73,8 @@ struct QuizApp {
     show_solution: bool,
     #[serde(skip)]
     state: AppState,
+    #[serde(skip)]
+    has_update: Option<String>,
 }
 
 fn progress_filename(language: Language) -> &'static str {
@@ -97,6 +99,7 @@ impl QuizApp {
             shown_this_round: vec![],
             show_solution: false,
             state: AppState::LanguageSelect,
+            has_update: None,
         }
     }
 
@@ -119,6 +122,7 @@ impl QuizApp {
             shown_this_round: vec![],
             show_solution: false,
             state: AppState::Welcome,
+            has_update: None,
         }
     }
     pub fn save_progress(&self) {
@@ -217,6 +221,42 @@ impl QuizApp {
     }
 
 }
+
+fn check_latest_release() -> Result<Option<String>, Box<dyn std::error::Error>> {
+    let releases = self_update::backends::github::ReleaseList::configure()
+        .repo_owner("Sugar144")
+        .repo_name("SummerCQuiz")
+        .build()?
+        .fetch()?;
+
+    if let Some(release) = releases.first() {
+        let latest_version = release.version.clone();
+        let current_version = env!("CARGO_PKG_VERSION").to_string();
+        if latest_version != current_version {
+            return Ok(Some(latest_version));
+        }
+    }
+    Ok(None)
+}
+
+fn check_for_update() -> Result<Option<String>, Box<dyn std::error::Error>> {
+    let status = self_update::backends::github::Update::configure()
+        .repo_owner("Sugar144")
+        .repo_name("SummerCQuiz")
+        .bin_name("SummerCQuiz") // O "SummerCQuiz.exe" si es Windows, pon el nombre exacto del binario en la release
+        .show_download_progress(true)
+        .current_version(env!("CARGO_PKG_VERSION"))
+        .build()?
+        .update()?;
+
+    if status.updated() {
+        Ok(Some(status.version().to_string()))
+    } else {
+        Ok(None)
+    }
+}
+
+
 
 fn normalize_code(input: &str) -> String {
     input
@@ -366,6 +406,14 @@ impl eframe::App for QuizApp {
                                 ui.label("Selecciona un lenguaje");
                                 ui.add_space(10.0);
 
+                                if self.has_update.is_none() {
+                                    self.has_update = match check_latest_release() {
+                                        Ok(Some(new_ver)) => Some(new_ver),
+                                        Ok(None) => Some("".to_string()),
+                                        Err(_) => Some("".to_string()),
+                                    };
+                                }
+
                                 let c = ui.add_sized([button_width, button_height], egui::Button::new("Lenguaje C"));
                                 let pseudocode = ui.add_sized([button_width, button_height], egui::Button::new("Pseudocódigo"));
 
@@ -379,6 +427,27 @@ impl eframe::App for QuizApp {
                                     self.selected_language = Some(Language::Pseudocode);
                                     *self = QuizApp::load_progress(Language::Pseudocode).unwrap_or_else(|| QuizApp::new_for_language(Language::Pseudocode));
                                     self.state = AppState::Welcome;
+                                }
+
+                                if let Some(ver) = &self.has_update {
+                                    if !ver.is_empty() {
+                                        if ui.button(format!("⬇ Actualizar a {ver}")).clicked() {
+                                            match check_for_update() {
+                                                Ok(Some(new_ver)) => {
+                                                    self.message = format!("¡Actualizado a la versión {new_ver}! Por favor, reinicia la app.");
+                                                    self.has_update = Some("".to_string());
+                                                }
+                                                Ok(None) => {
+                                                    self.message = "Ya tienes la última versión.".to_string();
+                                                    self.has_update = Some("".to_string());
+                                                }
+                                                Err(e) => {
+                                                    self.message = format!("Error al actualizar: {e}");
+                                                }
+                                            }
+                                        }
+                                        ui.add_space(10.0);
+                                    }
                                 }
 
                             });
