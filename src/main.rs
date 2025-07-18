@@ -2,6 +2,23 @@ use eframe::egui;
 use egui::Visuals;
 use serde::{Serialize, Deserialize };
 
+use once_cell::sync::Lazy;
+use syntect::parsing::SyntaxSet;
+use syntect::highlighting::ThemeSet;
+use syntect::easy::HighlightLines;
+use syntect::util::LinesWithEndings;
+use syntect::dumps::from_binary;
+
+
+static SYNTAX_SET: Lazy<SyntaxSet> = Lazy::new(|| {
+    from_binary(include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/syntaxes.packdump")))
+});
+static THEME_SET: Lazy<ThemeSet> = Lazy::new(|| {
+    from_binary(include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/themes.packdump")))
+});
+
+
+
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
 enum Language {
     C,
@@ -221,15 +238,60 @@ fn read_questions_embedded() -> Vec<Question> {
 
 
 
-// fn show_highlighted_code(ui: &mut egui::Ui, code: &str, _language: Language) {
-//     // ... Aquí tu lógica de resaltado, o simplemente:
-//     ui.add(
-//         egui::TextEdit::multiline(&mut code.to_string())
-//             .desired_rows(10)
-//             .font(egui::TextStyle::Monospace)
-//             .interactive(false)
-//     );
-// }
+pub fn show_highlighted_c_code(ui: &mut egui::Ui, code: &str, theme_name: &str, panel_width: f32,
+    max_input_height: f32, min_lines: usize, ) {
+
+    let ss = &*SYNTAX_SET;
+    let ts = &*THEME_SET;
+    let syntax = ss
+        .find_syntax_by_extension("c")
+        .expect("No se encontró sintaxis para C");
+    let mut h = HighlightLines::new(syntax, &ts.themes[theme_name]);
+
+    let font_id = egui::TextStyle::Monospace.resolve(ui.style());
+    let line_height = ui.fonts(|f| f.row_height(&font_id));
+    let code_lines = code.lines().count();
+    let lines = code_lines.max(min_lines);
+    let needed_height = (lines as f32 * line_height).min(max_input_height);
+
+    egui::Frame::default()
+        .fill(ui.visuals().extreme_bg_color)
+        .show(ui, |ui| {
+            egui::ScrollArea::vertical()
+                .max_height(needed_height)
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    ui.set_width(panel_width);
+                    for (i,line) in LinesWithEndings::from(code).enumerate() {
+                        let regions = h.highlight_line(line, ss).unwrap();
+                        ui.horizontal(|ui| {
+                            ui.add_space(3.0);
+                            ui.spacing_mut().item_spacing.x = 0.0;
+
+                            // Añade el número de línea con color/gris
+                            ui.colored_label(
+                                egui::Color32::DARK_GRAY,
+                                egui::RichText::new(format!("{:>2} ", i + 1)).monospace(),
+                            );
+
+                            for (style, text) in regions {
+                                let color = egui::Color32::from_rgb(
+                                    style.foreground.r,
+                                    style.foreground.g,
+                                    style.foreground.b,
+                                );
+                                ui.colored_label(color, egui::RichText::new(text).monospace());
+                            }
+                        });
+                    }
+                });
+        });
+}
+
+
+
+
+
 
 
 impl eframe::App for QuizApp {
@@ -555,8 +617,19 @@ impl eframe::App for QuizApp {
                                                 }
                                             });
 
-                                            let answer_string = self.questions[idx].answer.clone();
-                                            answer_box(ui, &mut answer_string.clone(), false);
+                                            let max_input_height = 245.0;
+                                            let min_lines = 16;
+
+                                            // ---------- AQUÍ CAMBIA EL BLOQUE ----------
+                                            if self.questions[idx].language == Language::C {
+                                                ui.push_id("highlighted_solution", |ui| {
+                                                    show_highlighted_c_code(ui, &self.questions[idx].answer, "base16-onedark", panel_width, max_input_height, min_lines);
+                                                });
+                                            } else {
+                                                let answer_string = self.questions[idx].answer.clone();
+                                                answer_box(ui, &mut answer_string.clone(), false);
+                                            }
+                                            // -------------------------------------------
                                         }
                                     } else {
                                         answer_box(ui, &mut self.input, true);
@@ -707,15 +780,15 @@ impl eframe::App for QuizApp {
                                                         ui.end_row();
 
                                                         for (i, q) in self.questions.iter().enumerate() {
-                                                            let status = if q.is_done && !q.saw_solution && q.fails == 0 {
+
+                                                            let status = if q.is_done && !q.saw_solution {
                                                                 "✅ Correcta"
-                                                            } else if q.is_done && !q.saw_solution && q.fails > 0 {
-                                                                "❌ Fallida"
                                                             } else if q.saw_solution {
                                                                 "❌ Fallida"
                                                             } else {
                                                                 "❌ Sin responder"
                                                             };
+
                                                             let solucion_vista = if q.saw_solution { "Sí" } else { "No" };
                                                             ui.label(format!("{}", i + 1));
                                                             ui.label(format!("{}", q.attempts));
