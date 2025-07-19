@@ -33,6 +33,8 @@ struct Question {
     answer: String,  // Respuestas
     hint:Option<String>,
     #[serde(default)]
+    input_prefill: Option<String>,
+    #[serde(default)]
     is_done: bool,   // true si respondida correctamente
     #[serde(default)]
     saw_solution: bool,
@@ -64,6 +66,8 @@ struct QuizApp {
     questions: Vec<Question>,
     selected_language: Option<Language>,
     current_week: Option<usize>,
+    unlocked_weeks: Vec<usize>,
+    max_unlocked_week: usize,
     current_in_week: Option<usize>,
     input: String,
     message: String,
@@ -91,6 +95,8 @@ impl QuizApp {
             questions,
             selected_language: None,
             current_week: None,
+            unlocked_weeks: vec![1],
+            max_unlocked_week: 1,
             current_in_week: None,
             input: String::new(),
             message: String::new(),
@@ -108,12 +114,22 @@ impl QuizApp {
             .into_iter()
             .filter(|q| q.language == language)
             .collect::<Vec<_>>();
-        let first_week = questions.iter().map(|q| q.week).min().unwrap_or(1);
-        let current_in_week = questions.iter().position(|q| q.week == first_week && !q.is_done);
+
+        let first_week = questions.iter()
+            .map(|q| q.week)
+            .min()
+            .unwrap_or(1);
+
+        let current_in_week = questions
+            .iter()
+            .position(|q| q.week == first_week && !q.is_done);
+
         Self {
             questions,
             selected_language: Some(language),
             current_week: Some(first_week),
+            unlocked_weeks: vec![1],
+            max_unlocked_week: 1,
             current_in_week,
             input: String::new(),
             message: String::new(),
@@ -159,10 +175,39 @@ impl QuizApp {
     }
 
     fn select_week(&mut self, week: usize) {
+
+        // Si la semana seleccionada es mayor que el max actual, actualiza el máximo
+        if week > self.max_unlocked_week {
+            self.max_unlocked_week = week;
+            self.recalculate_unlocked_weeks();
+        } else {
+            // Asegúrate de que la semana seleccionada está en el vector de semanas desbloqueadas (por si acaso)
+            if !self.unlocked_weeks.contains(&week) {
+                self.unlocked_weeks.push(week);
+                self.unlocked_weeks.sort();
+            }
+        }
+
         self.current_week = Some(week);
         let language = self.selected_language.unwrap_or(Language::C);
 
-        // Busca el índice GLOBAL de la primera pregunta pendiente de esa semana y lenguaje
+        // ¿Todas las preguntas de la semana están is_done? Resetea solo las de esa semana
+        let week_done = self.questions
+            .iter()
+            .filter(|q| q.week == week && q.language == language)
+            .all(|q| q.is_done);
+
+        if week_done {
+            for q in self.questions.iter_mut().filter(|q| q.week == week && q.language == language) {
+                q.is_done = false;
+                q.fails = 0;
+                q.attempts = 0;
+                q.skips = 0;
+                q.saw_solution = false;
+            }
+        }
+
+        // Selecciona la primera pendiente
         self.current_in_week = self.questions
             .iter()
             .enumerate()
@@ -173,15 +218,26 @@ impl QuizApp {
     }
 
 
-    // Una semana está desbloqueada si todas las anteriores están completas, o es la primera
-    pub fn is_week_unlocked(&self, week: usize) -> bool {
-        if week == 1 { return true; }
+
+    // Al completar una semana, desbloquea la siguiente
+    pub fn complete_week(&mut self, week: usize) {
         let language = self.selected_language.unwrap_or(Language::C);
-        (1..week).all(|w| self.questions
-            .iter()
-            .filter(|q| q.week == w && q.language == language)
-            .all(|q| q.is_done)
-        )
+        if self.is_week_completed(week) {
+            let next_week = week + 1;
+            if self.questions.iter().any(|q| q.week == next_week && q.language == language) {
+                if next_week > self.max_unlocked_week {
+                    self.max_unlocked_week = next_week;
+                }
+            }
+            self.recalculate_unlocked_weeks(); // <-- ¡SIEMPRE LLAMAR AQUÍ!
+        }
+    }
+
+
+
+    // Cambia el is_week_unlocked:
+    pub fn is_week_unlocked(&self, week: usize) -> bool {
+        self.unlocked_weeks.contains(&week)
     }
 
 
@@ -193,6 +249,15 @@ impl QuizApp {
             .filter(|q| q.week == week && q.language == language)
             .all(|q| q.is_done)
     }
+
+    fn recalculate_unlocked_weeks(&mut self) {
+        self.unlocked_weeks.clear();
+        for week in 1..=self.max_unlocked_week {
+            self.unlocked_weeks.push(week);
+        }
+    }
+
+
 
 
 
@@ -219,6 +284,17 @@ impl QuizApp {
         }
         None
     }
+
+    fn update_input_prefill(&mut self) {
+        if let Some(idx) = self.current_in_week {
+            if let Some(prefill) = &self.questions[idx].input_prefill {
+                self.input = prefill.clone();
+            } else {
+                self.input.clear();
+            }
+        }
+    }
+
 
 }
 
@@ -259,14 +335,41 @@ fn check_for_update() -> Result<Option<String>, Box<dyn std::error::Error>> {
 
 
 fn normalize_code(input: &str) -> String {
-    input
-        .lines()
-        .map(|line| line.trim())
-        .filter(|line| !line.starts_with("//") && !line.is_empty())
-        .collect::<Vec<_>>()
-        .join("")
-        .replace(char::is_whitespace, "")
+    let mut code = String::new();
+    let mut in_block_comment = false;
+    for line in input.lines() {
+        let mut line = line;
+        // Eliminar comentarios de bloque que empiezan en esta línea
+        if !in_block_comment {
+            if let Some(start) = line.find("/*") {
+                in_block_comment = true;
+                line = &line[..start];
+            }
+        }
+        // Eliminar comentarios de línea //
+        if !in_block_comment {
+            if let Some(start) = line.find("//") {
+                line = &line[..start];
+            }
+        }
+        // Si estamos dentro de un bloque /* ... */
+        if in_block_comment {
+            if let Some(end) = line.find("*/") {
+                in_block_comment = false;
+                line = &line[(end + 2)..];
+            } else {
+                continue; // línea completamente comentada
+            }
+        }
+        // Añadir línea si queda algo útil
+        let trimmed = line.trim();
+        if !trimmed.is_empty() {
+            code.push_str(trimmed);
+        }
+    }
+    code.replace(char::is_whitespace, "")
 }
+
 
 
 fn read_questions_embedded() -> Vec<Question> {
@@ -419,15 +522,26 @@ impl eframe::App for QuizApp {
 
                                 if c.clicked() {
                                     self.selected_language = Some(Language::C);
-                                    *self = QuizApp::load_progress(Language::C).unwrap_or_else(|| QuizApp::new_for_language(Language::C));
+                                    // Intenta cargar progreso, si no hay, crea nuevo
+                                    if let Some(progress) = QuizApp::load_progress(Language::C) {
+                                        *self = progress;
+                                    } else {
+                                        *self = QuizApp::new_for_language(Language::C);
+                                    }
                                     self.state = AppState::Welcome;
                                 }
 
+
                                 if pseudocode.clicked() {
                                     self.selected_language = Some(Language::Pseudocode);
-                                    *self = QuizApp::load_progress(Language::Pseudocode).unwrap_or_else(|| QuizApp::new_for_language(Language::Pseudocode));
+                                    if let Some(progress) = QuizApp::load_progress(Language::Pseudocode) {
+                                        *self = progress;
+                                    } else {
+                                        *self = QuizApp::new_for_language(Language::Pseudocode);
+                                    }
                                     self.state = AppState::Welcome;
                                 }
+
 
                                 if let Some(ver) = &self.has_update {
                                     if !ver.is_empty() {
@@ -488,9 +602,13 @@ impl eframe::App for QuizApp {
                                             if self.current_week.is_none() || self.current_in_week.is_none() {
                                                 if let Some(first_week) = self.questions.iter().filter(|q| !q.is_done).map(|q| q.week).min() {
                                                     self.select_week(first_week);
+                                                    self.update_input_prefill();
+
                                                 } else {
                                                     let first_week = self.questions.iter().map(|q| q.week).min().unwrap_or(1);
                                                     self.select_week(first_week);
+                                                    self.update_input_prefill();
+
                                                 }
                                             }
                                             self.state = AppState::Quiz;
@@ -509,6 +627,9 @@ impl eframe::App for QuizApp {
 
                                         *self = QuizApp::new_for_language(self.selected_language.unwrap());
                                         self.state = AppState::Quiz;
+
+                                        self.update_input_prefill();
+
                                     }
 
                                     if menu_semanal.clicked() {
@@ -556,6 +677,9 @@ impl eframe::App for QuizApp {
                                     .max()
                                     .unwrap_or(1);
 
+                                self.recalculate_unlocked_weeks();
+
+
                                 for week in 1..=total_weeks {
                                     let unlocked = self.is_week_unlocked(week);
                                     let completed = self.is_week_completed(week);
@@ -574,6 +698,9 @@ impl eframe::App for QuizApp {
                                     if button.clicked() && unlocked {
                                         self.select_week(week);
                                         self.state = AppState::Quiz;
+                                        self.update_input_prefill();
+                                        self.save_progress();
+
                                     }
                                     ui.add_space(8.0);
                                 }
@@ -679,7 +806,15 @@ impl eframe::App for QuizApp {
                                                     self.show_solution = false; // Reset
                                                     self.input.clear();
                                                     self.current_in_week = self.next_pending_in_week();
+
+                                                    self.update_input_prefill();
+
                                                     if self.current_in_week.is_none() {
+
+                                                        // Marca la semana como completada y desbloquea la siguiente
+                                                        let week = self.current_week.unwrap_or(1);
+                                                        self.complete_week(week);
+
                                                         self.state = AppState::Summary;
                                                     }
                                                     self.save_progress();
@@ -713,6 +848,25 @@ impl eframe::App for QuizApp {
 
                                     ui.add_space(5.0);
 
+                                    if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
+                                        let week = self.current_week.unwrap_or(1);
+                                        let language = self.selected_language.unwrap_or(Language::C);
+                                        for q in self.questions.iter_mut() {
+                                            if q.week == week && q.language == language {
+                                                q.is_done = true;
+                                                q.saw_solution = false;
+                                                q.attempts = 1;
+                                                q.fails = 0;
+                                                q.skips = 0;
+                                            }
+                                        }
+                                        self.save_progress();
+                                        self.current_in_week = self.next_pending_in_week();
+                                        // Si ya no quedan preguntas, muestra resumen
+                                        if self.current_in_week.is_none() {
+                                            self.state = AppState::Summary;
+                                        }
+                                    }
 
                                     // Botones
                                     ui.horizontal(|ui| {
@@ -739,7 +893,15 @@ impl eframe::App for QuizApp {
                                                     self.message = "✅ ¡Correcto!".to_string();
                                                     self.input.clear();
                                                     self.current_in_week = self.next_pending_in_week();
+
+                                                    self.update_input_prefill();
+
                                                     if self.current_in_week.is_none() {
+
+                                                        // Marca la semana como completada y desbloquea la siguiente
+                                                        let week = self.current_week.unwrap_or(1);
+                                                        self.complete_week(week);
+
                                                         self.state = AppState::Summary;
                                                     }
                                                 } else {
@@ -765,7 +927,15 @@ impl eframe::App for QuizApp {
                                             }
 
                                             self.current_in_week = self.next_pending_in_week();
+
+                                            self.update_input_prefill();
+
                                             if self.current_in_week.is_none() {
+
+                                                // Marca la semana como completada y desbloquea la siguiente
+                                                let week = self.current_week.unwrap_or(1);
+                                                self.complete_week(week);
+
                                                 self.state = AppState::Summary;
                                             }
                                             self.save_progress();
@@ -822,7 +992,7 @@ impl eframe::App for QuizApp {
                             .inner_margin(egui::Margin::symmetric(127, 20))
                             .show(ui, |ui| {
                                 ui.vertical_centered(|ui| {
-                                    ui.heading("¡Fin del quiz!");
+                                    ui.heading("Progreso Actual");
                                     ui.add_space(10.0);
                                     ui.label("Resumen de preguntas:");
                                     ui.add_space(5.0);
@@ -835,6 +1005,9 @@ impl eframe::App for QuizApp {
 
                                             ui.horizontal(|ui| {
                                                 ui.add_space(85.0);
+
+                                                let week = self.current_week.unwrap_or(1);
+
                                                 egui::Grid::new("quiz_results_grid")
                                                     .striped(true)
                                                     .spacing([8.0, 0.0])
@@ -849,6 +1022,8 @@ impl eframe::App for QuizApp {
                                                         ui.end_row();
 
                                                         for (i, q) in self.questions.iter().enumerate() {
+
+                                                            if q.week != week { continue; }   // <--- Solo las de la semana activa
 
                                                             let status = if q.is_done && !q.saw_solution {
                                                                 "✅ Correcta"
@@ -881,7 +1056,22 @@ impl eframe::App for QuizApp {
                                     ui.horizontal(|ui| {
                                         ui.add_space(75.0);
                                         let volver = ui.add_sized([button_width, button_height], egui::Button::new("Volver"));
-                                        let terminar = ui.add_sized([button_width, button_height], egui::Button::new("Terminar"));
+
+                                        // Busca la semana actual y si hay una posterior
+                                        let current_week = self.current_week.unwrap_or(1);
+                                        let language = self.selected_language.unwrap_or(Language::C);
+                                        let total_weeks = self.questions
+                                            .iter()
+                                            .filter(|q| q.language == language)
+                                            .map(|q| q.week)
+                                            .max()
+                                            .unwrap_or(current_week);
+
+                                        // ¿Está completada la semana?
+                                        let is_current_week_complete = self.is_week_completed(current_week);
+
+                                        // ¿Hay una semana siguiente?
+                                        let has_next_week = current_week < total_weeks;
 
                                         if volver.clicked() {
                                             if let Some(lang) = self.selected_language {
@@ -890,13 +1080,30 @@ impl eframe::App for QuizApp {
                                                 self.state = AppState::Quiz;
                                             }
                                         }
-                                        if terminar.clicked() {
-                                            if let Some(lang) = self.selected_language {
-                                                Self::delete_progress(lang);
+
+                                        if is_current_week_complete && has_next_week {
+                                            // BOTÓN PARA PASAR A LA SIGUIENTE SEMANA
+                                            let siguiente = ui.add_sized([button_width, button_height], egui::Button::new("Siguiente Semana"));
+                                            if siguiente.clicked() {
+                                                let next_week = current_week + 1;
+                                                self.select_week(next_week);
+                                                self.recalculate_unlocked_weeks();
+                                                self.update_input_prefill();
+                                                self.save_progress();
+                                                self.state = AppState::Quiz;
                                             }
-                                            *self = QuizApp::new();
+                                        } else {
+                                            // Si no hay más semanas, muestra Terminar
+                                            let terminar = ui.add_sized([button_width, button_height], egui::Button::new("Terminar"));
+                                            if terminar.clicked() {
+                                                if let Some(lang) = self.selected_language {
+                                                    Self::delete_progress(lang);
+                                                }
+                                                *self = QuizApp::new();
+                                            }
                                         }
-                                    })
+                                    });
+
 
                                 });
                             });
