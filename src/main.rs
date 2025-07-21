@@ -9,6 +9,10 @@ use syntect::easy::HighlightLines;
 use syntect::util::LinesWithEndings;
 use syntect::dumps::from_binary;
 
+use reqwest::blocking::Client;
+use reqwest::header::USER_AGENT;
+
+
 
 static SYNTAX_SET: Lazy<SyntaxSet> = Lazy::new(|| {
     from_binary(include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/syntaxes.packdump")))
@@ -16,7 +20,6 @@ static SYNTAX_SET: Lazy<SyntaxSet> = Lazy::new(|| {
 static THEME_SET: Lazy<ThemeSet> = Lazy::new(|| {
     from_binary(include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/themes.packdump")))
 });
-
 
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -52,6 +55,7 @@ enum AppState {
     WeekMenu,
     Quiz,
     Summary,
+    PendingUpdate,
 }
 
 // ¡Implementa Default!
@@ -79,6 +83,10 @@ struct QuizApp {
     state: AppState,
     #[serde(skip)]
     has_update: Option<String>,
+    #[serde(skip)]
+    confirm_reset: bool,
+    #[serde(skip)]
+    update_thread_launched:bool
 }
 
 fn progress_filename(language: Language) -> &'static str {
@@ -100,7 +108,8 @@ impl QuizApp {
             q.saw_solution = false;
         }
 
-        Self {
+        // Primero creas el struct (puedes llamarlo quiz_app, o self si lo prefieres)
+        let mut quiz_app = Self {
             questions,
             selected_language: None,
             current_week: None,
@@ -115,8 +124,25 @@ impl QuizApp {
             show_solution: false,
             state: AppState::LanguageSelect,
             has_update: None,
+            confirm_reset: false,
+            update_thread_launched: false,
+        };
+
+        // Luego chequeas si hay actualización y pones el mensaje
+        let signal_path = std::path::Path::new(".update_success");
+        if signal_path.exists() {
+            // ¡La versión que importa es la que corre AHORA!
+            quiz_app.message = format!(
+                "¡Actualización a versión {} completada!",
+                env!("CARGO_PKG_VERSION")
+            );
+            let _ = std::fs::remove_file(signal_path);
         }
+
+        // Devuelves el struct ya inicializado
+        quiz_app
     }
+
 
     pub fn new_for_language(language: Language) -> Self {
         let mut questions = read_questions_embedded()
@@ -157,6 +183,8 @@ impl QuizApp {
             show_solution: false,
             state: AppState::Welcome,
             has_update: None,
+            confirm_reset: false,
+            update_thread_launched: false,
         }
     }
     pub fn save_progress(&self) {
@@ -321,6 +349,35 @@ impl QuizApp {
         }
     }
 
+    /// Borra progreso y reinicia el quiz para el lenguaje actual
+    fn reset_progress(&mut self) {
+        if let Some(language) = self.selected_language {
+            Self::delete_progress(language);
+            *self = QuizApp::new_for_language(language);
+            self.state = AppState::Quiz;
+            self.update_input_prefill();
+            self.confirm_reset = false;
+            self.message.clear();
+        }
+    }
+
+    fn confirm_reset(&mut self, ctx: &egui::Context) {
+        egui::Window::new("Confirmar reinicio")
+            .collapsible(false)
+            .resizable(false)
+            .show(ctx, |ui| {
+                ui.label("¿Seguro que quieres borrar todo tu progreso? ¡Esta acción no se puede deshacer!");
+                ui.horizontal(|ui| {
+                    if ui.button("Sí, borrar").clicked() {
+                        self.reset_progress();
+                    }
+                    if ui.button("No").clicked() {
+                        self.confirm_reset = false;
+                    }
+                });
+            });
+    }
+
 
 }
 
@@ -341,22 +398,51 @@ fn check_latest_release() -> Result<Option<String>, Box<dyn std::error::Error>> 
     Ok(None)
 }
 
-fn check_for_update() -> Result<Option<String>, Box<dyn std::error::Error>> {
-    let status = self_update::backends::github::Update::configure()
+fn descargar_binario_nuevo() -> Result<(), Box<dyn std::error::Error>> {
+    use self_update::backends::github::ReleaseList;
+    use std::fs::File;
+
+    let releases = ReleaseList::configure()
         .repo_owner("Sugar144")
         .repo_name("SummerCQuiz")
-        .bin_name("SummerCQuiz") // O "SummerCQuiz.exe" si es Windows, pon el nombre exacto del binario en la release
-        .show_download_progress(true)
-        .current_version(env!("CARGO_PKG_VERSION"))
         .build()?
-        .update()?;
+        .fetch()?;
 
-    if status.updated() {
-        Ok(Some(status.version().to_string()))
+    let release = releases.first().expect("No hay releases");
+
+    let (asset_name, local_name) = if cfg!(windows) {
+        ("SummerQuiz.exe", "SummerQuiz_new.exe")
     } else {
-        Ok(None)
+        ("SummerQuiz", "SummerQuiz_new")
+    };
+
+    let asset = release
+        .assets
+        .iter()
+        .find(|a| a.name == asset_name)
+        .expect("No se encontró asset para el sistema actual");
+
+    // CORREGIDO: Usa Client y añade User-Agent
+    let client = Client::new();
+    let mut resp = client
+        .get(&asset.download_url)
+        .header(USER_AGENT, "SummerQuiz-Updater/1.0")
+        .header(reqwest::header::ACCEPT, "application/octet-stream")
+        .send()?;
+    let mut out = File::create(local_name)?;
+    resp.copy_to(&mut out)?;
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let perms = std::fs::Permissions::from_mode(0o755);
+        std::fs::set_permissions(local_name, perms)?;
     }
+
+    Ok(())
 }
+
+
 
 
 
@@ -471,8 +557,7 @@ impl eframe::App for QuizApp {
             egui::TopBottomPanel::top("menu_panel").show(ctx, |ui| {
                 ui.horizontal_centered(|ui| {
                     if ui.button("🔄 Borrar progreso y reiniciar").clicked() {
-                        Self::delete_progress(self.selected_language.unwrap());
-                        *self = QuizApp::new();
+                        self.confirm_reset = true;
                     }
 
                     if ui.button("Cambiar lenguaje").clicked() {
@@ -480,6 +565,11 @@ impl eframe::App for QuizApp {
                         self.state = AppState::LanguageSelect;
 
                     }
+
+                    if self.confirm_reset {
+                        self.confirm_reset(ctx);
+                    }
+
 
                 });
             });
@@ -516,8 +606,52 @@ impl eframe::App for QuizApp {
 
 
         match self.state {
+            AppState::PendingUpdate => {
+                // Aquí pones el panel
+                egui::CentralPanel::default().show(ctx, |ui| {
+                    ui.vertical_centered(|ui| {
+                        ui.add_space(60.0);
+                        ui.label(
+                            egui::RichText::new(&self.message)
+                                .heading()
+                                .color(egui::Color32::YELLOW)
+                                .strong()
+                        );
+                        ui.add_space(20.0);
+                        ui.add(egui::Spinner::new());
+                        ui.add_space(60.0);
+                    });
+                });
+
+                // Lanzas el thread SOLO la primera vez
+                if !self.update_thread_launched {
+                    self.update_thread_launched = true;
+                    let updater = if cfg!(windows) {
+                        "SummerQuizUpdater.exe".to_string()
+                    } else {
+                        "./SummerQuizUpdater".to_string()
+                    };
+                    std::thread::spawn(move || {
+                        let res = descargar_binario_nuevo();
+                        match res {
+                            Ok(()) => {
+                                std::thread::sleep(std::time::Duration::from_secs(2));
+                                std::process::Command::new(&updater)
+                                    .spawn()
+                                    .expect("No se pudo lanzar el updater");
+                                std::process::exit(0);
+                            }
+                            Err(e) => {
+                                eprintln!("Error al descargar actualización: {e}");
+                            }
+                        }
+                    });
+                }
+                // No haces nada más, la UI ya ha cambiado el mensaje
+            }
             // ----------- BIENVENIDA -----------
             AppState::LanguageSelect => {
+                self.message.clear();
                 egui::CentralPanel::default().show(ctx, |ui| {
                     // Calcula el espacio vertical extra
                     let total_height = 300.0; // tu contenido: aprox. heading + botones, etc.
@@ -528,7 +662,7 @@ impl eframe::App for QuizApp {
                     let max_width = 540.0;
                     let content_width = ui.available_width().min(max_width);
 
-                    // Centrar todo el contenido vertical y horizontalmente
+                    // Centrar
                     ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
                         // Opcional: añade un panel contenedor para poner un borde, margen, color, etc.
                         egui::Frame::default()
@@ -551,24 +685,24 @@ impl eframe::App for QuizApp {
                                     let c = ui.add_sized([button_width, 40.0], egui::Button::new("Lenguaje C"));
                                     let pseudocode = ui.add_sized([button_width, 40.0], egui::Button::new("Pseudocódigo"));
 
+                                    let mut selected: Option<Language> = None;
                                     if c.clicked() {
-                                        self.selected_language = Some(Language::C);
-                                        if let Some(progress) = QuizApp::load_progress(Language::C) {
-                                            *self = progress;
-                                        } else {
-                                            *self = QuizApp::new_for_language(Language::C);
-                                        }
-                                        self.state = AppState::Welcome;
+                                        selected = Some(Language::C);
                                     }
                                     if pseudocode.clicked() {
-                                        self.selected_language = Some(Language::Pseudocode);
-                                        if let Some(progress) = QuizApp::load_progress(Language::Pseudocode) {
+                                        selected = Some(Language::Pseudocode);
+                                    }
+                                    if let Some(lang) = selected {
+                                        self.selected_language = Some(lang);
+                                        if let Some(progress) = QuizApp::load_progress(lang) {
                                             *self = progress;
                                         } else {
-                                            *self = QuizApp::new_for_language(Language::Pseudocode);
+                                            *self = QuizApp::new_for_language(lang);
                                         }
                                         self.state = AppState::Welcome;
+                                        self.message.clear();
                                     }
+
                                 });
 
                                 ui.add_space(16.0);
@@ -583,27 +717,32 @@ impl eframe::App for QuizApp {
 
                                 if let Some(ver) = &self.has_update {
                                     if !ver.is_empty() {
-                                        let update = ui.add_sized([button_width, 40.0], egui::Button::new("⬇ Actualizar a {ver}"));
+                                        let update = ui.add_sized(
+                                            [button_width, 40.0],
+                                            egui::Button::new(format!("⬇ Actualizar a {ver}"))
+                                        );
 
                                         if update.clicked() {
-                                            match check_for_update() {
-                                                Ok(Some(new_ver)) => {
-                                                    self.message = format!("¡Actualizado a la versión {new_ver}! Por favor, reinicia la app.");
-                                                    self.has_update = Some("".to_string());
-                                                }
-                                                Ok(None) => {
-                                                    self.message = "Ya tienes la última versión.".to_string();
-                                                    self.has_update = Some("".to_string());
-                                                }
-                                                Err(e) => {
-                                                    self.message = format!("Error al actualizar: {e}");
-                                                }
-                                            }
+                                            self.message = "Iniciando actualización…".to_string();
+                                            self.state = AppState::PendingUpdate; // Cambia el estado
+                                            ctx.request_repaint();
+                                            // NO hagas nada más aquí, la lógica se moverá al ciclo principal.
                                         }
+
                                         ui.add_space(10.0);
                                     }
                                 }
                                 ui.add_space(12.0);
+
+                                if !self.message.is_empty() {
+                                    ui.add_space(10.0);
+                                    ui.label(
+                                        egui::RichText::new(&self.message)
+                                            .color(egui::Color32::YELLOW)
+                                            .heading()
+                                            .strong()
+                                    );
+                                }
                             });
                     });
                 });
@@ -642,16 +781,13 @@ impl eframe::App for QuizApp {
                                     } else {
                                         None
                                     };
-                                    ui.add_space(8.0);
 
                                     let empezar_btn = ui.add_sized([button_w, button_h], egui::Button::new("🔄 Empezar de 0"));
-                                    ui.add_space(6.0);
 
                                     let menu_semanal_btn = ui.add_sized([button_w, button_h], egui::Button::new("📅 Seleccionar Semana"));
-                                    ui.add_space(6.0);
 
                                     let salir_btn = ui.add_sized([button_w, button_h], egui::Button::new("❌ Salir"));
-                                    ui.add_space(4.0);
+
 
                                     // --- Manejar clicks ---
                                     if let Some(btn) = continuar_btn {
@@ -673,11 +809,11 @@ impl eframe::App for QuizApp {
                                         }
                                     }
 
-                                    if empezar_btn.clicked() {
-                                        Self::delete_progress(self.selected_language.unwrap());
-                                        *self = QuizApp::new_for_language(self.selected_language.unwrap());
-                                        self.state = AppState::Quiz;
-                                        self.update_input_prefill();
+                                    if empezar_btn.clicked() && hay_guardado {
+                                        self.confirm_reset = true;
+                                    } else if empezar_btn.clicked() {
+                                        self.reset_progress();
+                                        self.message.clear();  // ← AÑADE AQUÍ
                                     }
 
                                     if menu_semanal_btn.clicked() {
@@ -687,6 +823,11 @@ impl eframe::App for QuizApp {
                                     if salir_btn.clicked() {
                                         std::process::exit(0);
                                     }
+
+                                    if self.confirm_reset {
+                                        self.confirm_reset(ctx);
+                                    }
+
                                 });
                             });
                     });
@@ -694,10 +835,6 @@ impl eframe::App for QuizApp {
                     ui.add_space(vertical_space);
                 });
             }
-
-
-
-
 
             AppState::WeekMenu => {
                 egui::CentralPanel::default().show(ctx, |ui| {
@@ -771,11 +908,13 @@ impl eframe::App for QuizApp {
                                             self.select_week(week);
                                             self.state = AppState::Quiz;
                                             self.update_input_prefill();
+                                            self.message.clear();
                                             self.save_progress();
                                         }
                                     }
                                     if volver_btn.clicked() {
                                         self.state = AppState::Welcome;
+                                        self.message.clear();
                                     }
                                 });
                             });
@@ -872,7 +1011,6 @@ impl eframe::App for QuizApp {
                                         } else {
                                             ui.horizontal(|ui | {
                                                 if ui.button("Siguiente pregunta").clicked() {
-                                                    self.questions[idx].is_done = true;
                                                     self.questions[idx].saw_solution = true;
                                                     self.show_solution = false; // Reset
                                                     self.input.clear();
@@ -880,12 +1018,10 @@ impl eframe::App for QuizApp {
 
                                                     self.update_input_prefill();
 
-                                                    if self.current_in_week.is_none() {
-
-                                                        // Marca la semana como completada y desbloquea la siguiente
+                                                    // Solo pasas de semana si toto esta acertado
+                                                    if self.current_in_week.is_none() && self.is_week_completed(self.current_week.unwrap_or(1)) {
                                                         let week = self.current_week.unwrap_or(1);
                                                         self.complete_week(week);
-
                                                         self.state = AppState::Summary;
                                                     }
                                                     self.save_progress();
@@ -919,25 +1055,25 @@ impl eframe::App for QuizApp {
 
                                     ui.add_space(5.0);
 
-                                    if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
-                                        let week = self.current_week.unwrap_or(1);
-                                        let language = self.selected_language.unwrap_or(Language::C);
-                                        for q in self.questions.iter_mut() {
-                                            if q.week == week && q.language == language {
-                                                q.is_done = true;
-                                                q.saw_solution = false;
-                                                q.attempts = 1;
-                                                q.fails = 0;
-                                                q.skips = 0;
-                                            }
-                                        }
-                                        self.save_progress();
-                                        self.current_in_week = self.next_pending_in_week();
-                                        // Si ya no quedan preguntas, muestra resumen
-                                        if self.current_in_week.is_none() {
-                                            self.state = AppState::Summary;
-                                        }
-                                    }
+                                    // if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
+                                    //     let week = self.current_week.unwrap_or(1);
+                                    //     let language = self.selected_language.unwrap_or(Language::C);
+                                    //     for q in self.questions.iter_mut() {
+                                    //         if q.week == week && q.language == language {
+                                    //             q.is_done = true;
+                                    //             q.saw_solution = false;
+                                    //             q.attempts = 1;
+                                    //             q.fails = 0;
+                                    //             q.skips = 0;
+                                    //         }
+                                    //     }
+                                    //     self.save_progress();
+                                    //     self.current_in_week = self.next_pending_in_week();
+                                    //     // Si ya no quedan preguntas, muestra resumen
+                                    //     if self.current_in_week.is_none() {
+                                    //         self.state = AppState::Summary;
+                                    //     }
+                                    // }
 
                                     // Botones
                                     ui.horizontal(|ui| {
@@ -960,6 +1096,7 @@ impl eframe::App for QuizApp {
                                                 }
 
                                                 if user_code == answer_code {
+                                                    self.message.clear();
                                                     self.questions[idx].is_done = true;
                                                     self.message = "✅ ¡Correcto!".to_string();
                                                     self.input.clear();
@@ -976,10 +1113,12 @@ impl eframe::App for QuizApp {
                                                         self.state = AppState::Summary;
                                                     }
                                                 } else {
+
                                                     self.questions[idx].fails += 1;
                                                     self.message = "❌ Incorrecto. Intenta de nuevo.".to_string();
                                                     self.input.clear();
-                                                    // ¡NO actualices current_in_week aquí!
+
+
                                                 }
                                                 self.save_progress();
                                             }
@@ -1021,16 +1160,18 @@ impl eframe::App for QuizApp {
 
                                         let button_width = (panel_width - 8.0) / 2.0;
                                         let guardar = ui.add_sized([button_width, 36.0], egui::Button::new("Guardar y salir"));
-                                        let terminar = ui.add_sized([button_width, 36.0], egui::Button::new("Terminar Quiz"));
+                                        let terminar = ui.add_sized([button_width, 36.0], egui::Button::new("Ver progreso"));
 
                                         if terminar.clicked() {
                                             self.state = AppState::Summary;
+                                            self.message.clear();
 
                                         }
 
                                         if guardar.clicked() {
                                             self.save_progress();
-                                            std::process::exit(0);
+                                            self.state = AppState::Welcome;
+                                            self.message.clear();
                                         }
                                     });
 
@@ -1055,16 +1196,16 @@ impl eframe::App for QuizApp {
                     let panel_width = (ui.available_width() * 0.97).min(max_width);
                     let button_width = panel_width / 3.0;
                     let button_height = 36.0;
-                    let total_height = 600.0;
-                    let extra_space = (ui.available_height() - total_height).max(0.0) / 3.0;
+                    let total_height = 700.0;
+                    let extra_space = (ui.available_height() - total_height).max(0.0) / 2.0;
 
                     ui.add_space(extra_space);
 
-                    // Agrupa todo en un solo bloque vertical centrado
-                    ui.vertical_centered_justified(|ui| {
+
+                    ui.vertical_centered(|ui| {
                         egui::Frame::default()
                             .fill(ui.visuals().window_fill())
-                            .inner_margin(egui::Margin::symmetric(16, 80))
+                            .inner_margin(egui::Margin::symmetric(16, 50))
                             .show(ui, |ui| {
                                 ui.set_width(panel_width / 1.5);
 
@@ -1073,55 +1214,54 @@ impl eframe::App for QuizApp {
                                 ui.label("Resumen de preguntas:");
                                 ui.add_space(5.0);
 
-                                let max_height = 400.0;
+                                let max_height = 700.0;
 
                                 egui::ScrollArea::vertical()
                                     .max_height(max_height)
                                     .max_width(panel_width)
                                     .show(ui, |ui| {
-                                        ui.vertical_centered(|ui| {
-                                            let week = self.current_week.unwrap_or(1);
+                                        let week = self.current_week.unwrap_or(1);
 
-                                            egui::Grid::new("quiz_results_grid")
-                                                .striped(true)
-                                                .spacing([8.0, 0.0])
-                                                .show(ui, |ui| {
-                                                    ui.label("Pregunta");
-                                                    ui.label("Intentos");
-                                                    ui.label("Fallos");
-                                                    ui.label("Saltos");
-                                                    ui.label("Solución vista");
-                                                    ui.label("Estado");
+                                        egui::Grid::new("quiz_results_grid")
+                                            .striped(true)
+                                            .spacing([8.0, 0.0])
+                                            .show(ui, |ui| {
+                                                ui.label("Pregunta");
+                                                ui.label("Intentos");
+                                                ui.label("Fallos");
+                                                ui.label("Saltos");
+                                                ui.label("Solución vista");
+                                                ui.label("Estado");
+                                                ui.end_row();
+
+                                                for (i, q) in self.questions.iter().enumerate() {
+                                                    if q.week != week { continue; }
+                                                    let status = if q.is_done && !q.saw_solution {
+                                                        "✅ Correcta"
+                                                    } else if q.saw_solution {
+                                                        "❌ Fallida"
+                                                    } else {
+                                                        "❌ Sin responder"
+                                                    };
+                                                    let solucion_vista = if q.saw_solution { "Sí" } else { "No" };
+                                                    ui.label(format!("{}", i + 1));
+                                                    ui.label(format!("{}", q.attempts));
+                                                    ui.label(format!("{}", q.fails));
+                                                    ui.label(format!("{}", q.skips));
+                                                    ui.label(solucion_vista);
+                                                    ui.label(status);
                                                     ui.end_row();
-
-                                                    for (i, q) in self.questions.iter().enumerate() {
-                                                        if q.week != week { continue; }
-                                                        let status = if q.is_done && !q.saw_solution {
-                                                            "✅ Correcta"
-                                                        } else if q.saw_solution {
-                                                            "❌ Fallida"
-                                                        } else {
-                                                            "❌ Sin responder"
-                                                        };
-                                                        let solucion_vista = if q.saw_solution { "Sí" } else { "No" };
-                                                        ui.label(format!("{}", i + 1));
-                                                        ui.label(format!("{}", q.attempts));
-                                                        ui.label(format!("{}", q.fails));
-                                                        ui.label(format!("{}", q.skips));
-                                                        ui.label(solucion_vista);
-                                                        ui.label(status);
-                                                        ui.end_row();
-                                                    }
-                                                });
-                                        });
+                                                }
+                                            });
                                     });
 
-                                ui.add_space(0.0);
+
+                                ui.add_space(1.0);
 
 
                                 // Aquí los botones, dentro del mismo bloque
                                 ui.horizontal_centered(|ui| {
-                                    let volver = ui.add_sized([button_width, button_height], egui::Button::new("Volver"));
+                                    let volver = ui.add_sized([button_width, button_height], egui::Button::new("Atrás"));
 
                                     let current_week = self.current_week.unwrap_or(1);
                                     let language = self.selected_language.unwrap_or(Language::C);
@@ -1152,19 +1292,19 @@ impl eframe::App for QuizApp {
                                             self.update_input_prefill();
                                             self.save_progress();
                                             self.state = AppState::Quiz;
+                                            self.message.clear();
                                         }
                                     } else {
                                         let terminar = ui.add_sized([button_width, button_height], egui::Button::new("Terminar"));
                                         if terminar.clicked() {
-                                            if let Some(lang) = self.selected_language {
-                                                Self::delete_progress(lang);
-                                            }
-                                            *self = QuizApp::new();
+                                            self.state = AppState::Welcome;
                                         }
                                     }
                                 });
                             });
                     });
+
+
 
                 });
             }
