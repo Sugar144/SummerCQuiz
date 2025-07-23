@@ -1,72 +1,29 @@
 use egui::Visuals;
-use once_cell::sync::Lazy;
-use syntect::dumps::from_binary;
-use syntect::easy::HighlightLines;
-use syntect::highlighting::ThemeSet;
-use syntect::parsing::SyntaxSet;
-use syntect::util::LinesWithEndings;
+
 use crate::app::QuizApp;
 use crate::model::{AppState, Language};
 use crate::update::{check_latest_release, descargar_binario_nuevo};
 
-static SYNTAX_SET: Lazy<SyntaxSet> = Lazy::new(|| {
-    from_binary(include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/syntaxes.packdump")))
-});
-static THEME_SET: Lazy<ThemeSet> = Lazy::new(|| {
-    from_binary(include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/themes.packdump")))
-});
+use eframe::{set_value, APP_KEY};
 
-pub fn show_highlighted_c_code(ui: &mut egui::Ui, code: &str, theme_name: &str, panel_width: f32,
-                               max_input_height: f32, min_lines: usize, ) {
+use egui_code_editor::{CodeEditor, ColorTheme, Syntax};
 
-    let ss = &SYNTAX_SET;
-    let ts = &THEME_SET;
-    let syntax = ss
-        .find_syntax_by_extension("c")
-        .expect("No se encontró sintaxis para C");
-    let mut h = HighlightLines::new(syntax, &ts.themes[theme_name]);
 
-    let font_id = egui::TextStyle::Monospace.resolve(ui.style());
-    let line_height = ui.fonts(|f| f.row_height(&font_id));
-    let code_lines = code.lines().count();
-    let lines = code_lines.max(min_lines);
-    let needed_height = (lines as f32 * line_height).min(max_input_height);
-
-    egui::Frame::default()
-        .fill(ui.visuals().extreme_bg_color)
-        .show(ui, |ui| {
-            egui::ScrollArea::vertical()
-                .max_height(needed_height)
-                .auto_shrink([false; 2])
-                .show(ui, |ui| {
-                    ui.set_width(panel_width);
-                    for (i,line) in LinesWithEndings::from(code).enumerate() {
-                        let regions = h.highlight_line(line, ss).unwrap();
-                        ui.horizontal(|ui| {
-                            ui.add_space(3.0);
-                            ui.spacing_mut().item_spacing.x = 0.0;
-
-                            // Añade el número de línea con color/gris
-                            ui.colored_label(
-                                egui::Color32::DARK_GRAY,
-                                egui::RichText::new(format!("{:>2} ", i + 1)).monospace(),
-                            );
-
-                            for (style, text) in regions {
-                                let color = egui::Color32::from_rgb(
-                                    style.foreground.r,
-                                    style.foreground.g,
-                                    style.foreground.b,
-                                );
-                                ui.colored_label(color, egui::RichText::new(text).monospace());
-                            }
-                        });
-                    }
-                });
-        });
+// ===== SOLO PARA WEB =====
+pub fn c_syntax() -> Syntax {
+    Syntax::new("c")
+        .with_comment("//")
+        .with_comment_multiline(["/*", "*/"])
+        .with_keywords([
+            "int", "char", "void", "if", "else", "for", "while", "return", "break", "continue",
+            "switch", "case", "default", "struct", "typedef", "enum", "union", "sizeof", "do",
+            "goto", "static", "const", "volatile", "unsigned", "signed", "short", "long", "float",
+            "double", "auto", "extern", "register",
+        ])
+        .with_types([
+            "int", "char", "float", "double", "void", "size_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t",
+        ])
 }
-
-
 
 
 
@@ -80,11 +37,13 @@ impl eframe::App for QuizApp {
             egui::TopBottomPanel::top("menu_panel").show(ctx, |ui| {
                 ui.horizontal_centered(|ui| {
                     if ui.button("🔄 Borrar progreso y reiniciar").clicked() {
-                        self.borrar_y_reiniciar(ctx);
+                        self.confirm_reset = true;
+                        self.has_saved_progress = false;
                     }
 
                     if ui.button("Cambiar lenguaje").clicked() {
                         self.cambiar_lenguaje();
+                        ctx.request_repaint();
                     }
 
 
@@ -96,9 +55,7 @@ impl eframe::App for QuizApp {
 
                     if ui.button("Cambiar lenguaje").clicked() {
                         self.cambiar_lenguaje();
-
                     }
-
                 });
             });
         }
@@ -200,6 +157,8 @@ impl eframe::App for QuizApp {
 
                                     let c = ui.add_sized([button_width, 40.0], egui::Button::new("Lenguaje C"));
                                     let pseudocode = ui.add_sized([button_width, 40.0], egui::Button::new("Pseudocódigo"));
+                                    let salir = ui.add_sized([button_width, 40.0], egui::Button::new("Salir"));
+
 
                                     let mut selected: Option<Language> = None;
                                     if c.clicked() {
@@ -211,6 +170,12 @@ impl eframe::App for QuizApp {
                                     if let Some(lang) = selected {
                                         self.seleccionar_lenguaje(lang);
                                     }
+
+                                    #[cfg (not(target_arch = "wasm32"))]
+                                    if salir.clicked() {
+                                        std::process::exit(0);
+                                    }
+
 
                                 });
 
@@ -281,7 +246,7 @@ impl eframe::App for QuizApp {
                                     ui.heading("¿Qué deseas hacer?");
                                     ui.add_space(18.0);
 
-                                    let hay_guardado = Self::has_saved_progress(self.selected_language.unwrap());
+                                    let hay_guardado = self.has_saved_progress;
                                     let button_w = (content_width * 0.9).clamp(120.0, 400.0);
                                     let button_h = 36.0;
 
@@ -295,7 +260,7 @@ impl eframe::App for QuizApp {
 
                                     let menu_semanal_btn = ui.add_sized([button_w, button_h], egui::Button::new("📅 Seleccionar Semana"));
 
-                                    let salir_btn = ui.add_sized([button_w, button_h], egui::Button::new("❌ Salir"));
+                                    let salir_btn = ui.add_sized([button_w, button_h], egui::Button::new("🔙 Volver"));
 
 
                                     // --- Manejar clicks ---
@@ -431,126 +396,141 @@ impl eframe::App for QuizApp {
                         .show(ui, |ui| {
                             ui.vertical_centered(|ui| {
                                 if let Some(idx) = self.current_in_week {
-                                    {
-                                        ui.heading(format!("🌀 Ronda {}", self.round));
-                                        // Prompt con scroll fijo
-                                        let prompt_max_height = 250.0;
-                                        let prompt_min_lines = 4.0;
-                                        let font_id = egui::TextStyle::Body.resolve(ui.style());
-                                        let line_height = ui.fonts(|f| f.row_height(&font_id));
-                                        let prompt_min_height = prompt_min_lines * line_height;
-                                        let prompt_text = self.questions[idx].prompt.clone();
-                                        let galley = ui.fonts(|fonts| {
-                                            fonts.layout(
-                                                prompt_text.to_owned(),
-                                                font_id.clone(),
-                                                egui::Color32::WHITE,
-                                                panel_width,
-                                            )
-                                        });
-                                        let needed_height = galley.size().y.max(prompt_min_height).min(prompt_max_height);
-                                        ui.allocate_ui_with_layout(
-                                            egui::vec2(panel_width, needed_height),
-                                            egui::Layout::centered_and_justified(egui::Direction::TopDown),
-                                            |ui| {
-                                                egui::ScrollArea::vertical()
-                                                    .max_height(prompt_max_height)
-                                                    .show(ui, |ui| {
-                                                        ui.with_layout(
-                                                            egui::Layout::centered_and_justified(egui::Direction::TopDown),
-                                                            |ui| {
-                                                                ui.label(&prompt_text);
-                                                            }
-                                                        );
-                                                    });
+                                    ui.heading(format!("🌀 Ronda {}", self.round));
+                                    // Prompt con scroll fijo
+                                    let prompt_max_height = 250.0;
+                                    let prompt_min_lines = 4.0;
+                                    let font_id = egui::TextStyle::Body.resolve(ui.style());
+                                    let line_height = ui.fonts(|f| f.row_height(&font_id));
+                                    let prompt_min_height = prompt_min_lines * line_height;
+                                    let prompt_text = self.questions[idx].prompt.clone();
+                                    let galley = ui.fonts(|fonts| {
+                                        fonts.layout(
+                                            prompt_text.to_owned(),
+                                            font_id.clone(),
+                                            egui::Color32::WHITE,
+                                            panel_width,
+                                        )
+                                    });
+                                    let needed_height = galley.size().y.max(prompt_min_height).min(prompt_max_height);
+                                    ui.allocate_ui_with_layout(
+                                        egui::vec2(panel_width, needed_height),
+                                        egui::Layout::centered_and_justified(egui::Direction::TopDown),
+                                        |ui| {
+                                            egui::ScrollArea::vertical()
+                                                .max_height(prompt_max_height)
+                                                .show(ui, |ui| {
+                                                    ui.with_layout(
+                                                        egui::Layout::centered_and_justified(egui::Direction::TopDown),
+                                                        |ui| {
+                                                            ui.label(&prompt_text);
+                                                        }
+                                                    );
+                                                });
+                                        }
+                                    );
+
+                                    ui.add_space(5.0);
+
+                                    let max_input_height = 245.0;
+                                    let min_lines = 15;
+                                    let font_id = egui::TextStyle::Monospace.resolve(ui.style());
+                                    let line_height = ui.fonts(|f| f.row_height(&font_id));
+                                    let code_rows = min_lines;
+
+                                    if self.questions[idx].fails >= 1 {
+                                        // Si no se ha mostrado la solución todavía
+                                        if !self.show_solution {
+                                            if ui.button("Solución").clicked() {
+                                                self.show_solution = true;
                                             }
-                                        );
 
-
-
-                                        ui.add_space(5.0);
-
-                                        let max_input_height = 245.0;
-
-                                        let answer_box = |ui: &mut egui::Ui, content: &mut String, editable: bool| {
+                                            // INPUT DEL USUARIO con resaltado (editable)
                                             egui::ScrollArea::vertical()
                                                 .max_height(max_input_height)
                                                 .auto_shrink([false; 2])
                                                 .show(ui, |ui| {
-                                                    let text_edit = egui::TextEdit::multiline(content)
-                                                        .desired_width(panel_width)
-                                                        .desired_rows(16)
-                                                        .font(egui::TextStyle::Monospace)
-                                                        .interactive(editable);
-                                                    ui.add(text_edit);
+                                                    ui.set_width(panel_width);
+                                                    CodeEditor::default()
+                                                        .id_source("user_input")
+                                                        .with_rows(code_rows)
+                                                        .with_fontsize(line_height)
+                                                        .with_theme(ColorTheme::GITHUB_DARK)
+                                                        .with_syntax(c_syntax())
+                                                        .with_numlines(true)
+                                                        .vscroll(false)
+                                                        .show(ui, &mut self.input);
                                                 });
-                                        };
-
-
-                                        if self.questions[idx].fails >= 1 {
-
-                                            // Si no se ha mostrado la solución todavía
-                                            if !self.show_solution {
-                                                ui.horizontal(|ui| {
-                                                    if ui.button("Solución").clicked() {
-                                                        self.show_solution = true;
-                                                    }
-                                                });
-                                                answer_box(ui, &mut self.input, true);
-                                            } else {
-                                                ui.horizontal(|ui | {
-                                                    if ui.button("Siguiente pregunta").clicked() {
-                                                        self.avanzar_a_siguiente_pregunta(idx);
-                                                    }
-                                                });
-
-                                                let max_input_height = 245.0;
-                                                let min_lines = 16;
-
-                                                // ---------- AQUÍ CAMBIA EL BLOQUE ----------
-                                                if self.questions[idx].language == Language::C {
-                                                    ui.push_id("highlighted_solution", |ui| {
-                                                        show_highlighted_c_code(ui, &self.questions[idx].answer, "base16-onedark", panel_width, max_input_height, min_lines);
-                                                    });
-                                                } else {
-                                                    let answer_string = self.questions[idx].answer.clone();
-                                                    answer_box(ui, &mut answer_string.clone(), false);
-                                                }
-                                                // -------------------------------------------
-                                            }
                                         } else {
-                                            answer_box(ui, &mut self.input, true);
-                                        }
-
-
-                                        if self.questions[idx].fails >= 1 {
-                                            if let Some(hint) = &self.questions[idx].hint {
-                                                ui.label(format!("💡 Pista: {hint}"));
+                                            if ui.button("Siguiente pregunta").clicked() {
+                                                self.avanzar_a_siguiente_pregunta(idx);
                                             }
-                                        }
 
-                                        ui.add_space(5.0);
+                                            // SOLUCIÓN con resaltado (editable)
+                                            let mut answer_string = self.questions[idx].answer.clone();
+                                            egui::ScrollArea::vertical()
+                                                .max_height(max_input_height)
+                                                .auto_shrink([false; 2])
+                                                .show(ui, |ui| {
+                                                    ui.set_width(panel_width);
+
+                                                    CodeEditor::default()
+                                                        .id_source("solution")
+                                                        .with_rows(code_rows)
+                                                        .with_fontsize(line_height)
+                                                        .with_theme(ColorTheme::GITHUB_DARK)
+                                                        .with_syntax(c_syntax())
+                                                        .with_numlines(true)
+                                                        .vscroll(false)
+                                                        .show(ui, &mut answer_string);
+                                                });
+                                        }
+                                    } else {
+                                        // INPUT DEL USUARIO con resaltado (editable)
+                                        egui::ScrollArea::vertical()
+                                            .max_height(max_input_height)
+                                            .auto_shrink([false; 2])
+                                            .show(ui, |ui| {
+                                                ui.set_width(panel_width);
+
+                                                CodeEditor::default()
+                                                    .id_source("user_input")
+                                                    .with_rows(code_rows)
+                                                    .with_fontsize(line_height)
+                                                    .with_theme(ColorTheme::GITHUB_DARK)
+                                                    .with_syntax(c_syntax())
+                                                    .with_numlines(true)
+                                                    .vscroll(false)
+                                                    .show(ui, &mut self.input);
+                                            });
                                     }
 
-                                    // if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
-                                    //     let week = self.current_week.unwrap_or(1);
-                                    //     let language = self.selected_language.unwrap_or(Language::C);
-                                    //     for q in self.questions.iter_mut() {
-                                    //         if q.week == week && q.language == language {
-                                    //             q.is_done = true;
-                                    //             q.saw_solution = false;
-                                    //             q.attempts = 1;
-                                    //             q.fails = 0;
-                                    //             q.skips = 0;
-                                    //         }
-                                    //     }
-                                    //     self.save_progress();
-                                    //     self.current_in_week = self.next_pending_in_week();
-                                    //     // Si ya no quedan preguntas, muestra resumen
-                                    //     if self.current_in_week.is_none() {
-                                    //         self.state = AppState::Summary;
-                                    //     }
-                                    // }
+                                    if self.questions[idx].fails >= 1 {
+                                        if let Some(hint) = &self.questions[idx].hint {
+                                            ui.label(format!("💡 Pista: {hint}"));
+                                        }
+                                    }
+
+                                    ui.add_space(5.0);
+
+                                    if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
+                                        let week = self.current_week.unwrap_or(1);
+                                        let language = self.selected_language.unwrap_or(Language::C);
+                                        for q in self.questions.iter_mut() {
+                                            if q.week == week && q.language == language {
+                                                q.is_done = true;
+                                                q.saw_solution = false;
+                                                q.attempts = 1;
+                                                q.fails = 0;
+                                                q.skips = 0;
+                                            }
+                                        }
+                                        self.current_in_week = self.next_pending_in_week();
+                                        // Si ya no quedan preguntas, muestra resumen
+                                        if self.current_in_week.is_none() {
+                                            self.state = AppState::Summary;
+                                        }
+                                    }
 
                                     // Botones
                                     ui.horizontal(|ui| {
@@ -565,24 +545,20 @@ impl eframe::App for QuizApp {
                                                 self.procesar_respuesta(&input, idx);
                                             }
                                         }
-
-
                                         if saltar.clicked() {
                                             self.saltar_pregunta(idx);
                                         }
-
                                     });
 
                                     ui.horizontal(|ui| {
                                         ui.add_space((ui.available_width() - panel_width) / 2.0);
 
                                         let button_width = (panel_width - 8.0) / 2.0;
-                                        let guardar = ui.add_sized([button_width, 36.0], egui::Button::new("Guardar y salir"));
+                                        let guardar = ui.add_sized([button_width, 36.0], egui::Button::new("Volver"));
                                         let progreso = ui.add_sized([button_width, 36.0], egui::Button::new("Ver progreso"));
 
                                         if progreso.clicked() {
                                             self.ver_progreso()
-
                                         }
 
                                         if guardar.clicked() {
@@ -595,7 +571,6 @@ impl eframe::App for QuizApp {
                                     if !self.message.is_empty() {
                                         ui.label(&self.message);
                                     }
-
                                 }
                             });
                         });
@@ -603,6 +578,8 @@ impl eframe::App for QuizApp {
                     ui.add_space(extra_space);
                 });
             }
+
+
 
             // ----------- RESUMEN FINAL -----------
             AppState::Summary => {
@@ -671,12 +648,11 @@ impl eframe::App for QuizApp {
                                     });
 
 
-                                ui.add_space(1.0);
+                                ui.add_space(5.0);
 
 
                                 // Aquí los botones, dentro del mismo bloque
-                                ui.horizontal_centered(|ui| {
-                                    let volver = ui.add_sized([button_width, button_height], egui::Button::new("Atrás"));
+                                ui.vertical_centered(|ui| {
 
                                     let current_week = self.current_week.unwrap_or(1);
                                     let language = self.selected_language.unwrap_or(Language::C);
@@ -690,19 +666,15 @@ impl eframe::App for QuizApp {
                                     let is_current_week_complete = self.is_week_completed(current_week);
                                     let has_next_week = current_week < total_weeks;
 
-                                    if volver.clicked() {
-                                        self.volver_a_quiz();
-                                    }
-
                                     if is_current_week_complete && has_next_week {
                                         let siguiente = ui.add_sized([button_width, button_height], egui::Button::new("Siguiente Semana"));
                                         if siguiente.clicked() {
                                             self.avanzar_a_siguiente_semana(current_week);
                                         }
-                                    } else {
-                                        let terminar = ui.add_sized([button_width, button_height], egui::Button::new("Terminar"));
-                                        if terminar.clicked() {
-                                            self.terminar_resumen();
+                                    }else{
+                                        let volver = ui.add_sized([button_width, button_height], egui::Button::new("Atrás"));
+                                        if volver.clicked() {
+                                            self.volver_a_quiz();
                                         }
                                     }
                                 });
@@ -711,5 +683,14 @@ impl eframe::App for QuizApp {
                 });
             }
         }
+
+        if self.confirm_reset {
+            self.confirm_reset(ctx);
+        }
+    }
+
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        // Esto guardará el estado automáticamente en web y escritorio
+        set_value(storage, APP_KEY, self);
     }
 }

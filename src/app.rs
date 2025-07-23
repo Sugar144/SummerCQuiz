@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use crate::code_utils::normalize_code;
 use crate::model::{AppState, Language, Question};
 use crate::data::read_questions_embedded;
+use eframe::egui;
+
 
 #[derive(Serialize, Deserialize)]
 pub struct QuizApp {
@@ -24,7 +26,9 @@ pub struct QuizApp {
     #[serde(skip)]
     pub confirm_reset: bool,
     #[serde(skip)]
-    pub update_thread_launched:bool
+    pub update_thread_launched:bool,
+    #[serde(skip)]
+    pub has_saved_progress: bool,
 }
 
 impl QuizApp {
@@ -57,6 +61,7 @@ impl QuizApp {
             has_update: None,
             confirm_reset: false,
             update_thread_launched: false,
+            has_saved_progress: false,
         };
 
         // Luego chequeas si hay actualización y pones el mensaje
@@ -116,39 +121,8 @@ impl QuizApp {
             has_update: None,
             confirm_reset: false,
             update_thread_launched: false,
+            has_saved_progress: false,
         }
-    }
-    pub fn save_progress(&self) {
-        if let Some(lang) = self.selected_language {
-            let filename = progress_filename(lang);
-            let json = serde_json::to_string(self).unwrap();
-            std::fs::write(filename, json).unwrap();
-        }
-    }
-
-    pub fn load_progress(language: Language) -> Option<Self> {
-        let filename = progress_filename(language);
-        if let Ok(json) = std::fs::read_to_string(filename) {
-            serde_json::from_str(&json).ok()
-        } else {
-            None
-        }
-    }
-
-    pub fn delete_progress(language: Language) {
-        let filename = match language {
-            Language::C => "quiz_progress_c.json",
-            Language::Pseudocode => "quiz_progress_pseudocode.json",
-        };
-        let _ = std::fs::remove_file(filename);
-    }
-
-    pub fn has_saved_progress(language: Language) -> bool {
-        let filename = match language {
-            Language::C => "quiz_progress_c.json",
-            Language::Pseudocode => "quiz_progress_pseudocode.json",
-        };
-        std::fs::metadata(filename).is_ok()
     }
 
     pub fn select_week(&mut self, week: usize) {
@@ -276,17 +250,21 @@ impl QuizApp {
         }
     }
 
+
     /// Borra progreso y reinicia el quiz para el lenguaje actual
-    pub fn reset_progress(&mut self) {
+    pub fn reset_progress(&mut self)
+    {
         if let Some(language) = self.selected_language {
-            Self::delete_progress(language);
             *self = QuizApp::new_for_language(language);
             self.state = AppState::Quiz;
             self.update_input_prefill();
             self.confirm_reset = false;
             self.message.clear();
+
+            self.has_saved_progress = false;
         }
     }
+
 
     pub fn confirm_reset(&mut self, ctx: &egui::Context) {
         egui::Window::new("Confirmar reinicio")
@@ -305,24 +283,20 @@ impl QuizApp {
             });
     }
 
-    pub fn borrar_y_reiniciar(&mut self, ctx: &egui::Context) {
-        self.confirm_reset = true;
-        self.confirm_reset(ctx); // Si quieres, el diálogo también puede ser llamado aquí
-    }
-
     pub fn cambiar_lenguaje(&mut self) {
-        self.save_progress();
+        self.has_saved_progress = true;
         self.state = AppState::LanguageSelect;
     }
 
     /// Cambia el lenguaje y carga o inicializa el progreso, y va a la bienvenida
     pub fn seleccionar_lenguaje(&mut self, lang: Language) {
+
+
         self.selected_language = Some(lang);
-        if let Some(progress) = QuizApp::load_progress(lang) {
-            *self = progress;
-        } else {
-            *self = QuizApp::new_for_language(lang);
-        }
+        *self = QuizApp::new_for_language(lang);
+
+        self.has_saved_progress = true;
+
         self.state = AppState::Welcome;
         self.message.clear();
     }
@@ -354,8 +328,8 @@ impl QuizApp {
         self.state = AppState::WeekMenu;
     }
 
-    pub fn salir_app(&self) {
-        std::process::exit(0);
+    pub fn salir_app(& mut self) {
+        self.state = AppState::LanguageSelect;
     }
 
     pub fn acceder_a_semana(&mut self, week: usize) {
@@ -363,7 +337,6 @@ impl QuizApp {
         self.state = AppState::Quiz;
         self.update_input_prefill();
         self.message.clear();
-        self.save_progress();
     }
 
     pub fn volver_al_menu_principal(&mut self) {
@@ -402,7 +375,6 @@ impl QuizApp {
             self.message = "❌ Incorrecto. Intenta de nuevo.".to_string();
             self.input.clear();
         }
-        self.save_progress();
     }
 
     pub fn saltar_pregunta(&mut self, idx: usize) {
@@ -423,7 +395,6 @@ impl QuizApp {
             self.complete_week(week);
             self.state = AppState::Summary;
         }
-        self.save_progress();
     }
 
     pub fn avanzar_a_siguiente_pregunta(&mut self, idx: usize) {
@@ -437,11 +408,10 @@ impl QuizApp {
             self.complete_week(week);
             self.state = AppState::Summary;
         }
-        self.save_progress();
     }
 
     pub fn guardar_y_salir(&mut self) {
-        self.save_progress();
+        self.has_saved_progress = true;
         self.state = AppState::Welcome;
         self.message.clear();
     }
@@ -453,34 +423,35 @@ impl QuizApp {
 
     /// Volver atrás al quiz (cargar progreso desde disco si existe)
     pub fn volver_a_quiz(&mut self) {
-        if let Some(lang) = self.selected_language {
-            *self = QuizApp::load_progress(lang)
-                .unwrap_or_else(|| QuizApp::new_for_language(lang));
-            self.state = AppState::Quiz;
-        }
-    }
-
-    /// Avanzar a la siguiente semana (prepara la UI y estado)
-    pub fn avanzar_a_siguiente_semana(&mut self, next_week: usize) {
-        self.select_week(next_week);
-        self.recalculate_unlocked_weeks();
-        self.update_input_prefill();
-        self.save_progress();
         self.state = AppState::Quiz;
         self.message.clear();
     }
 
-    /// Terminar y volver al menú principal
-    pub fn terminar_resumen(&mut self) {
-        self.state = AppState::Welcome;
-    }
+    /// Avanzar a la siguiente semana (prepara la UI y estado)
+    pub fn avanzar_a_siguiente_semana(&mut self, current_week: usize) {
+        let language = self.selected_language.unwrap_or(Language::C);
 
+        // Busca todas las semanas para el lenguaje seleccionado, ordenadas y únicas
+        let mut weeks: Vec<usize> = self.questions
+            .iter()
+            .filter(|q| q.language == language)
+            .map(|q| q.week)
+            .collect();
+        weeks.sort_unstable();
+        weeks.dedup();
 
-}
-
-pub fn progress_filename(language: Language) -> &'static str {
-    match language {
-        Language::C => "quiz_progress_c.json",
-        Language::Pseudocode => "quiz_progress_pseudocode.json",
+        // Busca el índice de la semana actual y avanza a la siguiente
+        if let Some(idx) = weeks.iter().position(|&w| w == current_week) {
+            if let Some(&next_week) = weeks.get(idx + 1) {
+                self.select_week(next_week); // <-- Esto sí va a la próxima semana válida
+                self.recalculate_unlocked_weeks();
+                self.update_input_prefill();
+                self.state = AppState::Quiz;
+                self.message.clear();
+            } else {
+                // No hay más semanas; podrías volver al menú, mostrar mensaje, etc.
+                self.state = AppState::Welcome;
+            }
+        }
     }
 }
