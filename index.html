@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>SummerQuiz</title>
+    <!-- Solo compila el binario principal para WASM -->
+    <link data-trunk rel="rust" data-bin="summer_quiz_bin" />
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: #181c1f;
+        }
+        body, canvas {
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
+            min-width: 100vw;
+            display: block;
+            position: relative;
+        }
+        #loading_text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #eee;
+            font-size: 1.3rem;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+<!-- Canvas para la app -->
+<canvas id="the_canvas_id"></canvas>
+<div id="loading_text">
+    Cargando SummerQuiz...
+    <br><br>
+    <svg width="60" height="60" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#4af" stroke-width="10" stroke-dasharray="200" stroke-dashoffset="0">
+            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1.2s" repeatCount="indefinite"/>
+        </circle>
+    </svg>
+</div>
+</body>
+</html>

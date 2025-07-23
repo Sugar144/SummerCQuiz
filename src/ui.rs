@@ -157,6 +157,7 @@ impl eframe::App for QuizApp {
 
                                     let c = ui.add_sized([button_width, 40.0], egui::Button::new("Lenguaje C"));
                                     let pseudocode = ui.add_sized([button_width, 40.0], egui::Button::new("Pseudocódigo"));
+                                    #[cfg (not(target_arch = "wasm32"))]
                                     let salir = ui.add_sized([button_width, 40.0], egui::Button::new("Salir"));
 
 
