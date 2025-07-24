@@ -420,13 +420,7 @@ impl QuizApp {
         self.state = AppState::Summary;
         self.message.clear();
     }
-
-    /// Volver atrás al quiz (cargar progreso desde disco si existe)
-    pub fn volver_a_quiz(&mut self) {
-        self.state = AppState::Quiz;
-        self.message.clear();
-    }
-
+    
     /// Avanzar a la siguiente semana (prepara la UI y estado)
     pub fn avanzar_a_siguiente_semana(&mut self, current_week: usize) {
         let language = self.selected_language.unwrap_or(Language::C);
