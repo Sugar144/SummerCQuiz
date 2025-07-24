@@ -1,0 +1,762 @@
+- language: C
+  week: 1
+  prompt: Usando la directiva define, declara una constante para el máximo de un nombre
+    "MAX_NOMBRE" con el valor entero 20.
+  answer: '#define MAX_NOMBRE 20'
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara una constante para el máximo de drones "MAX_DRONES" con el valor
+    entero 20.
+  answer: |-
+    const
+        MAX_DRONES: integer = 20;
+    end const
+  hint:
+
+- language: C
+  week: 1
+  prompt: Declara una constante local de tipo decimal para la distancia mínima "DISTANCIA_MINIMA",
+    asignale el valor 250.0.
+  answer: const float DISTANCIA_MINIMA = 250.0;
+  hint: Las constantes locales comienzan por const.
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara una constante de tipo decimal para la distancia mínima "DISTANCIA_MINIMA",
+    asignale el valor 250.0.
+  answer: |-
+    const
+        DISTANCIA_MINIMA: real = 250.0;
+    end const
+  hint: No olvides las palabras reservadas const end const y ;
+
+- language: C
+  week: 1
+  prompt: Declara una cadena de caracteres llamada nombreDron con tamaño 20.
+  answer: char nombreDron[20];
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara una variable de tipo string llamada nombreDron.
+  answer: |-
+    var
+        nombreDron: string;
+    end var
+  hint: Recuerda las palabras reservadas var end var.
+
+- language: C
+  week: 1
+  prompt: Declara una cadena de caracteres llamada nombreDron con tamaño 20, pero
+    esta vez utiliza la constante "MAX_NOMBRE".
+  answer: char nombreDron[MAX_NOMBRE];
+  hint:
+
+- language: C
+  week: 1
+  prompt: Declara una variable llamada distanciaMinima e inicializala con la constante
+    "DISTANCIA_MINIMA".
+  answer: float distanciaMinima = DISTANCIA_MINIMA;
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara una variable llamada distanciaMinima e inicializala con la constante
+    "DISTANCIA_MINIMA".
+  answer: |-
+    var
+      distanciaMinima: real;
+    end var
+    
+    distanciaMinima:= DISTANCIA_MINIMA;
+  hint: Aquí es importante recordar que en pseudocódigo no es posible declarar e inicializar
+    a la vez, primero declara y luego asignale el valor, no olvides las palabras reservadas
+    var end var.
+
+- language: C
+  week: 1
+  prompt: Declara una variable entera para almacenar el identificador del dron, llamala
+    idDron.
+  answer: int idDron;
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara una variable entera para almacenar el identificador del dron, llamala
+    idDron.
+  answer: |-
+    var 
+      idDron: integer; 
+    end var
+  hint:
+
+- language: C
+  week: 1
+  prompt: Inicializa la variable idDron en -1.
+  answer: idDron = -1;
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Inicializa la variable idDron en -1.
+  answer: idDron := -1;
+  hint: El operador de asignación en pseudocódigo es diferente al de C.
+
+- language: C
+  week: 1
+  prompt: Declara una variable decimal para la batería inicial del dron, llamala bateriaInicial.
+  answer: float bateriaInicial;
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara una variable decimal para la batería inicial del dron, llamala bateriaInicial.
+  answer: |-
+    var 
+      bateriaInicial: real; 
+    end var
+  hint:
+
+- language: C
+  week: 1
+  prompt: Declara una variable booleana llamada dronActivo e inicialízala a true.
+  answer: bool dronActivo = true;
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara una variable booleana llamada dronActivo e inicialízala a true.
+  answer: |-
+    var 
+      dronActivo: boolean; 
+    end var 
+    
+    dronActivo := true;
+  hint: Recuerda, primero declara (var end var) y luego inicializa.
+
+- language: C
+  week: 1
+  prompt: Declara e inicializa una variable char llamada categoriaDron a "A".
+  answer: char categoriaDron = 'A';
+  hint: Los caracteres se inicializan entre ''.
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara e inicializa una variable char llamada categoriaDron a "A".
+  answer: |- 
+    var
+     categoriaDron: boolean;
+    end var
+    
+    categoriaDron := 'A'
+  hint: Recuerda, primero declara y luego inicializa. Los caracteres se inicializan
+    entre ''.
+
+- language: C
+  week: 1
+  prompt: Lee el nombre del dron desde teclado usando scanf y guardalo en nombreDron.
+  answer: scanf("%s", nombreDron);
+  hint: El especificador de formato de string es %s.
+
+- language: Pseudocode
+  week: 1
+  prompt: Lee el nombre del dron desde teclado y guardalo en nombreDron.
+  answer: nombreDron := readString();
+  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read.
+    El formato es similar al de una inicialización.
+
+- language: C
+  week: 1
+  prompt: Lee el identificador del dron desde teclado usando scanf y guardalo en idDron.
+  answer: scanf("%d", &idDron);
+  hint: El especificador de formato de integer es %d.
+
+- language: Pseudocode
+  week: 1
+  prompt: Lee el identificador del dron desde teclado y guardalo en idDron.
+  answer: idDron := readInteger();
+  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read.
+    El formato es similar al de una inicialización.
+
+- language: C
+  week: 1
+  prompt: Lee el valor de la batería inicial desde teclado usando scanf y guárdalo
+    en bateriaInicial.
+  answer: scanf("%f", &bateriaInicial);
+  hint: El especificador de formato de float es %f.
+
+- language: Pseudocode
+  week: 1
+  prompt: Lee el valor de la batería inicial desde teclado y guárdalo en bateriaInicial.
+  answer: bateriaInicial := readReal();
+  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read.
+    El formato es similar al de una inicialización.
+
+- language: C
+  week: 1
+  prompt: Lee un carácter del usuario desde teclado usando scanf y guárdalo en categoriaDron.
+  answer: scanf(" %c", &categoriaDron);
+  hint: El especificador de formato de char es %c.
+
+- language: Pseudocode
+  week: 1
+  prompt: Lee un carácter del usuario desde teclado y guárdalo en categoriaDron.
+  answer: categoriaDron := readCharacter();
+  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read.
+    El formato es similar al de una inicialización.
+
+- language: C
+  week: 1
+  prompt: 'Imprime el nombre del dron y su identificador. Usa "Dron: x, ID: x" para
+    la impresión, siendo "x" el especificador de formato.'
+  answer: 'printf("Dron: %s, ID: %d", nombreDron, idDron);'
+  hint: 'Ejemplo de ejecución: "Dron: dron001, ID: 1"'
+
+- language: Pseudocode
+  week: 1
+  prompt: 'Imprime el nombre del dron y su identificador. Usa "Dron: x, ID: x" para
+    la impresión, siendo "x" el valor pertinente.'
+  answer: |-
+    writeString("Dron: "); 
+    writeString(nombreDron); 
+    writeString(", ID: "); 
+    writeInteger(idDron);'
+  hint: 'Ejemplo de ejecución: "Dron: dron001, ID: 1". Recuerda que en pseudocódigo
+    no puedes imprimir mas de un dato por linea.'
+
+- language: C
+  week: 1
+  prompt: 'Imprime la batería inicial del dron con un decimal. Usa "Batería: x" para
+    la impresión, siendo "x" el especificador de formato.'
+  answer: 'printf("Batería: %.1f", bateriaInicial);'
+  hint: Para imprimir cierto numero de decimales utiliza %.xf, siendo x el numero
+    de decimales.
+
+- language: Pseudocode
+  week: 1
+  prompt: 'Imprime la batería inicial del dron. Usa "Batería: x" para
+  la impresión, siendo "x" el especificador de formato.'
+  answer: |-
+    writeString("Batería: ");
+    writeReal(bateriaInicial);
+  hint:
+
+- language: C
+  week: 1
+  prompt: 'Imprime la categoría del dron como carácter. Usa "Categoría: x" para la
+    impresión, siendo "x" el especificador de formato.'
+  answer: 'printf("Categoría: %c", categoriaDron);'
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: 'Imprime la categoría del dron como carácter. Usa "Categoría: x" para la
+    impresión, siendo "x" el especificador de formato.'
+  answer: |-
+    writeString("Categoría: ");
+    writeCharacter(categoriaDron);
+  hint:
+
+- language: C
+  week: 1
+  prompt: Declara un enumerado tDronEstado con los valores PARADO, EN_VUELO y ESTRELLADO.
+  answer: |-
+    typedef enum { 
+      PARADO, 
+      EN_VUELO, 
+      ESTRELLADO 
+    } tDronEstado;
+  hint: la palabra reservada es typedef enum, recuerda poner ; a continuación del
+    nombre del enum.
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara un enumerado tDronEstado con los valores PARADO, EN_VUELO y ESTRELLADO.
+  answer: |-
+    type
+      tDronEstado = { PARADO, EN_VUELO y ESTRELLADO }
+    end type
+  hint: No olvides las palabras reservadas type end type.
+
+- language: C
+  week: 1
+  prompt: Declara una variable tDronEstado llamada estado e inicialízala a EN_VUELO.
+  answer: tDronEstado estado = EN_VUELO;
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Declara una variable tDronEstado llamada estado e inicialízala a EN_VUELO.
+  answer: |-
+    var
+      estado: tDronEstado;
+    end var
+    
+    estado := EN_VUELO;
+  hint: 'Recuerda: primero declara, luego inicializa.'
+
+- language: C
+  week: 1
+  prompt: Lee el valor del estado del dron desde teclado usando scanf y guárdalo en
+    estado.
+  answer: scanf("%u", &estado);
+  hint: El especificador de formato para leer enumerativos es %u
+
+- language: C
+  week: 1
+  prompt: Lee el valor del estado del dron desde teclado usando scanf y guárdalo en
+    estado.
+  answer: estado := readEnum();
+  hint: La función que se encarga de leer un enumerativo es readEnum.
+
+- language: C
+  week: 1
+  prompt: 'Imprime el valor numérico del estado del dron con una explicación. Usa
+    "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): x" para la impresión, siendo "x"
+    el especificador de formato.'
+  answer: 'printf("Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): %d", estado);'
+  hint: 'Ejemplo de ejecución: "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): 1"'
+
+- language: Pseudocode
+  week: 1
+  prompt: 'Imprime el valor numérico del estado del dron con una explicación. Usa
+    "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): x" para la impresión, siendo "x"
+    el valor a enseñar.'
+  answer: |-
+    writeString("Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): ");
+    writeEnum(estado);
+  hint: 'Ejemplo de ejecución: Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): 1'
+
+- language: C
+  week: 1
+  prompt: Usa el operador ternario para imprimir "En servicio" si dronActivo es verdadero,
+    si no imprime "Fuera de servicio".
+  answer: 'printf("%s", dronActivo ? "En servicio" : "Fuera de servicio");'
+  hint: 'recuerda que printf acepta como argumento cualquier expresión que devuelva
+    un valor, por eso podemos usar el operador ternario. Ejemplo: printf("%s", variable
+    o condición ? "output1"" : ""output2"");"'
+
+- language: C
+  week: 1
+  prompt: Incrementa la variable idDron en 1 usando el operador de incremento al finalizar
+    la carrera.
+  answer: idDron++;
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Incrementa la variable idDron en 1 al finalizar la carrera.
+  answer: idDron := idDron +1;
+  hint: Recuerda que en pseudocódigo no existe el operador ++ o -- .
+
+- language: C
+  week: 1
+  prompt: Resta 10.5 a la bateríaInicial usando operador compuesto.
+  answer: bateriaInicial -= 10.5;
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Resta 10.5 a la bateríaInicial .
+  answer: bateriaInicial := bateriaInicial - 10.5;
+  hint:
+
+- language: C
+  week: 1
+  prompt: Calcula si la batería es suficiente usando un operador relacional y guarda
+    el resultado en en una variable booleana "suficiente". Diremos que la batería
+    es suficiente si tiene al menos un 20%
+  answer: bool suficiente = bateriaInicial >= 20.0;
+  hint: batería mayor o igual a 20
+
+- language: Pseudocode
+  week: 1
+  prompt: Calcula si la batería es suficiente usando un operador relacional y guarda
+    el resultado en en una variable booleana "suficiente". Diremos que la batería
+    es suficiente si tiene al menos un 20%. Necesitarás este operador "≥".
+  answer: |-
+    var
+      suficiente: boolean;
+    end var
+    
+    suficiente := bateriaInicial ≥ 20;
+  hint: 'Ten en cuenta que una comparación con operadores relacionales, siempre devuelven
+    un resultado booleano de verdadero o falso, por eso podemos guardar el resultado en una
+    variable booleana. Extra: bateria ≥ a 20.'
+
+- language: C
+  week: 1
+  prompt: Imprime "Apto para siguiente ronda" si suficiente es verdadero, si no imprime
+    "No apto", usando ternario.
+  answer: 'printf("%s", suficiente ? "Apto para siguiente ronda" : "No apto");'
+  hint:
+
+- language: C
+  week: 1
+  prompt: Convierte bateriaInicial a entero y guárdalo en bateriaEntera.
+  answer: int bateriaEntera = (int)bateriaInicial;
+  hint: Recuerda que para castear una variable utilizas (tipo)variable.
+
+- language: Pseudocode
+  week: 1
+  prompt: Convierte bateriaInicial a entero y guárdalo en bateriaEntera.
+  answer: |-
+    var
+      bateriaEntera: integer;
+    end var
+    
+    bateriaEntera := realToInteger(bateriaInicial);
+  hint: Recuerda que para castear una variable decimal a una entera usamos realToInteger(). 
+    También recuerda que primero debes declarar la variable bateriaEntera.
+
+- language: C
+  week: 1
+  prompt: Convierte bateriaEntera otra vez a decimal y guárdalo en nuevaBateria.
+  answer: ' "float nuevaBateria = (float)bateriaEntera;"'
+  hint:
+
+- language: Pseudocode
+  week: 1
+  prompt: Convierte bateriaEntera otra vez a decimal y guárdalo en nuevaBateria.
+  answer: |-
+    var
+      nuevaBateria: integer;
+    end var
+    
+    nuevaBateria := integerToReal(bateriaInicial);
+  hint:
+
+- language: C
+  week: 2
+  prompt: Incluye la biblioteca estándar de entrada/salida en C para poder usar printf y scanf.
+  answer: |
+    #include <stdio.h>
+  hint: 'Empieza por #include'
+
+- language: C
+  week: 2
+  prompt: Incluye la biblioteca necesaria para poder usar variables booleanas en C.
+  answer: |
+    #include <stdbool.h>
+  hint: 'El nombre contiene "std"'
+
+- language: C
+  week: 2
+  prompt: Incluye la biblioteca necesaria para trabajar con cadenas de caracteres (funciones como strcpy, strcat, strcmp, strlen).
+  answer: |
+    #include <string.h>
+  hint: 'La biblioteca clásica para manipulación de strings, el nombre acaba con .h .'
+
+- language: C
+  week: 2
+  prompt: Declara una constante MAX_PLANTS con valor 5 usando define.
+  answer: |
+    #define MAX_PLANTS 5
+  hint:
+
+- language: Pseudocode
+  week: 2
+  prompt: Declara una constante MAX_PLANTS con valor 5.
+  answer: |
+    const
+      MAX_PLANTS: integer = 5;
+    end const
+  hint:
+
+- language: C
+  week: 2
+  prompt: Declara una constante MAX_NAME con valor 25 usando define.
+  answer: |
+    #define MAX_NAME 25
+  hint:
+
+
+- language: C
+  week: 2
+  prompt: Declara una constante MAX_MSG con valor 40 usando define.
+  answer: |
+    #define MAX_MSG 40
+  hint:
+
+- language: C
+  week: 2
+  prompt: Dentro de la función main, declara una constante local de tipo float llamada TEMP_MINIMA con valor 15.0.
+  answer: |
+    int main() {
+        const float TEMP_MINIMA = 15.0;
+        return 0;
+    }
+  hint:  |
+    int main(){
+      
+      // Código
+      
+      return 0;
+    }
+    
+
+
+- language: Pseudocode
+  week: 2
+  prompt: Declara una constante local de tipo decimal llamada TEMP_MINIMA con valor 15.0.
+  answer: |
+    const
+      TEMP_MINIMA: real = 15.0;
+    end const
+  hint: Los decimales en pseudocódigo son el tipo real.
+
+- language: C
+  week: 2
+  prompt: |
+    Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
+    Dentro de main, declara un array de cadenas nombrePlanta para los nombres de las plantas usando ambas constantes.
+  answer: |
+    #define MAX_PLANTS 5
+    #define MAX_NAME 25
+
+    int main() {
+        char nombrePlanta[MAX_PLANTS][MAX_NAME];
+        return 0;
+    }
+  hint: Después del nombre del array va primero el maximo de plantas y después el de los nombres
+
+- language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5.
+    Dentro del algoritmo principal, declara un array de strings nombrePlanta para los nombres de las plantas usando dicha constante.
+  answer: |
+    const
+      MAX_PLANTS: integer = 5;
+    end const
+    
+    algorithm
+      var
+        nombrePlanta: vector[MAX_PLANTS] of string;
+      end var
+    end algorithm
+  hint: No olvides todas las palabras reservadas como const, algorithm y var.
+
+- language: C
+  week: 2
+  prompt: |
+    Incluye la biblioteca necesaria para booleanos.
+    Declara la constante MAX_PLANTS = 5 y un array booleano sensoresActivos usando MAX_PLANTS dentro de main.
+  answer: |
+    #include <stdbool.h>
+    #define MAX_PLANTS 5
+
+    int main() {
+        bool sensoresActivos[MAX_PLANTS];
+        return 0;
+    }
+  hint: Incluye stdbool y usa bool, no int.
+
+- language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5.
+    Dentro del algoritmo principal, declara un array de booleanos sensoresActivos usando dicha constante.
+  answer: |
+    const
+      MAX_PLANTS: integer = 5;
+    end const
+
+    algorithm
+      var
+         sensoresActivos: vector[MAX_PLANTS] of boolean;
+      end var
+    end algorithm
+  hint: No olvides todas las palabras reservadas como const, algorithm y var.
+
+- language: C
+  week: 2
+  prompt: |
+    Declara las constantes FILAS = 3 y COLUMNAS = 4.
+    Dentro de main, declara una matriz de enteros sensoresTemperatura con FILAS Y COLUMNAS.
+  answer: |
+    #define FILAS 3
+    #define COLUMNAS 4
+
+    int main() {
+        int sensoresTemperatura[FILAS][COLUMNAS];
+        return 0;
+    }
+  hint: En una matriz van siempre primero las filas y luego las columnas
+
+- language: Pseudocode
+  week: 2
+  prompt: |
+    Declara las constantes FILAS = 3 y COLUMNAS = 4.
+    Dentro del algoritmo principal, declara una matriz de enteros sensoresTemperatura con FILAS Y COLUMNAS.
+  answer: |
+    const
+      FILAS: integer = 3;
+      COLUMNAS: integer = 4;
+    end const
+
+    algorithm
+      var
+         sensoresTemperatura: vector[FILAS][COLUMNAS] of integer;
+      end var
+    end algorithm
+  hint: En una matriz van siempre primero las filas y luego las columnas, no olvides todas las palabras reservadas para declarar los datos.
+
+
+- language: C
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5 y un array de enteros humedad con MAX_PLANTS, inicializado con los valores "60, 85, 72, 91, 65" dentro de main.
+  answer: |
+    #define MAX_PLANTS 5
+
+    int main() {
+        int humedad[MAX_PLANTS] = {60, 85, 72, 91, 65};
+        return 0;
+    }
+  hint: Los valores deben estar entre llaves, separados por comas.
+
+- language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5.
+    Dentro del algoritmo principal, declara un array de enteros humedad con MAX_PLANTS.
+    Inicializa el array con los valores "60, 85, 72, 91, 65".
+  answer: |
+    const
+      MAX_PLANTS: integer = 5;
+    end const
+
+    algorithm
+      var
+         humedad: vector[MAX_PLANTS] of integer;
+      end var
+      
+      humedad[1] := 60;
+      humedad[2] := 85;
+      humedad[3] := 72;
+      humedad[4] := 91;
+      humedad[5] := 65;
+    end algorithm
+  hint: Recuerda que en pseudocódigo, primero declaramos las variables y después las inicializamos.
+
+- language: C
+  week: 2
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    Dentro de main, declara una matriz booleana zonas con FILAS Y COLUMNAS.
+    Inicialízala con los valores: 
+    fila 1: true, false, false 
+    fila 2: false, true, false.
+  answer: |
+    #include <stdbool.h>
+    #define FILAS 2
+    #define COLUMNAS 3
+
+    int main() {
+        bool zonas[FILAS][COLUMNAS];
+    
+        zonas[0][0] = true;
+        zonas[0][1] = false;
+        zonas[0][2] = false;
+      
+        zonas[1][0] = false;
+        zonas[1][1] = true;
+        zonas[1][2] = false;
+    
+        return 0;
+    }
+  hint: Recuerda la biblioteca para el tipo bool.
+
+- language: Pseudocode
+  week: 2
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    Dentro del algoritmo principal, declara una matriz booleana zonas con FILAS Y COLUMNAS. 
+    Inicialízala con los valores: 
+    fila 1: true, false, false 
+    fila 2: false, true, false.
+  answer: |
+    const
+      FILAS: integer = 2;
+      COLUMNAS: integer = 3;
+    end const
+
+    algorithm
+      var
+         zonas: vector[FILAS][COLUMNAS] of boolean;
+      end var
+    
+      zonas[1][1] := true;
+      zonas[1][2] := false;
+      zonas[1][3] := false;
+    
+      zonas[2][1] := false;
+      zonas[2][2] := true;
+      zonas[2][3] := false;
+    end algorithm
+  hint: Recuerda las llaves dobles para la matriz y el tipo bool.
+
+
+
+- language: C
+  week: 3
+  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso
+    de la estructura if, si el numero es 5 sumale 1 utilizando operador de incremento.
+    En caso contrario restale 1 utilizando operador de decremento
+  answer: |
+    int main () {
+      int numero = 5; 
+    
+      if(numero == 5) { 
+        numero++;
+      } else { 
+        numero--; 
+      }
+      
+      return 0;
+    }
+  hint: Usa if else
+
+- language: Pseudocode
+  week: 3
+  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso
+    de la estructura if, si el numero es 5 sumale 1.
+    En caso contrario restale 1.
+  answer: |-
+    var
+      numero: integer;
+    end var
+    
+    numero := 5;
+    
+    if numero = 5 then
+      numero := numero + 1;
+    else
+      numero := numero - 1;
+    end if
+  hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
+
+- language: C
+  week: 3
+  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso
+    de la estructura if, si el numero es 5 sumale 1 utilizando operador de incremento.
+    En caso de ser menor que 5 restale 1 utilizando operador de decremento y finalmente
+    si es mayor que 5 le sumamos 5 usando un operador compuesto.
+  answer: |
+    int main () {
+      int numero = 5; 
+    
+      if(numero == 5) { 
+        numero++;
+      } else if(numero < 5) { 
+        numero--; 
+      } else {
+        numero += 5;
+      }
+    
+      return 0;
+    }
+  hint: Usa if else
