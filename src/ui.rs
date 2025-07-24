@@ -672,10 +672,14 @@ impl eframe::App for QuizApp {
                                         if siguiente.clicked() {
                                             self.avanzar_a_siguiente_semana(current_week);
                                         }
-                                    }else{
-                                        let volver = ui.add_sized([button_width, button_height], egui::Button::new("Atrás"));
+                                    } else {
+                                        ui.add_space(10.0);
+                                        ui.label("¡Bien hecho! Has completado todas las semana disponibles, pulsa volver para ir al menú.");
+                                        ui.add_space(10.0);
+
+                                        let volver = ui.add_sized([button_width, button_height], egui::Button::new("Volver"));
                                         if volver.clicked() {
-                                            self.volver_a_quiz();
+                                            self.guardar_y_salir();
                                         }
                                     }
                                 });
