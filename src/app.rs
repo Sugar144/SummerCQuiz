@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 use crate::code_utils::normalize_code;
 use crate::model::{AppState, Language, Question};
@@ -8,6 +9,7 @@ use eframe::egui;
 #[derive(Serialize, Deserialize)]
 pub struct QuizApp {
     pub questions: Vec<Question>,
+    pub completed_ids: HashSet<String>,
     pub selected_language: Option<Language>,
     pub current_week: Option<usize>,
     pub unlocked_weeks: Vec<usize>,
@@ -46,6 +48,7 @@ impl QuizApp {
         // Primero creas el struct (puedes llamarlo quiz_app, o self si lo prefieres)
         let mut quiz_app = Self {
             questions,
+            completed_ids: HashSet::new(),
             selected_language: None,
             current_week: None,
             unlocked_weeks: vec![1],
@@ -106,6 +109,7 @@ impl QuizApp {
 
         Self {
             questions,
+            completed_ids: HashSet::new(),
             selected_language: Some(language),
             current_week: Some(first_week),
             unlocked_weeks: vec![1],
@@ -123,6 +127,8 @@ impl QuizApp {
             update_thread_launched: false,
             has_saved_progress: false,
         }
+
+
     }
 
     pub fn select_week(&mut self, week: usize) {
@@ -142,21 +148,6 @@ impl QuizApp {
         self.current_week = Some(week);
         let language = self.selected_language.unwrap_or(Language::C);
 
-        // ¿Todas las preguntas de la semana están is_done? Resetea solo las de esa semana
-        let week_done = self.questions
-            .iter()
-            .filter(|q| q.week == week && q.language == language)
-            .all(|q| q.is_done);
-
-        if week_done {
-            for q in self.questions.iter_mut().filter(|q| q.week == week && q.language == language) {
-                q.is_done = false;
-                q.fails = 0;
-                q.attempts = 0;
-                q.skips = 0;
-                q.saw_solution = false;
-            }
-        }
 
         // Selecciona la primera pendiente
         self.current_in_week = self.questions
@@ -195,18 +186,22 @@ impl QuizApp {
     // Una semana está completa si todas sus preguntas están respondidas correctamente
     pub fn is_week_completed(&self, week: usize) -> bool {
         let language = self.selected_language.unwrap_or(Language::C);
-        let questions_in_week: Vec<_> = self.questions
-            .iter()
-            .filter(|q| q.week == week && q.language == language)
-            .collect();
-
-        if questions_in_week.is_empty() {
-            // Si no hay preguntas para esa semana, NO puede estar completada
-            false
-        } else {
-            questions_in_week.iter().all(|q| q.is_done)
+        let mut all_ok = true;
+        for q in self.questions.iter().filter(|q| q.week == week && q.language == language) {
+            if let Some(id) = &q.id {
+                if !self.completed_ids.contains(id) {
+                    all_ok = false;
+                }
+            } else {
+                all_ok = false;
+            }
         }
+        if all_ok {
+        }
+        all_ok
     }
+
+
 
 
     pub fn recalculate_unlocked_weeks(&mut self) {
@@ -262,6 +257,9 @@ impl QuizApp {
             self.message.clear();
 
             self.has_saved_progress = false;
+
+            self.sync_is_done();                // <--- Añade aquí
+            self.recalculate_unlocked_weeks();
         }
     }
 
@@ -290,16 +288,55 @@ impl QuizApp {
 
     /// Cambia el lenguaje y carga o inicializa el progreso, y va a la bienvenida
     pub fn seleccionar_lenguaje(&mut self, lang: Language) {
-
-
         self.selected_language = Some(lang);
-        *self = QuizApp::new_for_language(lang);
+
+        // Mantén el progreso, pero filtra preguntas por el nuevo lenguaje
+        let mut questions = read_questions_embedded()
+            .into_iter()
+            .filter(|q| q.language == lang)
+            .collect::<Vec<_>>();
+
+        for q in &mut questions {
+            q.is_done = if let Some(id) = &q.id {
+                self.completed_ids.contains(id)
+            } else {
+                false
+            };
+            q.attempts = 0;
+            q.fails = 0;
+            q.skips = 0;
+            q.saw_solution = false;
+        }
+
+        self.questions = questions;
+
+        // === LIMPIA EL SET DE IDS OBSOLETOS ===
+        let valid_ids: HashSet<_> = self.questions
+            .iter()
+            .filter_map(|q| q.id.as_ref())
+            .cloned()
+            .collect();
+        self.completed_ids.retain(|id| valid_ids.contains(id));
+        // === FIN LIMPIEZA ===
+
+        self.current_week = None;
+        self.unlocked_weeks = vec![1];
+        self.max_unlocked_week = 1;
+        self.current_in_week = None;
+        self.input.clear();
+        self.finished = false;
+        self.round = 1;
+        self.shown_this_round.clear();
+        self.show_solution = false;
+        self.state = AppState::Welcome;
+        self.message.clear();
 
         self.has_saved_progress = true;
 
-        self.state = AppState::Welcome;
-        self.message.clear();
+        self.sync_is_done();
+        self.recalculate_unlocked_weeks();
     }
+
 
     pub fn continuar_quiz(&mut self) {
         // Busca la primera semana pendiente, o la más baja si ya terminó tot
@@ -325,6 +362,8 @@ impl QuizApp {
     }
 
     pub fn abrir_menu_semanal(&mut self) {
+        self.sync_is_done();                // <--- Añade aquí
+        self.recalculate_unlocked_weeks();
         self.state = AppState::WeekMenu;
     }
 
@@ -360,6 +399,12 @@ impl QuizApp {
         if user_code == answer_code {
             self.message.clear();
             self.questions[idx].is_done = true;
+            if let Some(id) = &self.questions[idx].id {
+                self.completed_ids.insert(id.clone());
+                println!("✅ Añadido id '{}' a completed_ids. Set ahora: {:?}", id, self.completed_ids);
+            }
+            self.sync_is_done();
+
             self.message = "✅ ¡Correcto!".to_string();
             self.input.clear();
             self.current_in_week = self.next_pending_in_week();
@@ -448,4 +493,96 @@ impl QuizApp {
             }
         }
     }
+
+    pub fn sync_is_done(&mut self) {
+        for q in &mut self.questions {
+            q.is_done = if let Some(id) = &q.id {
+                self.completed_ids.contains(id)
+            } else {
+                false
+            };
+        }
+    }
+
+    pub fn nuevas_preguntas_en_semana(&self, semana: usize, language: Language) -> usize {
+        self.questions
+            .iter()
+            .filter(|q| q.week == semana && q.language == language)
+            .filter(|q| {
+                if let Some(id) = &q.id {
+                    !self.completed_ids.contains(id)
+                } else {
+                    false
+                }
+            })
+            .count()
+    }
+
+    pub fn hay_preguntas_nuevas(&self) -> bool {
+        let language = self.selected_language.unwrap_or(Language::C);
+        // Obtén las semanas con preguntas para ese idioma
+        let mut weeks: Vec<usize> = self.questions
+            .iter()
+            .filter(|q| q.language == language)
+            .map(|q| q.week)
+            .collect();
+        weeks.sort_unstable();
+        weeks.dedup();
+
+        // Para cada semana completada, ¿hay preguntas cuyo id NO está en completed_ids?
+        for &week in &weeks {
+            if self.is_week_completed(week) {
+                let hay_nueva = self.questions.iter()
+                    .filter(|q| q.week == week && q.language == language)
+                    .any(|q| {
+                        if let Some(id) = &q.id {
+                            !self.completed_ids.contains(id)
+                        } else {
+                            false
+                        }
+                    });
+                if hay_nueva {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    pub fn reiniciar_semana(&mut self, week: usize) {
+        let language = self.selected_language.unwrap_or(Language::C);
+
+        // 1. Elimina los ids de la semana del set de completadas
+        let ids_a_borrar: Vec<String> = self.questions
+            .iter()
+            .filter(|q| q.week == week && q.language == language)
+            .filter_map(|q| q.id.clone())
+            .collect();
+
+        for id in ids_a_borrar {
+            self.completed_ids.remove(&id);
+        }
+
+        // 2. Marca preguntas como no hechas y resetea stats
+        for q in self.questions.iter_mut() {
+            if q.week == week && q.language == language {
+                q.is_done = false;
+                q.attempts = 0;
+                q.fails = 0;
+                q.skips = 0;
+                q.saw_solution = false;
+            }
+        }
+
+        // 3. Actualiza el estado para comenzar desde la primera pregunta no hecha
+        self.sync_is_done();
+        self.current_in_week = self.questions
+            .iter()
+            .enumerate()
+            .find(|(_, q)| q.week == week && q.language == language && !q.is_done)
+            .map(|(idx, _)| idx);
+        self.round = 1;
+        self.shown_this_round.clear();
+    }
+
 }
