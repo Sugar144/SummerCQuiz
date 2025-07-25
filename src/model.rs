@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, Hash, Ord, PartialOrd)]
 pub enum Language {
     C,
-    Pseudocode
+    Pseudocode,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -25,6 +25,9 @@ pub struct Question {
     pub fails: u32,
     #[serde(default)]
     pub skips: u32,
+    // NUEVO
+    #[serde(default)]
+    pub id: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

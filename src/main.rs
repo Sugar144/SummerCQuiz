@@ -9,6 +9,7 @@ use app::QuizApp;
 
 #[cfg(not(target_arch = "wasm32"))]
 use egui::Visuals;
+use crate::model::AppState;
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result<()> {
@@ -28,22 +29,24 @@ fn main() -> eframe::Result<()> {
 
             // === NUEVO BLOQUE: Cargar progreso si existe ===
             let app = if let Some(storage) = cc.storage {
-                if let Some(state) = eframe::get_value::<QuizApp>(storage, eframe::APP_KEY) {
-                    // Si existe guardado, inicialízalo y marca el flag:
-                    let mut app = state;
-                    app.has_saved_progress = true;
-                    app
+                if let Some(mut state) = eframe::get_value::<QuizApp>(storage, eframe::APP_KEY) {
+                    // Siempre empezar en select language:
+                    state.state = AppState::LanguageSelect;
+                    state.has_saved_progress = true;
+                    state
                 } else {
-                    // No había guardado
                     let mut app = QuizApp::new();
+                    app.state = AppState::LanguageSelect;
                     app.has_saved_progress = false;
                     app
                 }
             } else {
                 let mut app = QuizApp::new();
+                app.state = AppState::LanguageSelect;
                 app.has_saved_progress = false;
                 app
             };
+
 
             Ok(Box::new(app))
         }),

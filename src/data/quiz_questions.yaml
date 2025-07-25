@@ -1,44 +1,47 @@
-- language: C
+#### Semana 1 #####
+- id: c-1-max_nombre
+  language: C
   week: 1
-  prompt: Usando la directiva define, declara una constante para el máximo de un nombre
-    "MAX_NOMBRE" con el valor entero 20.
+  prompt: Usando la directiva define, declara una constante para el máximo de un nombre "MAX_NOMBRE" con el valor entero 20.
   answer: '#define MAX_NOMBRE 20'
   hint:
 
-- language: Pseudocode
+- id: p-1-max_drones
+  language: Pseudocode
   week: 1
-  prompt: Declara una constante para el máximo de drones "MAX_DRONES" con el valor
-    entero 20.
+  prompt: Declara una constante para el máximo de drones "MAX_DRONES" con el valor entero 20.
   answer: |-
     const
         MAX_DRONES: integer = 20;
     end const
   hint:
 
-- language: C
+- id: c-1-const_decimal
+  language: C
   week: 1
-  prompt: Declara una constante local de tipo decimal para la distancia mínima "DISTANCIA_MINIMA",
-    asignale el valor 250.0.
+  prompt: Declara una constante local de tipo decimal para la distancia mínima "DISTANCIA_MINIMA", asignale el valor 250.0.
   answer: const float DISTANCIA_MINIMA = 250.0;
   hint: Las constantes locales comienzan por const.
 
-- language: Pseudocode
+- id: p-1-const_decimal
+  language: Pseudocode
   week: 1
-  prompt: Declara una constante de tipo decimal para la distancia mínima "DISTANCIA_MINIMA",
-    asignale el valor 250.0.
+  prompt: Declara una constante de tipo decimal para la distancia mínima "DISTANCIA_MINIMA", asignale el valor 250.0.
   answer: |-
     const
         DISTANCIA_MINIMA: real = 250.0;
     end const
   hint: No olvides las palabras reservadas const end const y ;
 
-- language: C
+- id: c-1-nombredron_20
+  language: C
   week: 1
   prompt: Declara una cadena de caracteres llamada nombreDron con tamaño 20.
   answer: char nombreDron[20];
   hint:
 
-- language: Pseudocode
+- id: p-1-nombredron_string
+  language: Pseudocode
   week: 1
   prompt: Declara una variable de tipo string llamada nombreDron.
   answer: |-
@@ -47,70 +50,72 @@
     end var
   hint: Recuerda las palabras reservadas var end var.
 
-- language: C
+- id: c-1-nombredron_max_nombre
+  language: C
   week: 1
-  prompt: Declara una cadena de caracteres llamada nombreDron con tamaño 20, pero
-    esta vez utiliza la constante "MAX_NOMBRE".
+  prompt: Declara una cadena de caracteres llamada nombreDron con tamaño 20, pero esta vez utiliza la constante "MAX_NOMBRE".
   answer: char nombreDron[MAX_NOMBRE];
   hint:
 
-- language: C
+- id: c-1-distanciaminima_const
+  language: C
   week: 1
-  prompt: Declara una variable llamada distanciaMinima e inicializala con la constante
-    "DISTANCIA_MINIMA".
+  prompt: Declara una variable llamada distanciaMinima e inicializala con la constante "DISTANCIA_MINIMA".
   answer: float distanciaMinima = DISTANCIA_MINIMA;
   hint:
 
-- language: Pseudocode
+- id: p-1-distanciaminima_const
+  language: Pseudocode
   week: 1
-  prompt: Declara una variable llamada distanciaMinima e inicializala con la constante
-    "DISTANCIA_MINIMA".
+  prompt: Declara una variable llamada distanciaMinima e inicializala con la constante "DISTANCIA_MINIMA".
   answer: |-
     var
       distanciaMinima: real;
     end var
     
     distanciaMinima:= DISTANCIA_MINIMA;
-  hint: Aquí es importante recordar que en pseudocódigo no es posible declarar e inicializar
-    a la vez, primero declara y luego asignale el valor, no olvides las palabras reservadas
-    var end var.
+  hint: Aquí es importante recordar que en pseudocódigo no es posible declarar e inicializar a la vez, primero declara y luego asignale el valor, no olvides las palabras reservadas var end var.
 
-- language: C
+- id: c-1-iddron_entera
+  language: C
   week: 1
-  prompt: Declara una variable entera para almacenar el identificador del dron, llamala
-    idDron.
+  prompt: Declara una variable entera para almacenar el identificador del dron, llamala idDron.
   answer: int idDron;
   hint:
 
-- language: Pseudocode
+- id: p-1-iddron_entera
+  language: Pseudocode
   week: 1
-  prompt: Declara una variable entera para almacenar el identificador del dron, llamala
-    idDron.
+  prompt: Declara una variable entera para almacenar el identificador del dron, llamala idDron.
   answer: |-
     var 
       idDron: integer; 
     end var
   hint:
 
-- language: C
+- id: c-1-iddron_menos1
+  language: C
   week: 1
   prompt: Inicializa la variable idDron en -1.
   answer: idDron = -1;
   hint:
 
-- language: Pseudocode
+- id: p-1-iddron_menos1
+  language: Pseudocode
   week: 1
   prompt: Inicializa la variable idDron en -1.
   answer: idDron := -1;
   hint: El operador de asignación en pseudocódigo es diferente al de C.
 
-- language: C
+- id: c-1-bateriainicial_float
+  language: C
   week: 1
   prompt: Declara una variable decimal para la batería inicial del dron, llamala bateriaInicial.
   answer: float bateriaInicial;
   hint:
 
-- language: Pseudocode
+- id: p-1-bateriainicial_real
+  language: Pseudocode
   week: 1
   prompt: Declara una variable decimal para la batería inicial del dron, llamala bateriaInicial.
   answer: |-
@@ -119,13 +124,15 @@
     end var
   hint:
 
-- language: C
+- id: c-1-dronactivo_true
+  language: C
   week: 1
   prompt: Declara una variable booleana llamada dronActivo e inicialízala a true.
   answer: bool dronActivo = true;
   hint:
 
-- language: Pseudocode
+- id: p-1-dronactivo_true
+  language: Pseudocode
   week: 1
   prompt: Declara una variable booleana llamada dronActivo e inicialízala a true.
   answer: |-
@@ -136,130 +143,133 @@
     dronActivo := true;
   hint: Recuerda, primero declara (var end var) y luego inicializa.
 
-- language: C
+- id: c-1-categoriadron_a
+  language: C
   week: 1
   prompt: Declara e inicializa una variable char llamada categoriaDron a "A".
   answer: char categoriaDron = 'A';
   hint: Los caracteres se inicializan entre ''.
 
-- language: Pseudocode
+- id: p-1-categoriadron_a
+  language: Pseudocode
   week: 1
   prompt: Declara e inicializa una variable char llamada categoriaDron a "A".
-  answer: |- 
+  answer: |-
     var
      categoriaDron: boolean;
     end var
     
     categoriaDron := 'A'
-  hint: Recuerda, primero declara y luego inicializa. Los caracteres se inicializan
-    entre ''.
+  hint: Recuerda, primero declara y luego inicializa. Los caracteres se inicializan entre ''.
 
-- language: C
+- id: c-1-scanf_nombredron
+  language: C
   week: 1
   prompt: Lee el nombre del dron desde teclado usando scanf y guardalo en nombreDron.
   answer: scanf("%s", nombreDron);
   hint: El especificador de formato de string es %s.
 
-- language: Pseudocode
+- id: p-1-readstring_nombredron
+  language: Pseudocode
   week: 1
   prompt: Lee el nombre del dron desde teclado y guardalo en nombreDron.
   answer: nombreDron := readString();
-  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read.
-    El formato es similar al de una inicialización.
+  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read. El formato es similar al de una inicialización.
 
-- language: C
+- id: c-1-scanf_iddron
+  language: C
   week: 1
   prompt: Lee el identificador del dron desde teclado usando scanf y guardalo en idDron.
   answer: scanf("%d", &idDron);
   hint: El especificador de formato de integer es %d.
 
-- language: Pseudocode
+- id: p-1-readinteger_iddron
+  language: Pseudocode
   week: 1
   prompt: Lee el identificador del dron desde teclado y guardalo en idDron.
   answer: idDron := readInteger();
-  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read.
-    El formato es similar al de una inicialización.
+  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read. El formato es similar al de una inicialización.
 
-- language: C
+- id: c-1-scanf_bateriai
+  language: C
   week: 1
-  prompt: Lee el valor de la batería inicial desde teclado usando scanf y guárdalo
-    en bateriaInicial.
+  prompt: Lee el valor de la batería inicial desde teclado usando scanf y guárdalo en bateriaInicial.
   answer: scanf("%f", &bateriaInicial);
   hint: El especificador de formato de float es %f.
 
-- language: Pseudocode
+- id: p-1-readreal_bateriai
+  language: Pseudocode
   week: 1
   prompt: Lee el valor de la batería inicial desde teclado y guárdalo en bateriaInicial.
   answer: bateriaInicial := readReal();
-  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read.
-    El formato es similar al de una inicialización.
+  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read. El formato es similar al de una inicialización.
 
-- language: C
+- id: c-1-scanf_categoriadron
+  language: C
   week: 1
   prompt: Lee un carácter del usuario desde teclado usando scanf y guárdalo en categoriaDron.
   answer: scanf(" %c", &categoriaDron);
   hint: El especificador de formato de char es %c.
 
-- language: Pseudocode
+- id: p-1-readcharacter_categoriadron
+  language: Pseudocode
   week: 1
   prompt: Lee un carácter del usuario desde teclado y guárdalo en categoriaDron.
   answer: categoriaDron := readCharacter();
-  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read.
-    El formato es similar al de una inicialización.
+  hint: Recuerda que cada tipo tiene una función de lectura que comienza por read. El formato es similar al de una inicialización.
 
-- language: C
+- id: c-1-printf_nombre_id
+  language: C
   week: 1
-  prompt: 'Imprime el nombre del dron y su identificador. Usa "Dron: x, ID: x" para
-    la impresión, siendo "x" el especificador de formato.'
+  prompt: 'Imprime el nombre del dron y su identificador. Usa "Dron: x, ID: x" para la impresión, siendo "x" el especificador de formato.'
   answer: 'printf("Dron: %s, ID: %d", nombreDron, idDron);'
   hint: 'Ejemplo de ejecución: "Dron: dron001, ID: 1"'
 
-- language: Pseudocode
+- id: p-1-writestring_nombre_id
+  language: Pseudocode
   week: 1
-  prompt: 'Imprime el nombre del dron y su identificador. Usa "Dron: x, ID: x" para
-    la impresión, siendo "x" el valor pertinente.'
+  prompt: 'Imprime el nombre del dron y su identificador. Usa "Dron: x, ID: x" para la impresión, siendo "x" el valor pertinente.'
   answer: |-
     writeString("Dron: "); 
     writeString(nombreDron); 
     writeString(", ID: "); 
     writeInteger(idDron);'
-  hint: 'Ejemplo de ejecución: "Dron: dron001, ID: 1". Recuerda que en pseudocódigo
-    no puedes imprimir mas de un dato por linea.'
+  hint: 'Ejemplo de ejecución: "Dron: dron001, ID: 1". Recuerda que en pseudocódigo no puedes imprimir mas de un dato por linea.'
 
-- language: C
+- id: c-1-printf_bateria
+  language: C
   week: 1
-  prompt: 'Imprime la batería inicial del dron con un decimal. Usa "Batería: x" para
-    la impresión, siendo "x" el especificador de formato.'
+  prompt: 'Imprime la batería inicial del dron con un decimal. Usa "Batería: x" para la impresión, siendo "x" el especificador de formato.'
   answer: 'printf("Batería: %.1f", bateriaInicial);'
-  hint: Para imprimir cierto numero de decimales utiliza %.xf, siendo x el numero
-    de decimales.
+  hint: Para imprimir cierto numero de decimales utiliza %.xf, siendo x el numero de decimales.
 
-- language: Pseudocode
+- id: p-1-writestring_bateria
+  language: Pseudocode
   week: 1
-  prompt: 'Imprime la batería inicial del dron. Usa "Batería: x" para
-  la impresión, siendo "x" el especificador de formato.'
+  prompt: 'Imprime la batería inicial del dron. Usa "Batería: x" para la impresión, siendo "x" el especificador de formato.'
   answer: |-
     writeString("Batería: ");
     writeReal(bateriaInicial);
   hint:
 
-- language: C
+- id: c-1-printf_categoria
+  language: C
   week: 1
-  prompt: 'Imprime la categoría del dron como carácter. Usa "Categoría: x" para la
-    impresión, siendo "x" el especificador de formato.'
+  prompt: 'Imprime la categoría del dron como carácter. Usa "Categoría: x" para la impresión, siendo "x" el especificador de formato.'
   answer: 'printf("Categoría: %c", categoriaDron);'
   hint:
 
-- language: Pseudocode
+- id: p-1-writestring_categoria
+  language: Pseudocode
   week: 1
-  prompt: 'Imprime la categoría del dron como carácter. Usa "Categoría: x" para la
-    impresión, siendo "x" el especificador de formato.'
+  prompt: 'Imprime la categoría del dron como carácter. Usa "Categoría: x" para la impresión, siendo "x" el especificador de formato.'
   answer: |-
     writeString("Categoría: ");
     writeCharacter(categoriaDron);
   hint:
 
-- language: C
+- id: c-1-enum_tdrone
+  language: C
   week: 1
   prompt: Declara un enumerado tDronEstado con los valores PARADO, EN_VUELO y ESTRELLADO.
   answer: |-
@@ -268,10 +278,10 @@
       EN_VUELO, 
       ESTRELLADO 
     } tDronEstado;
-  hint: la palabra reservada es typedef enum, recuerda poner ; a continuación del
-    nombre del enum.
+  hint: la palabra reservada es typedef enum, recuerda poner ; a continuación del nombre del enum.
 
-- language: Pseudocode
+- id: p-1-type_tdrone
+  language: Pseudocode
   week: 1
   prompt: Declara un enumerado tDronEstado con los valores PARADO, EN_VUELO y ESTRELLADO.
   answer: |-
@@ -280,13 +290,15 @@
     end type
   hint: No olvides las palabras reservadas type end type.
 
-- language: C
+- id: c-1-estado_en_vuelo
+  language: C
   week: 1
   prompt: Declara una variable tDronEstado llamada estado e inicialízala a EN_VUELO.
   answer: tDronEstado estado = EN_VUELO;
   hint:
 
-- language: Pseudocode
+- id: p-1-estado_en_vuelo
+  language: Pseudocode
   week: 1
   prompt: Declara una variable tDronEstado llamada estado e inicialízala a EN_VUELO.
   answer: |-
@@ -297,109 +309,106 @@
     estado := EN_VUELO;
   hint: 'Recuerda: primero declara, luego inicializa.'
 
-- language: C
+- id: c-1-lee_estado_enum
+  language: C
   week: 1
-  prompt: Lee el valor del estado del dron desde teclado usando scanf y guárdalo en
-    estado.
+  prompt: Lee el valor del estado del dron desde teclado usando scanf y guárdalo en estado.
   answer: scanf("%u", &estado);
   hint: El especificador de formato para leer enumerativos es %u
 
-- language: C
+- id: p-1-readenum_estado
+  language: Pseudocode
   week: 1
-  prompt: Lee el valor del estado del dron desde teclado usando scanf y guárdalo en
-    estado.
+  prompt: Lee el valor del estado del dron desde teclado usando scanf y guárdalo en estado.
   answer: estado := readEnum();
   hint: La función que se encarga de leer un enumerativo es readEnum.
 
-- language: C
+- id: c-1-printf_estado_num
+  language: C
   week: 1
-  prompt: 'Imprime el valor numérico del estado del dron con una explicación. Usa
-    "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): x" para la impresión, siendo "x"
-    el especificador de formato.'
+  prompt: 'Imprime el valor numérico del estado del dron con una explicación. Usa "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): x" para la impresión, siendo "x" el especificador de formato.'
   answer: 'printf("Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): %d", estado);'
   hint: 'Ejemplo de ejecución: "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): 1"'
 
-- language: Pseudocode
+- id: p-1-writestring_estado_num
+  language: Pseudocode
   week: 1
-  prompt: 'Imprime el valor numérico del estado del dron con una explicación. Usa
-    "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): x" para la impresión, siendo "x"
-    el valor a enseñar.'
+  prompt: 'Imprime el valor numérico del estado del dron con una explicación. Usa "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): x" para la impresión, siendo "x" el valor a enseñar.'
   answer: |-
     writeString("Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): ");
     writeEnum(estado);
   hint: 'Ejemplo de ejecución: Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): 1'
 
-- language: C
+- id: c-1-ternario_en_servicio
+  language: C
   week: 1
-  prompt: Usa el operador ternario para imprimir "En servicio" si dronActivo es verdadero,
-    si no imprime "Fuera de servicio".
+  prompt: Usa el operador ternario para imprimir "En servicio" si dronActivo es verdadero, si no imprime "Fuera de servicio".
   answer: 'printf("%s", dronActivo ? "En servicio" : "Fuera de servicio");'
-  hint: 'recuerda que printf acepta como argumento cualquier expresión que devuelva
-    un valor, por eso podemos usar el operador ternario. Ejemplo: printf("%s", variable
-    o condición ? "output1"" : ""output2"");"'
+  hint: 'recuerda que printf acepta como argumento cualquier expresión que devuelva un valor, por eso podemos usar el operador ternario. Ejemplo: printf("%s", variable o condición ? "output1"" : ""output2"");"'
 
-- language: C
+- id: c-1-incremento_iddron
+  language: C
   week: 1
-  prompt: Incrementa la variable idDron en 1 usando el operador de incremento al finalizar
-    la carrera.
+  prompt: Incrementa la variable idDron en 1 usando el operador de incremento al finalizar la carrera.
   answer: idDron++;
   hint:
 
-- language: Pseudocode
+- id: p-1-incrementa_iddron
+  language: Pseudocode
   week: 1
   prompt: Incrementa la variable idDron en 1 al finalizar la carrera.
   answer: idDron := idDron +1;
   hint: Recuerda que en pseudocódigo no existe el operador ++ o -- .
 
-- language: C
+- id: c-1-compuesto_bateria
+  language: C
   week: 1
   prompt: Resta 10.5 a la bateríaInicial usando operador compuesto.
   answer: bateriaInicial -= 10.5;
   hint:
 
-- language: Pseudocode
+- id: p-1-resta_bateria
+  language: Pseudocode
   week: 1
   prompt: Resta 10.5 a la bateríaInicial .
   answer: bateriaInicial := bateriaInicial - 10.5;
   hint:
 
-- language: C
+- id: c-1-suficiente_bool
+  language: C
   week: 1
-  prompt: Calcula si la batería es suficiente usando un operador relacional y guarda
-    el resultado en en una variable booleana "suficiente". Diremos que la batería
-    es suficiente si tiene al menos un 20%
+  prompt: Calcula si la batería es suficiente usando un operador relacional y guarda el resultado en en una variable booleana "suficiente". Diremos que la batería es suficiente si tiene al menos un 20%
   answer: bool suficiente = bateriaInicial >= 20.0;
   hint: batería mayor o igual a 20
 
-- language: Pseudocode
+- id: p-1-suficiente_bool
+  language: Pseudocode
   week: 1
-  prompt: Calcula si la batería es suficiente usando un operador relacional y guarda
-    el resultado en en una variable booleana "suficiente". Diremos que la batería
-    es suficiente si tiene al menos un 20%. Necesitarás este operador "≥".
+  prompt: Calcula si la batería es suficiente usando un operador relacional y guarda el resultado en en una variable booleana "suficiente". Diremos que la batería es suficiente si tiene al menos un 20%. Necesitarás este operador "≥".
   answer: |-
     var
       suficiente: boolean;
     end var
     
     suficiente := bateriaInicial ≥ 20;
-  hint: 'Ten en cuenta que una comparación con operadores relacionales, siempre devuelven
-    un resultado booleano de verdadero o falso, por eso podemos guardar el resultado en una
-    variable booleana. Extra: bateria ≥ a 20.'
+  hint: 'Ten en cuenta que una comparación con operadores relacionales, siempre devuelven un resultado booleano de verdadero o falso, por eso podemos guardar el resultado en una variable booleana. Extra: bateria ≥ a 20.'
 
-- language: C
+- id: c-1-ternario_apto
+  language: C
   week: 1
-  prompt: Imprime "Apto para siguiente ronda" si suficiente es verdadero, si no imprime
-    "No apto", usando ternario.
+  prompt: Imprime "Apto para siguiente ronda" si suficiente es verdadero, si no imprime "No apto", usando ternario.
   answer: 'printf("%s", suficiente ? "Apto para siguiente ronda" : "No apto");'
   hint:
 
-- language: C
+- id: c-1-cast_bateriaentera
+  language: C
   week: 1
   prompt: Convierte bateriaInicial a entero y guárdalo en bateriaEntera.
   answer: int bateriaEntera = (int)bateriaInicial;
   hint: Recuerda que para castear una variable utilizas (tipo)variable.
 
-- language: Pseudocode
+- id: p-1-cast_bateriaentera
+  language: Pseudocode
   week: 1
   prompt: Convierte bateriaInicial a entero y guárdalo en bateriaEntera.
   answer: |-
@@ -408,16 +417,18 @@
     end var
     
     bateriaEntera := realToInteger(bateriaInicial);
-  hint: Recuerda que para castear una variable decimal a una entera usamos realToInteger(). 
+  hint: Recuerda que para castear una variable decimal a una entera usamos realToInteger().
     También recuerda que primero debes declarar la variable bateriaEntera.
 
-- language: C
+- id: c-1-cast_nuevabateria
+  language: C
   week: 1
   prompt: Convierte bateriaEntera otra vez a decimal y guárdalo en nuevaBateria.
   answer: ' "float nuevaBateria = (float)bateriaEntera;"'
   hint:
 
-- language: Pseudocode
+- id: p-1-cast_nuevabateria
+  language: Pseudocode
   week: 1
   prompt: Convierte bateriaEntera otra vez a decimal y guárdalo en nuevaBateria.
   answer: |-
@@ -428,35 +439,42 @@
     nuevaBateria := integerToReal(bateriaInicial);
   hint:
 
-- language: C
+#### Semana 2 #####
+
+- id: c-2-include_stdio
+  language: C
   week: 2
   prompt: Incluye la biblioteca estándar de entrada/salida en C para poder usar printf y scanf.
   answer: |
     #include <stdio.h>
   hint: 'Empieza por #include'
 
-- language: C
+- id: c-2-include_stdbool
+  language: C
   week: 2
   prompt: Incluye la biblioteca necesaria para poder usar variables booleanas en C.
   answer: |
     #include <stdbool.h>
   hint: 'El nombre contiene "std"'
 
-- language: C
+- id: c-2-include_string
+  language: C
   week: 2
   prompt: Incluye la biblioteca necesaria para trabajar con cadenas de caracteres (funciones como strcpy, strcat, strcmp, strlen).
   answer: |
     #include <string.h>
   hint: 'La biblioteca clásica para manipulación de strings, el nombre acaba con .h .'
 
-- language: C
+- id: c-2-max_plants_define
+  language: C
   week: 2
   prompt: Declara una constante MAX_PLANTS con valor 5 usando define.
   answer: |
     #define MAX_PLANTS 5
   hint:
 
-- language: Pseudocode
+- id: p-2-max_plants_const
+  language: Pseudocode
   week: 2
   prompt: Declara una constante MAX_PLANTS con valor 5.
   answer: |
@@ -465,22 +483,24 @@
     end const
   hint:
 
-- language: C
+- id: c-2-max_name_define
+  language: C
   week: 2
   prompt: Declara una constante MAX_NAME con valor 25 usando define.
   answer: |
     #define MAX_NAME 25
   hint:
 
-
-- language: C
+- id: c-2-max_msg_define
+  language: C
   week: 2
   prompt: Declara una constante MAX_MSG con valor 40 usando define.
   answer: |
     #define MAX_MSG 40
   hint:
 
-- language: C
+- id: c-2-const_temp_minima
+  language: C
   week: 2
   prompt: Dentro de la función main, declara una constante local de tipo float llamada TEMP_MINIMA con valor 15.0.
   answer: |
@@ -490,15 +510,14 @@
     }
   hint:  |
     int main(){
-      
+    
       // Código
-      
+    
       return 0;
     }
-    
 
-
-- language: Pseudocode
+- id: p-2-const_temp_minima
+  language: Pseudocode
   week: 2
   prompt: Declara una constante local de tipo decimal llamada TEMP_MINIMA con valor 15.0.
   answer: |
@@ -507,7 +526,8 @@
     end const
   hint: Los decimales en pseudocódigo son el tipo real.
 
-- language: C
+- id: c-2-arr_nombreplanta
+  language: C
   week: 2
   prompt: |
     Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
@@ -522,7 +542,8 @@
     }
   hint: Después del nombre del array va primero el maximo de plantas y después el de los nombres
 
-- language: Pseudocode
+- id: p-2-arr_nombreplanta
+  language: Pseudocode
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5.
@@ -539,7 +560,8 @@
     end algorithm
   hint: No olvides todas las palabras reservadas como const, algorithm y var.
 
-- language: C
+- id: c-2-arr_sensoresactivos
+  language: C
   week: 2
   prompt: |
     Incluye la biblioteca necesaria para booleanos.
@@ -554,7 +576,8 @@
     }
   hint: Incluye stdbool y usa bool, no int.
 
-- language: Pseudocode
+- id: p-2-arr_sensoresactivos
+  language: Pseudocode
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5.
@@ -571,7 +594,8 @@
     end algorithm
   hint: No olvides todas las palabras reservadas como const, algorithm y var.
 
-- language: C
+- id: c-2-mat_sensorestemp
+  language: C
   week: 2
   prompt: |
     Declara las constantes FILAS = 3 y COLUMNAS = 4.
@@ -586,7 +610,8 @@
     }
   hint: En una matriz van siempre primero las filas y luego las columnas
 
-- language: Pseudocode
+- id: p-2-mat_sensorestemp
+  language: Pseudocode
   week: 2
   prompt: |
     Declara las constantes FILAS = 3 y COLUMNAS = 4.
@@ -604,8 +629,8 @@
     end algorithm
   hint: En una matriz van siempre primero las filas y luego las columnas, no olvides todas las palabras reservadas para declarar los datos.
 
-
-- language: C
+- id: c-2-arr_humedad
+  language: C
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5 y un array de enteros humedad con MAX_PLANTS, inicializado con los valores "60, 85, 72, 91, 65" dentro de main.
@@ -618,7 +643,8 @@
     }
   hint: Los valores deben estar entre llaves, separados por comas.
 
-- language: Pseudocode
+- id: p-2-arr_humedad
+  language: Pseudocode
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5.
@@ -633,7 +659,7 @@
       var
          humedad: vector[MAX_PLANTS] of integer;
       end var
-      
+    
       humedad[1] := 60;
       humedad[2] := 85;
       humedad[3] := 72;
@@ -642,7 +668,8 @@
     end algorithm
   hint: Recuerda que en pseudocódigo, primero declaramos las variables y después las inicializamos.
 
-- language: C
+- id: c-2-mat_zonas_bool
+  language: C
   week: 2
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
@@ -661,7 +688,7 @@
         zonas[0][0] = true;
         zonas[0][1] = false;
         zonas[0][2] = false;
-      
+    
         zonas[1][0] = false;
         zonas[1][1] = true;
         zonas[1][2] = false;
@@ -670,7 +697,8 @@
     }
   hint: Recuerda la biblioteca para el tipo bool.
 
-- language: Pseudocode
+- id: p-2-mat_zonas_bool
+  language: Pseudocode
   week: 2
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
@@ -699,13 +727,10 @@
     end algorithm
   hint: Recuerda las llaves dobles para la matriz y el tipo bool.
 
-
-
-- language: C
+- id: c-3-if_incremento
+  language: C
   week: 3
-  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso
-    de la estructura if, si el numero es 5 sumale 1 utilizando operador de incremento.
-    En caso contrario restale 1 utilizando operador de decremento
+  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if, si el numero es 5 sumale 1 utilizando operador de incremento. En caso contrario restale 1 utilizando operador de decremento
   answer: |
     int main () {
       int numero = 5; 
@@ -715,16 +740,15 @@
       } else { 
         numero--; 
       }
-      
+    
       return 0;
     }
   hint: Usa if else
 
-- language: Pseudocode
+- id: p-3-if_incremento
+  language: Pseudocode
   week: 3
-  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso
-    de la estructura if, si el numero es 5 sumale 1.
-    En caso contrario restale 1.
+  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if, si el numero es 5 sumale 1. En caso contrario restale 1.
   answer: |-
     var
       numero: integer;
@@ -739,24 +763,22 @@
     end if
   hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
 
-- language: C
-  week: 3
-  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso
-    de la estructura if, si el numero es 5 sumale 1 utilizando operador de incremento.
-    En caso de ser menor que 5 restale 1 utilizando operador de decremento y finalmente
-    si es mayor que 5 le sumamos 5 usando un operador compuesto.
+- id: c-1-if_incremento_prueba_extra2
+  language: C
+  week: 1
+  prompt: Pregunta nueva agregada para pruebas
   answer: |
     int main () {
-      int numero = 5; 
-    
-      if(numero == 5) { 
+      int numero = 5;
+
+      if(numero == 5) {
         numero++;
-      } else if(numero < 5) { 
-        numero--; 
+      } else if(numero < 5) {
+        numero--;
       } else {
         numero += 5;
       }
-    
+
       return 0;
     }
   hint: Usa if else

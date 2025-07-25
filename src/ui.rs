@@ -285,6 +285,15 @@ impl eframe::App for QuizApp {
                                         self.confirm_reset(ctx);
                                     }
 
+                                    if self.hay_preguntas_nuevas() {
+                                        ui.label(
+                                            egui::RichText::new("🟡 ¡Nuevas preguntas disponibles! Revisa las semanas completadas.")
+                                                .color(egui::Color32::YELLOW)
+                                                .heading()
+                                                .strong()
+                                        );
+                                    }
+
                                 });
                             });
                     });
@@ -336,13 +345,21 @@ impl eframe::App for QuizApp {
                                     weeks_with_questions.dedup();
 
                                     let mut buttons = vec![];
+
                                     for &week in &weeks_with_questions {
                                         let unlocked = self.is_week_unlocked(week);
                                         let completed = self.is_week_completed(week);
-                                        let label = if completed {
+                                        let n_nuevas = self.nuevas_preguntas_en_semana(week, language);
+
+                                        let label = if completed && n_nuevas == 0 {
                                             format!("Semana {} ✅", week)
                                         } else if unlocked {
-                                            format!("Semana {} 🔓", week)
+                                            // Aquí puedes mostrar si hay nuevas preguntas aunque estuviera completada antes
+                                            if n_nuevas > 0 {
+                                                format!("Semana {} 🔓 ({} nuevas)", week, n_nuevas)
+                                            } else {
+                                                format!("Semana {} 🔓", week)
+                                            }
                                         } else {
                                             format!("Semana {} 🔒", week)
                                         };
@@ -351,8 +368,21 @@ impl eframe::App for QuizApp {
                                             [button_w, button_h],
                                             egui::Button::new(label)
                                         ).on_hover_text("Pulsa para acceder a esta semana");
+
+
+                                        // --- Botón reiniciar solo si la semana está completada
+                                        if completed {
+                                            ui.add_space(2.0);
+                                            if ui.button(format!("🔄")).clicked() {
+                                                self.reiniciar_semana(week);
+                                                self.acceder_a_semana(week); // Entra directamente
+                                                return; // Sale del bucle para evitar clicks dobles
+                                            }
+                                        }
+
+
                                         buttons.push((week, button, unlocked));
-                                        ui.add_space(8.0);
+                                        ui.add_space(4.0);
                                     }
 
                                     ui.add_space(16.0);
@@ -512,24 +542,28 @@ impl eframe::App for QuizApp {
 
                                     ui.add_space(5.0);
 
-                                    // if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
-                                    //     let week = self.current_week.unwrap_or(1);
-                                    //     let language = self.selected_language.unwrap_or(Language::C);
-                                    //     for q in self.questions.iter_mut() {
-                                    //         if q.week == week && q.language == language {
-                                    //             q.is_done = true;
-                                    //             q.saw_solution = false;
-                                    //             q.attempts = 1;
-                                    //             q.fails = 0;
-                                    //             q.skips = 0;
-                                    //         }
-                                    //     }
-                                    //     self.current_in_week = self.next_pending_in_week();
-                                    //     // Si ya no quedan preguntas, muestra resumen
-                                    //     if self.current_in_week.is_none() {
-                                    //         self.state = AppState::Summary;
-                                    //     }
-                                    // }
+                                    if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
+                                        let week = self.current_week.unwrap_or(1);
+                                        let language = self.selected_language.unwrap_or(Language::C);
+                                        for q in self.questions.iter_mut() {
+                                            if q.week == week && q.language == language {
+                                                q.is_done = true;
+                                                q.saw_solution = false;
+                                                q.attempts = 1;
+                                                q.fails = 0;
+                                                q.skips = 0;
+                                                if let Some(id) = &q.id {
+                                                    self.completed_ids.insert(id.clone());
+                                                }
+                                            }
+                                        }
+                                        self.current_in_week = self.next_pending_in_week();
+                                        // Si ya no quedan preguntas, muestra resumen
+                                        if self.current_in_week.is_none() {
+                                            self.state = AppState::Summary;
+                                        }
+                                    }
+
 
                                     // Botones
                                     ui.horizontal(|ui| {
