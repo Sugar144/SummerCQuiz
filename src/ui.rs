@@ -437,7 +437,7 @@ impl eframe::App for QuizApp {
                                     let line_height = ui.fonts(|f| f.row_height(&font_id));
                                     let code_rows = min_lines;
 
-                                    if self.questions[idx].fails >= 1 {
+                                    if self.questions[idx].fails >= 2 {
                                         // Si no se ha mostrado la solución todavía
                                         if !self.show_solution {
                                             if ui.button("Solución").clicked() {
@@ -512,24 +512,24 @@ impl eframe::App for QuizApp {
 
                                     ui.add_space(5.0);
 
-                                    if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
-                                        let week = self.current_week.unwrap_or(1);
-                                        let language = self.selected_language.unwrap_or(Language::C);
-                                        for q in self.questions.iter_mut() {
-                                            if q.week == week && q.language == language {
-                                                q.is_done = true;
-                                                q.saw_solution = false;
-                                                q.attempts = 1;
-                                                q.fails = 0;
-                                                q.skips = 0;
-                                            }
-                                        }
-                                        self.current_in_week = self.next_pending_in_week();
-                                        // Si ya no quedan preguntas, muestra resumen
-                                        if self.current_in_week.is_none() {
-                                            self.state = AppState::Summary;
-                                        }
-                                    }
+                                    // if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
+                                    //     let week = self.current_week.unwrap_or(1);
+                                    //     let language = self.selected_language.unwrap_or(Language::C);
+                                    //     for q in self.questions.iter_mut() {
+                                    //         if q.week == week && q.language == language {
+                                    //             q.is_done = true;
+                                    //             q.saw_solution = false;
+                                    //             q.attempts = 1;
+                                    //             q.fails = 0;
+                                    //             q.skips = 0;
+                                    //         }
+                                    //     }
+                                    //     self.current_in_week = self.next_pending_in_week();
+                                    //     // Si ya no quedan preguntas, muestra resumen
+                                    //     if self.current_in_week.is_none() {
+                                    //         self.state = AppState::Summary;
+                                    //     }
+                                    // }
 
                                     // Botones
                                     ui.horizontal(|ui| {
