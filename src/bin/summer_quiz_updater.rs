@@ -4,9 +4,9 @@ fn main() {
     thread::sleep(Duration::from_secs(2));
 
     let (old_name, new_name) = if cfg!(windows) {
-        ("SummerQuiz.exe", "SummerQuiz_new.exe")
+        ("summer_quiz_bin.exe", "summer_quiz_bin_new.exe")
     } else {
-        ("SummerQuiz", "SummerQuiz_new")
+        ("summer_quiz_bin", "summer_quiz_bin_new")
     };
 
     let exe_path = env::current_exe().expect("No se pudo obtener la ruta del ejecutable");

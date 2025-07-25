@@ -1,10 +1,10 @@
-use egui::Visuals;
+use egui::{Context, Visuals};
 
 use crate::app::QuizApp;
 use crate::model::{AppState, Language};
 use crate::update::{check_latest_release, descargar_binario_nuevo};
 
-use eframe::{set_value, APP_KEY};
+use eframe::{set_value, Frame, APP_KEY};
 
 use egui_code_editor::{CodeEditor, ColorTheme, Syntax};
 
@@ -27,11 +27,9 @@ pub fn c_syntax() -> Syntax {
 
 
 
-
-
 impl eframe::App for QuizApp {
 
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         // BOTÓN SUPERIOR DE REINICIAR (solo visible durante el quiz y resumen)
         if matches!(self.state, AppState::Quiz | AppState::Summary) {
             egui::TopBottomPanel::top("menu_panel").show(ctx, |ui| {
@@ -80,7 +78,7 @@ impl eframe::App for QuizApp {
 
         match self.state {
             AppState::PendingUpdate => {
-                // Aquí pones el panel
+                // Parel central
                 egui::CentralPanel::default().show(ctx, |ui| {
                     ui.vertical_centered(|ui| {
                         ui.add_space(60.0);
@@ -120,7 +118,7 @@ impl eframe::App for QuizApp {
                         }
                     });
                 }
-                // No haces nada más, la UI ya ha cambiado el mensaje
+                // No se hace nada más, la UI ya ha cambiado el mensaje
             }
             // ----------- BIENVENIDA -----------
             AppState::LanguageSelect => {
