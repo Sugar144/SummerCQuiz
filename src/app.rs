@@ -277,56 +277,92 @@ impl QuizApp {
     pub fn seleccionar_lenguaje(&mut self, lang: Language) {
         self.selected_language = Some(lang);
 
-        // Mantén el progreso, pero filtra preguntas por el nuevo lenguaje
+        let prev_week = self.current_week;
+        let prev_in_week = self.current_in_week;
+
+        // Recarga preguntas solo de ese lenguaje
         let mut questions = read_questions_embedded()
             .into_iter()
             .filter(|q| q.language == lang)
             .collect::<Vec<_>>();
 
-        // === LIMPIA EL SET DE IDS OBSOLETOS ===
+        // Mapeo id -> pregunta previa para conservar stats
+        let prev_stats: std::collections::HashMap<String, Question> = self.questions
+            .iter()
+            .filter_map(|q| q.id.clone().map(|id| (id, q.clone())))
+            .collect();
+
+        // Limpia completed_ids de ids obsoletos
         let valid_ids: HashSet<_> = questions
             .iter()
             .filter_map(|q| q.id.as_ref())
             .cloned()
             .collect();
         self.completed_ids.retain(|id| valid_ids.contains(id));
-        // === FIN LIMPIEZA ===
 
+        // Restaura stats antiguos a preguntas con id coincidente
         for q in &mut questions {
-            q.is_done = if let Some(id) = &q.id {
-                self.completed_ids.contains(id)
+            if let Some(id) = &q.id {
+                if let Some(prev) = prev_stats.get(id) {
+                    q.is_done = self.completed_ids.contains(id);
+                    q.attempts = prev.attempts;
+                    q.fails = prev.fails;
+                    q.skips = prev.skips;
+                    q.saw_solution = prev.saw_solution;
+                } else {
+                    q.is_done = self.completed_ids.contains(id);
+                    q.attempts = 0;
+                    q.fails = 0;
+                    q.skips = 0;
+                    q.saw_solution = false;
+                }
             } else {
-                false
-            };
-            q.attempts = 0;
-            q.fails = 0;
-            q.skips = 0;
-            q.saw_solution = false;
+                q.is_done = false;
+                q.attempts = 0;
+                q.fails = 0;
+                q.skips = 0;
+                q.saw_solution = false;
+            }
         }
 
         self.questions = questions;
 
         // Calcula el máximo de semana desbloqueada según progreso
         let mut max_week = 1;
-        let mut weeks: Vec<usize> = self.questions
-            .iter()
-            .filter(|q| q.language == lang)
-            .map(|q| q.week)
-            .collect();
+        let mut weeks: Vec<usize> = self.questions.iter().map(|q| q.week).collect();
         weeks.sort_unstable();
         weeks.dedup();
-
         for &w in &weeks {
             if self.is_week_completed(w) {
                 max_week = max_week.max(w + 1);
             }
         }
         self.max_unlocked_week = max_week;
-
-        // El resto de setup
         self.recalculate_unlocked_weeks();
-        self.current_week = None;
-        self.current_in_week = None;
+
+        // == Intenta restaurar posición previa ==
+        // Solo si sigue siendo válida
+        if let (Some(week), Some(idx)) = (prev_week, prev_in_week) {
+            if week != 0 && idx < self.questions.len() && self.questions[idx].language == lang {
+                self.current_week = Some(week);
+                self.current_in_week = Some(idx);
+            } else {
+                // Si no es válida, pon a la primera pendiente
+                self.current_week = self.questions.iter()
+                    .filter(|q| q.language == lang && !q.is_done)
+                    .map(|q| q.week)
+                    .min();
+                self.current_in_week = None;
+            }
+        } else {
+            // No había guardado posición, empieza en primera pendiente
+            self.current_week = self.questions.iter()
+                .filter(|q| q.language == lang && !q.is_done)
+                .map(|q| q.week)
+                .min();
+            self.current_in_week = None;
+        }
+
         self.input.clear();
         self.finished = false;
         self.round = 1;
@@ -336,9 +372,10 @@ impl QuizApp {
         self.message.clear();
 
         self.has_saved_progress = true;
-
         self.sync_is_done();
     }
+
+
 
     pub fn continuar_quiz(&mut self) {
         // Busca la primera semana pendiente, o la más baja si ya terminó tot
@@ -446,16 +483,35 @@ impl QuizApp {
 
     pub fn avanzar_a_siguiente_pregunta(&mut self, idx: usize) {
         self.questions[idx].saw_solution = true;
-        self.show_solution = false; // Reset
+        self.show_solution = false;
         self.input.clear();
-        self.current_in_week = self.next_pending_in_week();
+
+        let week = self.current_week.unwrap_or(1);
+        let language = self.selected_language.unwrap_or(Language::C);
+
+        // Solo preguntas de esta semana y lenguaje
+        let indices: Vec<usize> = self.questions.iter().enumerate()
+            .filter(|(_, q)| q.week == week && q.language == language)
+            .map(|(i, _)| i)
+            .collect();
+
+        // Busca la siguiente pendiente después de la actual
+        let pos_in_week = indices.iter().position(|&i| i == idx);
+        let next_idx = pos_in_week.and_then(|pos| {
+            indices.iter().skip(pos + 1)
+                .find(|&&i| !self.questions[i].is_done)
+                .copied()
+        });
+
+        self.current_in_week = next_idx;
         self.update_input_prefill();
-        if self.current_in_week.is_none() && self.is_week_completed(self.current_week.unwrap_or(1)) {
-            let week = self.current_week.unwrap_or(1);
+
+        if self.current_in_week.is_none() && self.is_week_completed(week) {
             self.complete_week(week);
             self.state = AppState::Summary;
         }
     }
+
 
     pub fn guardar_y_salir(&mut self) {
         self.has_saved_progress = true;
