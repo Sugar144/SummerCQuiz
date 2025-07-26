@@ -186,23 +186,10 @@ impl QuizApp {
     // Una semana está completa si todas sus preguntas están respondidas correctamente
     pub fn is_week_completed(&self, week: usize) -> bool {
         let language = self.selected_language.unwrap_or(Language::C);
-        let mut all_ok = true;
-        for q in self.questions.iter().filter(|q| q.week == week && q.language == language) {
-            if let Some(id) = &q.id {
-                if !self.completed_ids.contains(id) {
-                    all_ok = false;
-                }
-            } else {
-                all_ok = false;
-            }
-        }
-        if all_ok {
-        }
-        all_ok
+        self.questions.iter()
+            .filter(|q| q.week == week && q.language == language)
+            .all(|q| q.id.as_ref().map(|id| self.completed_ids.contains(id)).unwrap_or(false))
     }
-
-
-
 
     pub fn recalculate_unlocked_weeks(&mut self) {
         self.unlocked_weeks.clear();
@@ -296,6 +283,15 @@ impl QuizApp {
             .filter(|q| q.language == lang)
             .collect::<Vec<_>>();
 
+        // === LIMPIA EL SET DE IDS OBSOLETOS ===
+        let valid_ids: HashSet<_> = questions
+            .iter()
+            .filter_map(|q| q.id.as_ref())
+            .cloned()
+            .collect();
+        self.completed_ids.retain(|id| valid_ids.contains(id));
+        // === FIN LIMPIEZA ===
+
         for q in &mut questions {
             q.is_done = if let Some(id) = &q.id {
                 self.completed_ids.contains(id)
@@ -310,18 +306,26 @@ impl QuizApp {
 
         self.questions = questions;
 
-        // === LIMPIA EL SET DE IDS OBSOLETOS ===
-        let valid_ids: HashSet<_> = self.questions
+        // Calcula el máximo de semana desbloqueada según progreso
+        let mut max_week = 1;
+        let mut weeks: Vec<usize> = self.questions
             .iter()
-            .filter_map(|q| q.id.as_ref())
-            .cloned()
+            .filter(|q| q.language == lang)
+            .map(|q| q.week)
             .collect();
-        self.completed_ids.retain(|id| valid_ids.contains(id));
-        // === FIN LIMPIEZA ===
+        weeks.sort_unstable();
+        weeks.dedup();
 
+        for &w in &weeks {
+            if self.is_week_completed(w) {
+                max_week = max_week.max(w + 1);
+            }
+        }
+        self.max_unlocked_week = max_week;
+
+        // El resto de setup
+        self.recalculate_unlocked_weeks();
         self.current_week = None;
-        self.unlocked_weeks = vec![1];
-        self.max_unlocked_week = 1;
         self.current_in_week = None;
         self.input.clear();
         self.finished = false;
@@ -334,9 +338,7 @@ impl QuizApp {
         self.has_saved_progress = true;
 
         self.sync_is_done();
-        self.recalculate_unlocked_weeks();
     }
-
 
     pub fn continuar_quiz(&mut self) {
         // Busca la primera semana pendiente, o la más baja si ya terminó tot
@@ -482,17 +484,26 @@ impl QuizApp {
         // Busca el índice de la semana actual y avanza a la siguiente
         if let Some(idx) = weeks.iter().position(|&w| w == current_week) {
             if let Some(&next_week) = weeks.get(idx + 1) {
-                self.select_week(next_week); // <-- Esto sí va a la próxima semana válida
-                self.recalculate_unlocked_weeks();
-                self.update_input_prefill();
-                self.state = AppState::Quiz;
-                self.message.clear();
+                // Verifica si la siguiente semana está completada
+                if self.is_week_completed(next_week) {
+                    // Si está completada, lleva al menú de semanas
+                    self.state = AppState::WeekMenu;
+                    self.message = "La siguiente semana ya está completada. ¡Escoge otra desde el menú!".to_string();
+                } else {
+                    // Si NO está completada, entra normalmente
+                    self.select_week(next_week);
+                    self.recalculate_unlocked_weeks();
+                    self.update_input_prefill();
+                    self.state = AppState::Quiz;
+                    self.message.clear();
+                }
             } else {
                 // No hay más semanas; podrías volver al menú, mostrar mensaje, etc.
                 self.state = AppState::Welcome;
             }
         }
     }
+
 
     pub fn sync_is_done(&mut self) {
         for q in &mut self.questions {

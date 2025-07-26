@@ -9,6 +9,7 @@ use app::QuizApp;
 
 #[cfg(not(target_arch = "wasm32"))]
 use egui::Visuals;
+#[cfg(not(target_arch = "wasm32"))]
 use crate::model::AppState;
 
 #[cfg(not(target_arch = "wasm32"))]

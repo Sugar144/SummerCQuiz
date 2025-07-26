@@ -246,10 +246,11 @@ impl eframe::App for QuizApp {
                                     ui.add_space(18.0);
 
                                     let hay_guardado = self.has_saved_progress;
+                                    let hay_pendientes = self.questions.iter().any(|q| !q.is_done);
                                     let button_w = (content_width * 0.9).clamp(120.0, 400.0);
                                     let button_h = 36.0;
 
-                                    let continuar_btn = if hay_guardado {
+                                    let continuar_btn = if hay_guardado && hay_pendientes {
                                         Some(ui.add_sized([button_w, button_h], egui::Button::new("▶ Continuar donde lo dejé")))
                                     } else {
                                         None
@@ -304,9 +305,8 @@ impl eframe::App for QuizApp {
 
             AppState::WeekMenu => {
                 egui::CentralPanel::default().show(ctx, |ui| {
-                    let max_width = 540.0;
+                    let max_width = 400.0;
                     let content_width = ui.available_width().min(max_width);
-                    let button_w = (content_width * 0.9).clamp(140.0, 400.0);
                     let button_h = 36.0;
 
                     // Calcular nº de semanas para estimar altura
@@ -323,15 +323,30 @@ impl eframe::App for QuizApp {
                     ui.add_space(vertical_space / 2.0);
 
                     // Este bloque centra el Frame horizontalmente
-                    ui.horizontal_centered(|ui| {
+                    ui.vertical_centered_justified(|ui| {
                         egui::Frame::default()
                             .fill(ui.visuals().window_fill())
                             .inner_margin(egui::Margin::symmetric(24, 16))
                             .show(ui, |ui| {
-                                // No pongas set_width aquí
+
                                 ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
+                                    ui.set_width(content_width);
+
                                     ui.heading("Selecciona una semana");
                                     ui.add_space(20.0);
+
+                                    // === MENSAJE DESTACADO SI EXISTE ===
+                                    if !self.message.is_empty() {
+                                        ui.add_space(8.0);
+                                        ui.label(
+                                            egui::RichText::new(&self.message)
+                                                .color(egui::Color32::YELLOW)
+                                                .heading()
+                                                .strong()
+                                        );
+                                        ui.add_space(8.0);
+                                    }
+                                    // === FIN MENSAJE ===
 
                                     let language = self.selected_language.unwrap_or(Language::C);
 
@@ -340,11 +355,8 @@ impl eframe::App for QuizApp {
                                         .filter(|q| q.language == language)
                                         .map(|q| q.week)
                                         .collect();
-
                                     weeks_with_questions.sort_unstable();
                                     weeks_with_questions.dedup();
-
-                                    let mut buttons = vec![];
 
                                     for &week in &weeks_with_questions {
                                         let unlocked = self.is_week_unlocked(week);
@@ -354,7 +366,6 @@ impl eframe::App for QuizApp {
                                         let label = if completed && n_nuevas == 0 {
                                             format!("Semana {} ✅", week)
                                         } else if unlocked {
-                                            // Aquí puedes mostrar si hay nuevas preguntas aunque estuviera completada antes
                                             if n_nuevas > 0 {
                                                 format!("Semana {} 🔓 ({} nuevas)", week, n_nuevas)
                                             } else {
@@ -364,43 +375,59 @@ impl eframe::App for QuizApp {
                                             format!("Semana {} 🔒", week)
                                         };
 
-                                        let button = ui.add_sized(
-                                            [button_w, button_h],
-                                            egui::Button::new(label)
-                                        ).on_hover_text("Pulsa para acceder a esta semana");
+                                        // ---- Centrado horizontal de botones por semana ----
+                                        ui.horizontal(|ui| {
+                                            if !completed {
+                                                // --- Botón de ACCESO ---
+                                                let acceso_habilitado = unlocked && !completed;
+                                                let acceso_btn = ui.add_enabled(
+                                                    acceso_habilitado,
+                                                    egui::Button::new(&label)
+                                                        .min_size(egui::vec2(content_width , button_h))
+                                                );
 
+                                                if acceso_btn.clicked() && acceso_habilitado {
+                                                    self.acceder_a_semana(week);
+                                                }
+                                            } else {
+                                                // --- Botón de ACCESO ---
+                                                let acceso_habilitado = unlocked && !completed;
+                                                let acceso_btn = ui.add_enabled(
+                                                    acceso_habilitado,
+                                                    egui::Button::new(&label)
+                                                        .min_size(egui::vec2(content_width * 0.75, button_h))
+                                                );
 
-                                        // --- Botón reiniciar solo si la semana está completada
-                                        if completed {
-                                            ui.add_space(2.0);
-                                            if ui.button(format!("🔄")).clicked() {
-                                                self.reiniciar_semana(week);
-                                                self.acceder_a_semana(week); // Entra directamente
-                                                return; // Sale del bucle para evitar clicks dobles
+                                                if acceso_btn.clicked() && acceso_habilitado {
+                                                    self.acceder_a_semana(week);
+                                                }
+
+                                                // --- Botón REINICIAR solo si la semana está completada ---
+                                                let reiniciar_btn = ui.add_sized(
+                                                    [content_width * 0.21, button_h],
+                                                    egui::Button::new("↩")
+                                                        .fill(egui::Color32::DARK_RED)
+                                                ).on_hover_text("Reinicia la semana y vuelve a intentarla");
+
+                                                if reiniciar_btn.clicked() {
+                                                    self.reiniciar_semana(week);
+                                                    self.acceder_a_semana(week);
+                                                    return;
+                                                }
                                             }
-                                        }
-
-
-                                        buttons.push((week, button, unlocked));
-                                        ui.add_space(4.0);
+                                        });
+                                        ui.add_space(8.0);
                                     }
 
                                     ui.add_space(16.0);
-
-                                    let volver_btn = ui.add_sized([button_w, button_h], egui::Button::new("Volver al menú principal"));
-
-                                    // --- Gestión de clicks ---
-                                    for (week, button, unlocked) in buttons {
-                                        if button.clicked() && unlocked {
-                                            self.acceder_a_semana(week);
-                                        }
-                                    }
+                                    let volver_btn = ui.add_sized([content_width, button_h], egui::Button::new("Volver al menú principal"));
                                     if volver_btn.clicked() {
                                         self.volver_al_menu_principal();
                                     }
                                 });
                             });
                     });
+
 
                     ui.add_space(vertical_space);
                 });
@@ -565,6 +592,7 @@ impl eframe::App for QuizApp {
                                     }
 
 
+
                                     // Botones
                                     ui.horizontal(|ui| {
                                         ui.add_space((ui.available_width() - panel_width) / 2.0);
@@ -704,7 +732,7 @@ impl eframe::App for QuizApp {
                                         if siguiente.clicked() {
                                             self.avanzar_a_siguiente_semana(current_week);
                                         }
-                                    } else {
+                                    } else if is_current_week_complete && !has_next_week {
                                         ui.add_space(10.0);
                                         ui.label("¡Bien hecho! Has completado todas las semana disponibles, pulsa volver para ir al menú.");
                                         ui.add_space(10.0);
@@ -713,7 +741,16 @@ impl eframe::App for QuizApp {
                                         if volver.clicked() {
                                             self.guardar_y_salir();
                                         }
+                                    } else {
+                                        let atras = ui.add_sized([button_width, button_height], egui::Button::new("Atras"));
+
+                                        if atras.clicked() {
+                                            self.state = AppState::Quiz;
+                                        }
+
                                     }
+
+
                                 });
                             });
                     });

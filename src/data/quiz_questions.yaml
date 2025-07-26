@@ -439,6 +439,26 @@
     nuevaBateria := integerToReal(bateriaInicial);
   hint:
 
+- id: c-1-if_incremento_prueba_extra2
+  language: C
+  week: 1
+  prompt: Pregunta nueva agregada para pruebas
+  answer: |
+    int main () {
+      int numero = 5;
+
+      if(numero == 5) {
+        numero++;
+      } else if(numero < 5) {
+        numero--;
+      } else {
+        numero += 5;
+      }
+
+      return 0;
+    }
+  hint: Usa if else
+
 #### Semana 2 #####
 
 - id: c-2-include_stdio
@@ -763,22 +783,3 @@
     end if
   hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
 
-- id: c-1-if_incremento_prueba_extra2
-  language: C
-  week: 1
-  prompt: Pregunta nueva agregada para pruebas
-  answer: |
-    int main () {
-      int numero = 5;
-
-      if(numero == 5) {
-        numero++;
-      } else if(numero < 5) {
-        numero--;
-      } else {
-        numero += 5;
-      }
-
-      return 0;
-    }
-  hint: Usa if else
