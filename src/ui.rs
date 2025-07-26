@@ -25,6 +25,19 @@ pub fn c_syntax() -> Syntax {
         ])
 }
 
+pub fn pseudo_syntax() -> Syntax {
+    Syntax::new("c")
+        .with_comment("//")
+        .with_comment_multiline(["/*", "*/"])
+        .with_keywords([
+            "end", "const", "var", "type", "record", "for", "to", "while", "if", "then",
+            "switch", "case", "default", "function", "action", "algorithm", "vector", "of"
+        ])
+        .with_types([
+            "integer", "character", "real", "string", "boolean"
+        ])
+}
+
 
 
 impl eframe::App for QuizApp {
@@ -494,6 +507,11 @@ impl eframe::App for QuizApp {
                                     let line_height = ui.fonts(|f| f.row_height(&font_id));
                                     let code_rows = min_lines;
 
+                                    let syntax = match self.selected_language.unwrap_or(Language::C) {
+                                        Language::C => c_syntax(),
+                                        Language::Pseudocode => pseudo_syntax(),
+                                    };
+
                                     if self.questions[idx].fails >= 2 {
                                         // Si no se ha mostrado la solución todavía
                                         if !self.show_solution {
@@ -512,7 +530,7 @@ impl eframe::App for QuizApp {
                                                         .with_rows(code_rows)
                                                         .with_fontsize(line_height)
                                                         .with_theme(ColorTheme::GITHUB_DARK)
-                                                        .with_syntax(c_syntax())
+                                                        .with_syntax(syntax)
                                                         .with_numlines(true)
                                                         .vscroll(false)
                                                         .show(ui, &mut self.input);
@@ -535,7 +553,7 @@ impl eframe::App for QuizApp {
                                                         .with_rows(code_rows)
                                                         .with_fontsize(line_height)
                                                         .with_theme(ColorTheme::GITHUB_DARK)
-                                                        .with_syntax(c_syntax())
+                                                        .with_syntax(syntax)
                                                         .with_numlines(true)
                                                         .vscroll(false)
                                                         .show(ui, &mut answer_string);
@@ -554,7 +572,7 @@ impl eframe::App for QuizApp {
                                                     .with_rows(code_rows)
                                                     .with_fontsize(line_height)
                                                     .with_theme(ColorTheme::GITHUB_DARK)
-                                                    .with_syntax(c_syntax())
+                                                    .with_syntax(syntax)
                                                     .with_numlines(true)
                                                     .vscroll(false)
                                                     .show(ui, &mut self.input);
