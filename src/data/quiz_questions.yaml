@@ -156,7 +156,7 @@
   prompt: Declara e inicializa una variable char llamada categoriaDron a "A".
   answer: |-
     var
-     categoriaDron: boolean;
+     categoriaDron: character;
     end var
     
     categoriaDron := 'A'
@@ -214,7 +214,7 @@
 - id: p-1-readcharacter_categoriadron
   language: Pseudocode
   week: 1
-  prompt: Lee un carácter del usuario desde teclado y guárdalo en categoriaDron.
+  prompt: Lee un character del usuario desde teclado y guárdalo en categoriaDron.
   answer: categoriaDron := readCharacter();
   hint: Recuerda que cada tipo tiene una función de lectura que comienza por read. El formato es similar al de una inicialización.
 
@@ -246,7 +246,7 @@
 - id: p-1-writestring_bateria
   language: Pseudocode
   week: 1
-  prompt: 'Imprime la batería inicial del dron. Usa "Batería: x" para la impresión, siendo "x" el especificador de formato.'
+  prompt: 'Imprime la batería inicial del dron. Usa "Batería: x" para la impresión, siendo "x" el valor pertinente.'
   answer: |-
     writeString("Batería: ");
     writeReal(bateriaInicial);
@@ -262,7 +262,7 @@
 - id: p-1-writestring_categoria
   language: Pseudocode
   week: 1
-  prompt: 'Imprime la categoría del dron como carácter. Usa "Categoría: x" para la impresión, siendo "x" el especificador de formato.'
+  prompt: 'Imprime la categoría del dron como carácter. Usa "Categoría: x" para la impresión, siendo "x" el valor pertinente.'
   answer: |-
     writeString("Categoría: ");
     writeCharacter(categoriaDron);
@@ -333,11 +333,11 @@
 - id: p-1-writestring_estado_num
   language: Pseudocode
   week: 1
-  prompt: 'Imprime el valor numérico del estado del dron con una explicación. Usa "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): x" para la impresión, siendo "x" el valor a enseñar.'
+  prompt: 'Imprime el valor del estado del dron con una explicación. Usa "Estado: x" para la impresión, siendo "x" el valor a enseñar.'
   answer: |-
-    writeString("Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): ");
+    writeString("Estado: ");
     writeEnum(estado);
-  hint: 'Ejemplo de ejecución: Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): 1'
+  hint: 'Ejemplo de ejecución: Estado: 1'
 
 - id: c-1-ternario_en_servicio
   language: C
@@ -379,7 +379,7 @@
   week: 1
   prompt: Calcula si la batería es suficiente usando un operador relacional y guarda el resultado en en una variable booleana "suficiente". Diremos que la batería es suficiente si tiene al menos un 20%
   answer: bool suficiente = bateriaInicial >= 20.0;
-  hint: batería mayor o igual a 20
+  hint: batería mayor o igual a 20.0
 
 - id: p-1-suficiente_bool
   language: Pseudocode
@@ -390,8 +390,8 @@
       suficiente: boolean;
     end var
     
-    suficiente := bateriaInicial ≥ 20;
-  hint: 'Ten en cuenta que una comparación con operadores relacionales, siempre devuelven un resultado booleano de verdadero o falso, por eso podemos guardar el resultado en una variable booleana. Extra: bateria ≥ a 20.'
+    suficiente := bateriaInicial ≥ 20.0;
+  hint: 'Ten en cuenta que una comparación con operadores relacionales, siempre devuelven un resultado booleano de verdadero o falso, por eso podemos guardar el resultado en una variable booleana. Extra: bateria ≥ a 20.0.'
 
 - id: c-1-ternario_apto
   language: C
@@ -438,26 +438,6 @@
     
     nuevaBateria := integerToReal(bateriaInicial);
   hint:
-
-- id: c-1-if_incremento_prueba_extra2
-  language: C
-  week: 1
-  prompt: Pregunta nueva agregada para pruebas
-  answer: |
-    int main () {
-      int numero = 5;
-
-      if(numero == 5) {
-        numero++;
-      } else if(numero < 5) {
-        numero--;
-      } else {
-        numero += 5;
-      }
-
-      return 0;
-    }
-  hint: Usa if else
 
 #### Semana 2 #####
 
@@ -511,14 +491,6 @@
     #define MAX_NAME 25
   hint:
 
-- id: c-2-max_msg_define
-  language: C
-  week: 2
-  prompt: Declara una constante MAX_MSG con valor 40 usando define.
-  answer: |
-    #define MAX_MSG 40
-  hint:
-
 - id: c-2-const_temp_minima
   language: C
   week: 2
@@ -539,12 +511,36 @@
 - id: p-2-const_temp_minima
   language: Pseudocode
   week: 2
-  prompt: Declara una constante local de tipo decimal llamada TEMP_MINIMA con valor 15.0.
+  prompt: Declara una constante de tipo decimal llamada TEMP_MINIMA con valor 15.0.
   answer: |
     const
       TEMP_MINIMA: real = 15.0;
     end const
   hint: Los decimales en pseudocódigo son el tipo real.
+
+- id: c-2-array-nombres-solo
+  language: C
+  week: 2
+  prompt: Declara un array de cadenas nombrePlantas para 5 plantas, cada nombre de 20 caracteres.
+  answer: |
+    int main() {
+        char nombrePlantas[5][20];
+        return 0;
+    }
+  hint: Primero va el número de elementos, luego el tamaño de cada string.
+
+- id: p-2-array-nombres-solo
+  language: Pseudocode
+  week: 2
+  prompt: Declara un array de strings nombrePlantas para 5 plantas.
+  answer: |
+    algorithm
+      var
+        nombrePlantas: vector[5] of string;
+      end var
+    end algorithm
+  hint:
+
 
 - id: c-2-arr_nombreplanta
   language: C
@@ -614,6 +610,142 @@
     end algorithm
   hint: No olvides todas las palabras reservadas como const, algorithm y var.
 
+- id: c-2-array-alturas
+  language: C
+  week: 2
+  prompt: Declara la constante MAX_PLANTAS = 5 y un array float alturas usando la constante.
+  answer: |
+    #define MAX_PLANTAS 5
+
+    int main() {
+        float alturas[MAX_PLANTAS];
+        return 0;
+    }
+  hint:
+
+- id: p-2-array-alturas
+  language: Pseudocode
+  week: 2
+  prompt: Declara la constante MAX_PLANTAS = 5 y un array real alturas usando la constante.
+  answer: |
+    const
+      MAX_PLANTAS: integer = 5;
+    end const
+
+    algorithm
+      var
+        alturas: vector[MAX_PLANTAS] of real;
+      end var
+    end algorithm
+  hint:
+
+- id: c-2-array-nombres-alturas
+  language: C
+  week: 2
+  prompt: Declara las constantes MAX_PLANTAS = 5 y MAX_NOMBRE = 20. Declara un array de cadenas nombrePlantas y un array float alturas, ambos usando MAX_PLANTAS.
+  answer: |
+    #define MAX_PLANTAS 5
+    #define MAX_NOMBRE 20
+
+    int main() {
+        char nombrePlantas[MAX_PLANTAS][MAX_NOMBRE];
+        float alturas[MAX_PLANTAS];
+        return 0;
+    }
+  hint:
+
+- id: p-2-array-nombres-alturas
+  language: Pseudocode
+  week: 2
+  prompt: Declara la constante MAX_PLANTAS = 5. Declara un array de strings nombrePlantas y un array de reales alturas usando la constante.
+  answer: |
+    const
+      MAX_PLANTAS: integer = 5;
+    end const
+
+    algorithm
+      var
+        nombrePlantas: vector[MAX_PLANTAS] of string;
+        alturas: vector[MAX_PLANTAS] of real;
+      end var
+    end algorithm
+  hint:
+
+- id: c-2-arr_humedad
+  language: C
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5 y un array de enteros humedad con MAX_PLANTS, 
+    inicializado con los valores "60, 85, 72, 91, 65" en la misma linea dentro de main.
+  answer: |
+    #define MAX_PLANTS 5
+
+    int main() {
+        int humedad[MAX_PLANTS] = {60, 85, 72, 91, 65};
+        return 0;
+    }
+  hint: Los valores deben estar entre llaves, separados por comas.
+
+- id: p-2-arr_humedad
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5.
+    Dentro del algoritmo principal, declara un array de enteros humedad con MAX_PLANTS.
+    Inicializa el array con los valores "60, 85, 72, 91, 65".
+  answer: |
+    const
+      MAX_PLANTS: integer = 5;
+    end const
+
+    algorithm
+      var
+         humedad: vector[MAX_PLANTS] of integer;
+      end var
+    
+      humedad[1] := 60;
+      humedad[2] := 85;
+      humedad[3] := 72;
+      humedad[4] := 91;
+      humedad[5] := 65;
+    end algorithm
+  hint: Recuerda que en pseudocódigo, primero declaramos las variables y después las inicializamos.
+
+- id: c-2-inicializa-alturas
+  language: C
+  week: 2
+  prompt: Declara la constante MAX_PLANTAS = 5 y un array float alturas, inicializándolo con los valores 11.2, 18.4, 13.0, 17.5, 15.1.
+  answer: |
+    #define MAX_PLANTAS 5
+
+    int main() {
+        float alturas[MAX_PLANTAS] = {11.2, 18.4, 13.0, 17.5, 15.1};
+        return 0;
+    }
+  hint:
+
+- id: p-2-inicializa-alturas
+  language: Pseudocode
+  week: 2
+  prompt: Declara la constante MAX_PLANTAS = 5 y un array real alturas. Inicializa los 5 valores a 11.2, 18.4, 13.0, 17.5, 15.1.
+  answer: |
+    const
+      MAX_PLANTAS: integer = 5;
+    end const
+
+    algorithm
+      var
+        alturas: vector[MAX_PLANTAS] of real;
+      end var
+
+      alturas[1] := 11.2;
+      alturas[2] := 18.4;
+      alturas[3] := 13.0;
+      alturas[4] := 17.5;
+      alturas[5] := 15.1;
+    end algorithm
+  hint:
+
 - id: c-2-mat_sensorestemp
   language: C
   week: 2
@@ -649,44 +781,6 @@
     end algorithm
   hint: En una matriz van siempre primero las filas y luego las columnas, no olvides todas las palabras reservadas para declarar los datos.
 
-- id: c-2-arr_humedad
-  language: C
-  week: 2
-  prompt: |
-    Declara la constante MAX_PLANTS = 5 y un array de enteros humedad con MAX_PLANTS, inicializado con los valores "60, 85, 72, 91, 65" dentro de main.
-  answer: |
-    #define MAX_PLANTS 5
-
-    int main() {
-        int humedad[MAX_PLANTS] = {60, 85, 72, 91, 65};
-        return 0;
-    }
-  hint: Los valores deben estar entre llaves, separados por comas.
-
-- id: p-2-arr_humedad
-  language: Pseudocode
-  week: 2
-  prompt: |
-    Declara la constante MAX_PLANTS = 5.
-    Dentro del algoritmo principal, declara un array de enteros humedad con MAX_PLANTS.
-    Inicializa el array con los valores "60, 85, 72, 91, 65".
-  answer: |
-    const
-      MAX_PLANTS: integer = 5;
-    end const
-
-    algorithm
-      var
-         humedad: vector[MAX_PLANTS] of integer;
-      end var
-    
-      humedad[1] := 60;
-      humedad[2] := 85;
-      humedad[3] := 72;
-      humedad[4] := 91;
-      humedad[5] := 65;
-    end algorithm
-  hint: Recuerda que en pseudocódigo, primero declaramos las variables y después las inicializamos.
 
 - id: c-2-mat_zonas_bool
   language: C
@@ -745,12 +839,519 @@
       zonas[2][2] := true;
       zonas[2][3] := false;
     end algorithm
-  hint: Recuerda las llaves dobles para la matriz y el tipo bool.
+  hint: No olvides las palabras reservadas para declarar los datos y el algoritmo principal.
 
+- id: c-2-inicializa-nombreplanta
+  language: C
+  week: 2
+  prompt: |
+    Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
+    Dentro de main, declara un array de cadenas nombrePlanta para los nombres de las plantas y 
+    usa strncpy para inicializar el primer elemento a "Margarita".
+  answer: |
+    #include <string.h>
+    #define MAX_PLANTS 5
+    #define MAX_NAME 25
+
+    int main() {
+        char nombrePlanta[MAX_PLANTS][MAX_NAME];
+        strncpy(nombrePlanta[0], "Margarita", MAX_NAME);
+        return 0;
+    }
+  hint: Usa strncpy para copiar la cadena al array de strings. No olvides pasar el tamaño máximo.
+
+- id: p-2-inicializa-nombreplanta
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5. 
+    Dentro del algoritmo principal, declara un array de strings nombrePlanta y asigna "Margarita" al primer elemento.
+  answer: |
+    const
+      MAX_PLANTS: integer = 5;
+    end const
+    algorithm
+      var
+        nombrePlanta: vector[MAX_PLANTS] of string;
+      end var
+
+      nombrePlanta[1] := "Margarita";
+    end algorithm
+  hint: En pseudocódigo los índices empiezan en 1.
+
+- id: c-2-inicializa-varios-nombres
+  language: C
+  week: 2
+  prompt: |
+    Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
+    Dentro de main, declara un array de cadenas nombrePlanta y usa strncpy para inicializar los nombres 
+    "Margarita", "Rosa", "Lirio", "Orquídea", "Girasol" en el array.
+  answer: |
+    #include <string.h>
+    #define MAX_PLANTS 5
+    #define MAX_NAME 25
+
+    int main() {
+        char nombrePlanta[MAX_PLANTS][MAX_NAME];
+        strncpy(nombrePlanta[0], "Margarita", MAX_NAME);
+        strncpy(nombrePlanta[1], "Rosa", MAX_NAME);
+        strncpy(nombrePlanta[2], "Lirio", MAX_NAME);
+        strncpy(nombrePlanta[3], "Orquídea", MAX_NAME);
+        strncpy(nombrePlanta[4], "Girasol", MAX_NAME);
+        return 0;
+    }
+  hint: Siempre que copies un string, usa strncpy y el tamaño máximo como tercer argumento.
+
+- id: p-2-inicializa-varios-nombres
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5. 
+    Declara un array de strings nombrePlanta y asigna los nombres 
+    "Margarita", "Rosa", "Lirio", "Orquídea", "Girasol" en el array.
+  answer: |
+    const
+      MAX_PLANTS: integer = 5;
+    end const
+    algorithm
+      var
+        nombrePlanta: vector[MAX_PLANTS] of string;
+      end var
+
+      nombrePlanta[1] := "Margarita";
+      nombrePlanta[2] := "Rosa";
+      nombrePlanta[3] := "Lirio";
+      nombrePlanta[4] := "Orquídea";
+      nombrePlanta[5] := "Girasol";
+    end algorithm
+  hint: Recuerda, índices desde 1 en pseudocódigo.
+
+- id: c-2-muestra-primer-nombre
+  language: C
+  week: 2
+  prompt: |
+    Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
+    Declara un array de cadenas nombrePlanta, inicializa el primer elemento con "Margarita" usando strncpy,
+    y muestra el primer nombre con printf.
+  answer: |
+    #include <stdio.h>
+    #include <string.h>
+    #define MAX_PLANTS 5
+    #define MAX_NAME 25
+
+    int main() {
+        char nombrePlanta[MAX_PLANTS][MAX_NAME];
+        strncpy(nombrePlanta[0], "Margarita", MAX_NAME);
+        printf("%s\n", nombrePlanta[0]);
+        return 0;
+    }
+  hint: Usa printf y recuerda el especificador de string.
+
+- id: p-2-muestra-primer-nombre
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5. 
+    Declara un array de strings nombrePlanta, asigna "Margarita" al primer elemento 
+    y muestra ese nombre con writeString.
+  answer: |
+    const
+      MAX_PLANTS: integer = 5;
+    end const
+    algorithm
+      var
+        nombrePlanta: vector[MAX_PLANTS] of string;
+      end var
+
+      nombrePlanta[1] := "Margarita";
+      writeString(nombrePlanta[1]);
+    end algorithm
+  hint: Una instrucción por línea.
+
+- id: c-2-copia-nombre-a-otro
+  language: C
+  week: 2
+  prompt: |
+    Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25. Declara un array de cadenas nombrePlanta.
+    Usa strncpy para copiar el nombre "Margarita" en el primer elemento y después usa strncpy para copiar ese mismo nombre
+    al segundo elemento.
+  answer: |
+    #include <string.h>
+    #define MAX_PLANTS 5
+    #define MAX_NAME 25
+
+    int main() {
+        char nombrePlanta[MAX_PLANTS][MAX_NAME];
+        strncpy(nombrePlanta[0], "Margarita", MAX_NAME);
+        strncpy(nombrePlanta[1], nombrePlanta[0], MAX_NAME);
+        return 0;
+    }
+  hint: strncpy sirve para copiar tanto un literal como de un array a otro.
+
+- id: p-2-copia-nombre-a-otro
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTS = 5. 
+    Declara un array de strings nombrePlanta, asigna "Margarita" al primer elemento
+    y copia ese nombre al segundo elemento.
+  answer: |
+    const
+      MAX_PLANTS: integer = 5;
+    end const
+    algorithm
+      var
+        nombrePlanta: vector[MAX_PLANTS] of string;
+      end var
+
+      nombrePlanta[1] := "Margarita";
+      nombrePlanta[2] := nombrePlanta[1];
+    end algorithm
+  hint: En pseudocódigo puedes asignar directamente un string a otro.
+
+- id: c-2-array-temp
+  language: C
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTAS = 4 y un array float tempPlantas.
+    Inicializa los valores a 19.2, 20.5, 22.1 y 18.9. Imprime el tercer valor con el formato "Temp: x".
+  answer: |
+    #define MAX_PLANTAS 4
+
+    int main() {
+        float tempPlantas[MAX_PLANTAS] = {19.2, 20.5, 22.1, 18.9};
+        printf("Temp: %.1f\n", tempPlantas[2]);
+        return 0;
+    }
+  hint: |
+    Ejemplo de ejecución: 
+    Temp: 22.1
+
+- id: p-2-array-temp
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTAS = 4.
+    Declara un array real tempPlantas.
+    Inicializa los valores a 19.2, 20.5, 22.1 y 18.9. Imprime el tercer valor.
+  answer: |
+    const
+      MAX_PLANTAS: integer = 4;
+    end const
+
+    algorithm
+      var
+        tempPlantas: vector[MAX_PLANTAS] of real;
+      end var
+
+      tempPlantas[1] := 19.2;
+      tempPlantas[2] := 20.5;
+      tempPlantas[3] := 22.1;
+      tempPlantas[4] := 18.9;
+
+      writeReal(tempPlantas[3]);
+    end algorithm
+  hint: |
+    Ejemplo de ejecución: 
+    22.1
+
+- id: c-2-matriz-ph
+  language: C
+  week: 2
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    Declara una matriz float phSuelo.
+    Inicializa con los valores:
+    fila 1: 6.1, 6.3, 6.0
+    fila 2: 7.1, 7.0, 6.9
+    Imprime el valor de la posición fila 2, columna 1 con el formato "pH: x".
+  answer: |
+    #define FILAS 2
+    #define COLUMNAS 3
+
+    int main() {
+        float phSuelo[FILAS][COLUMNAS] = {
+            {6.1, 6.3, 6.0},
+            {7.1, 7.0, 6.9}
+        };
+        printf("pH: %.1f\n", phSuelo[1][0]);
+        return 0;
+    }
+  hint: |
+    Ejemplo de ejecución: 
+      pH: 7.1
+
+- id: p-2-matriz-ph
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    Declara una matriz real phSuelo.
+    Inicializa los valores:
+    fila 1: 6.1, 6.3, 6.0
+    fila 2: 7.1, 7.0, 6.9
+    Imprime el valor de la posición fila 2, columna 1 el formato "pH: x".
+  answer: |
+    const
+      FILAS: integer = 2;
+      COLUMNAS: integer = 3;
+    end const
+
+    algorithm
+      var
+        phSuelo: vector[FILAS][COLUMNAS] of real;
+      end var
+
+      phSuelo[1][1] := 6.1;
+      phSuelo[1][2] := 6.3;
+      phSuelo[1][3] := 6.0;
+      phSuelo[2][1] := 7.1;
+      phSuelo[2][2] := 7.0;
+      phSuelo[2][3] := 6.9;
+
+      writeString("pH: ");
+      writeReal(phSuelo[2][1]);
+    end algorithm
+  hint: |
+    Ejemplo de ejecución: 
+    pH: 7.1
+
+- id: c-2-acceso-paralelos
+  language: C
+  week: 2
+  prompt: |
+    Declara las constantes MAX_PLANTAS = 3, MAX_NOMBRE = 10.
+    Declara nombrePlantas (cadenas) y alturaPlantas (float).
+    Inicializa con "Loto", "Boj", "Tejo" y 1.2, 0.4, 4.8.
+    Imprime el nombre y altura de la primera planta, cada uno en su línea.
+  answer: |
+    #define MAX_PLANTAS 3
+    #define MAX_NOMBRE 10
+
+    int main() {
+        char nombrePlantas[MAX_PLANTAS][MAX_NOMBRE];
+        float alturaPlantas[MAX_PLANTAS];
+        strncpy(nombrePlantas[0], "Loto", MAX_NOMBRE);
+        strncpy(nombrePlantas[1], "Boj", MAX_NOMBRE);
+        strncpy(nombrePlantas[2], "Tejo", MAX_NOMBRE);
+        alturaPlantas[0] = 1.2;
+        alturaPlantas[1] = 0.4;
+        alturaPlantas[2] = 4.8;
+        printf("%s\n", nombrePlantas[0]);
+        printf("%.1f\n", alturaPlantas[0]);
+        return 0;
+    }
+  hint: |
+    Ejemplo de ejecución:
+      Loto
+      1.2
+
+- id: p-2-acceso-paralelos
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTAS = 3.
+    Declara nombrePlantas (strings) y alturaPlantas (reales).
+    Inicializa con "Loto", "Boj", "Tejo" y 1.2, 0.4, 4.8.
+    Imprime el nombre y altura de la primera planta, cada uno en su línea.
+  answer: |
+    const
+      MAX_PLANTAS: integer = 3;
+    end const
+
+    algorithm
+      var
+        nombrePlantas: vector[MAX_PLANTAS] of string;
+        alturaPlantas: vector[MAX_PLANTAS] of real;
+      end var
+
+      nombrePlantas[1] := "Loto";
+      nombrePlantas[2] := "Boj";
+      nombrePlantas[3] := "Tejo";
+      alturaPlantas[1] := 1.2;
+      alturaPlantas[2] := 0.4;
+      alturaPlantas[3] := 4.8;
+
+      writeString(nombrePlantas[1]);
+      writeReal(alturaPlantas[1]);
+    end algorithm
+  hint: | 
+    Ejemplo de ejecución:
+      Loto
+      1.2
+
+- id: c-2-leer-string
+  language: C
+  week: 2
+  prompt: |
+    Declara la constante MAX_NOMBRE = 15.
+    Dentro de main, declara la cadena nombrePlanta y lee su valor por teclado usando scanf. Imprime el nombre en el formato "Nombre: x".
+  answer: |
+    #define MAX_NOMBRE 15
+
+    int main() {
+        char nombrePlanta[MAX_NOMBRE];
+        scanf("%s", nombrePlanta);
+        printf("Nombre: %s\n", nombrePlanta);
+        return 0;
+    }
+  hint: |
+    El usuario debe teclear un nombre, Ejemplo de ejecución: Nombre: Jacinto
+
+- id: p-2-leer-string
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Dentro del algoritmo principal, declara una variable nombrePlanta de tipo string.
+    Lee su valor usando readString y después imprímelo.
+  answer: |
+    algorithm
+      var
+        nombrePlanta: string;
+      end var
+
+      nombrePlanta := readString();
+      writeString(nombrePlanta);
+    end algorithm
+  hint: Recuerda usar readString.
+
+- id: c-2-leer-array-int
+  language: C
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTAS = 3.
+    Declara el array edadPlantas.
+    Lee 3 valores enteros por teclado y guárdalos en el array. Imprime el segundo valor leído.
+  answer: |
+    #define MAX_PLANTAS 3
+
+    int main() {
+        int edadPlantas[MAX_PLANTAS];
+        scanf("%d", &edadPlantas[0]);
+        scanf("%d", &edadPlantas[1]);
+        scanf("%d", &edadPlantas[2]);
+        printf("%d\n", edadPlantas[1]);
+        return 0;
+    }
+  hint: |
+    El usuario debe escribir 3 números. Ejemplo entrada: 7 8 10 | Ejemplo salida: 8
+
+- id: p-2-leer-array-int
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara la constante MAX_PLANTAS = 3.
+    Declara el array edadPlantas.
+    Lee 3 valores enteros usando readInteger y guárdalos en el array. Imprime el segundo valor.
+  answer: |
+    const
+      MAX_PLANTAS: integer = 3;
+    end const
+
+    algorithm
+      var
+        edadPlantas: vector[MAX_PLANTAS] of integer;
+      end var
+
+      edadPlantas[1] := readInteger();
+      edadPlantas[2] := readInteger();
+      edadPlantas[3] := readInteger();
+
+      writeInteger(edadPlantas[2]);
+    end algorithm
+  hint: Recuerda, cada readInteger debe ir en línea.
+
+- id: c-2-matriz-inicializa-llaves
+  language: C
+  week: 2
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.  
+    Dentro de la función main, declara e **inicializa** una matriz de enteros llamada `zonas` con los siguientes valores usando llaves `{}`:
+    - fila 1: 1, 0, 0
+    - fila 2: 0, 1, 0
+  answer: |
+    #define FILAS 2
+    #define COLUMNAS 3
+
+    int main() {
+        int zonas[FILAS][COLUMNAS] = {
+            {1, 0, 0},
+            {0, 1, 0}
+        };
+        return 0;
+    }
+  hint: |
+    Cuando usas constantes con `#define` puedes inicializar la matriz con llaves `{}`.
+    Ejemplo: 
+      int matriz[2][3] = { {a, b, c}, {d, e, f} };
+    No funcionaría si FILAS y COLUMNAS fueran variables.
+
+- id: c-2-matriz-inicializa-manual
+  language: C
+  week: 2
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    Dentro de la función main, declara una matriz de enteros llamada `zonas` y **asigna manualmente** los siguientes valores:
+    - fila 1: 1, 0, 0
+    - fila 2: 0, 1, 0
+  answer: |
+    #define FILAS 2
+    #define COLUMNAS 3
+
+    int main() {
+        int zonas[FILAS][COLUMNAS];
+        zonas[0][0] = 1;
+        zonas[0][1] = 0;
+        zonas[0][2] = 0;
+
+        zonas[1][0] = 0;
+        zonas[1][1] = 1;
+        zonas[1][2] = 0;
+        return 0;
+    }
+  hint: |
+    Asigna cada elemento individualmente con zonas[fila][columna].
+    Recuerda: en C los índices empiezan en 0.
+
+- id: p-2-matriz-inicializa-const
+  language: Pseudocode
+  week: 2
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    Dentro del algoritmo principal, declara una matriz de enteros zonas de tamaño FILAS x COLUMNAS.
+    Inicializa la matriz manualmente con los valores siguientes:
+    - fila 1: 1, 0, 0
+    - fila 2: 0, 1, 0
+  answer: |
+    const
+      FILAS: integer = 2;
+      COLUMNAS: integer = 3;
+    end const
+
+    algorithm
+      var
+        zonas: vector[FILAS][COLUMNAS] of integer;
+      end var
+
+      zonas[1][1] := 1;
+      zonas[1][2] := 0;
+      zonas[1][3] := 0;
+      zonas[2][1] := 0;
+      zonas[2][2] := 1;
+      zonas[2][3] := 0;
+    end algorithm
+  hint: |
+    En pseudocódigo la inicialización de matrices es siempre manual, elemento a elemento.
+    Los índices comienzan normalmente en 1.
+
+
+### semana 3 ###
 - id: c-3-if_incremento
   language: C
   week: 3
-  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if, si el numero es 5 sumale 1 utilizando operador de incremento. En caso contrario restale 1 utilizando operador de decremento
+  prompt: |
+    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if, 
+    si el numero es 5 sumale 1 utilizando operador de incremento. En caso contrario restale 1 utilizando operador de decremento
   answer: |
     int main () {
       int numero = 5; 
@@ -768,7 +1369,9 @@
 - id: p-3-if_incremento
   language: Pseudocode
   week: 3
-  prompt: Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if, si el numero es 5 sumale 1. En caso contrario restale 1.
+  prompt: |
+    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if, 
+    si el numero es 5 sumale 1. En caso contrario restale 1.
   answer: |-
     var
       numero: integer;
@@ -782,4 +1385,6 @@
       numero := numero - 1;
     end if
   hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
+
+
 

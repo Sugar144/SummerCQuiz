@@ -42,7 +42,7 @@ pub fn pseudo_syntax() -> Syntax {
 
 impl eframe::App for QuizApp {
 
-    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+    fn update(&mut self, ctx: &Context, frame: &mut Frame) {
         // BOTÓN SUPERIOR DE REINICIAR (solo visible durante el quiz y resumen)
         if matches!(self.state, AppState::Quiz | AppState::Summary) {
             egui::TopBottomPanel::top("menu_panel").show(ctx, |ui| {
@@ -183,10 +183,14 @@ impl eframe::App for QuizApp {
                                         self.seleccionar_lenguaje(lang);
                                     }
 
-                                    #[cfg (not(target_arch = "wasm32"))]
+                                    #[cfg(not(target_arch = "wasm32"))]
                                     if salir.clicked() {
+                                        if let Some(storage) = frame.storage_mut() {
+                                            set_value(&mut *storage, APP_KEY, self);
+                                        }
                                         std::process::exit(0);
                                     }
+
 
 
                                 });
@@ -307,7 +311,6 @@ impl eframe::App for QuizApp {
                                                 .strong()
                                         );
                                     }
-
                                 });
                             });
                     });

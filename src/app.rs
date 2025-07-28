@@ -464,22 +464,37 @@ impl QuizApp {
     pub fn saltar_pregunta(&mut self, idx: usize) {
         self.questions[idx].skips += 1;
         self.questions[idx].attempts += 1;
-        self.message = "⏩ Pregunta saltada. La verás más adelante.".to_string();
+        self.message = "⏩ Pregunta saltada. La verás en la siguiente ronda.".to_string();
         self.input.clear();
 
-        if !self.shown_this_round.contains(&idx) {
-            self.shown_this_round.push(idx);
-        }
+        self.questions[idx].saw_solution = false;
 
-        self.current_in_week = self.next_pending_in_week();
+        let week = self.current_week.unwrap_or(1);
+        let language = self.selected_language.unwrap_or(Language::C);
+
+        // Solo preguntas de esta semana y lenguaje
+        let indices: Vec<usize> = self.questions.iter().enumerate()
+            .filter(|(_, q)| q.week == week && q.language == language)
+            .map(|(i, _)| i)
+            .collect();
+
+        // Busca la siguiente pendiente después de la actual
+        let pos_in_week = indices.iter().position(|&i| i == idx);
+        let next_idx = pos_in_week.and_then(|pos| {
+            indices.iter().skip(pos + 1)
+                .find(|&&i| !self.questions[i].is_done)
+                .copied()
+        });
+
+        self.current_in_week = next_idx;
         self.update_input_prefill();
 
-        if self.current_in_week.is_none() && self.is_week_completed(self.current_week.unwrap_or(1)) {
-            let week = self.current_week.unwrap_or(1);
+        if self.current_in_week.is_none() && self.is_week_completed(week) {
             self.complete_week(week);
             self.state = AppState::Summary;
         }
     }
+
 
     pub fn avanzar_a_siguiente_pregunta(&mut self, idx: usize) {
         self.questions[idx].saw_solution = true;
