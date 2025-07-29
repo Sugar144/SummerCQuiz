@@ -236,21 +236,16 @@ impl QuizApp {
 
 
     /// Borra progreso y reinicia el quiz para el lenguaje actual
-    pub fn reset_progress(&mut self)
-    {
+    pub fn reset_progress(&mut self) {
         if let Some(language) = self.selected_language {
             *self = QuizApp::new_for_language(language);
-            self.state = AppState::Quiz;
-            self.update_input_prefill();
+            self.continuar_quiz();         // esto hace select_week(...) y setea Quiz
             self.confirm_reset = false;
             self.message.clear();
-
             self.has_saved_progress = false;
-
-            self.sync_is_done();                // <--- Añade aquí
-            self.recalculate_unlocked_weeks();
         }
     }
+
 
 
     pub fn confirm_reset(&mut self, ctx: &egui::Context) {

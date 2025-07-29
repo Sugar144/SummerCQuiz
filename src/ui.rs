@@ -1,4 +1,4 @@
-use egui::{Context, Visuals};
+use egui::{Align, Context, Visuals};
 
 use crate::app::QuizApp;
 use crate::model::{AppState, Language};
@@ -457,7 +457,7 @@ impl eframe::App for QuizApp {
                     let panel_width = (ui.available_width() * 0.97).min(max_width);
                     let total_height = 150.0 + 245.0 + 48.0 + 48.0 + 24.0;
                     let extra_space = (ui.available_height() - total_height).max(0.0) / 2.0;
-                    ui.add_space(extra_space);
+                    ui.add_space(extra_space / 4.0);
 
                     egui::Frame::default()
                         .fill(ui.visuals().window_fill())
@@ -466,8 +466,9 @@ impl eframe::App for QuizApp {
                             ui.vertical_centered(|ui| {
                                 if let Some(idx) = self.progress().current_in_week {
                                     ui.heading(format!("🌀 Ronda {}", self.progress().round));
+                                    ui.add_space(10.0);
                                     // Prompt con scroll fijo
-                                    let prompt_max_height = 250.0;
+                                    let prompt_max_height = 150.0;
                                     let prompt_min_lines = 4.0;
                                     let font_id = egui::TextStyle::Body.resolve(ui.style());
                                     let line_height = ui.fonts(|f| f.row_height(&font_id));
@@ -484,17 +485,14 @@ impl eframe::App for QuizApp {
                                     let needed_height = galley.size().y.max(prompt_min_height).min(prompt_max_height);
                                     ui.allocate_ui_with_layout(
                                         egui::vec2(panel_width, needed_height),
-                                        egui::Layout::centered_and_justified(egui::Direction::TopDown),
+                                        // Layout vertical “top-down” con alineación mínima (izquierda)
+                                        egui::Layout::top_down(Align::Min),
                                         |ui| {
                                             egui::ScrollArea::vertical()
                                                 .max_height(prompt_max_height)
                                                 .show(ui, |ui| {
-                                                    ui.with_layout(
-                                                        egui::Layout::centered_and_justified(egui::Direction::TopDown),
-                                                        |ui| {
-                                                            ui.label(&prompt_text);
-                                                        }
-                                                    );
+                                                    // Dentro del scroll basta con un label normal:
+                                                    ui.label(&prompt_text);
                                                 });
                                         }
                                     );

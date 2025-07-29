@@ -809,7 +809,7 @@
     
         return 0;
     }
-  hint: Recuerda la biblioteca para el tipo bool.
+  hint: Recuerda la biblioteca para el tipo booleano.
 
 - id: p-2-mat_zonas_bool
   language: Pseudocode
@@ -936,6 +936,7 @@
   answer: |
     #include <stdio.h>
     #include <string.h>
+    
     #define MAX_PLANTS 5
     #define MAX_NAME 25
 
@@ -945,7 +946,7 @@
         printf("%s\n", nombrePlanta[0]);
         return 0;
     }
-  hint: Usa printf y recuerda el especificador de string.
+  hint: Usa printf, recuerda el especificador de string y el salto de linea. También recuerda las bibliotecas necesarias.
 
 - id: p-2-muestra-primer-nombre
   language: Pseudocode
@@ -966,7 +967,7 @@
       nombrePlanta[1] := "Margarita";
       writeString(nombrePlanta[1]);
     end algorithm
-  hint: Una instrucción por línea.
+  hint: Primero declaramos, después asignamos valor y finalmente imprimimos.
 
 - id: c-2-copia-nombre-a-otro
   language: C
@@ -1016,6 +1017,8 @@
     Declara la constante MAX_PLANTAS = 4 y un array float tempPlantas.
     Inicializa los valores a 19.2, 20.5, 22.1 y 18.9. Imprime el tercer valor con el formato "Temp: x".
   answer: |
+    #include <stdio.h>
+
     #define MAX_PLANTAS 4
 
     int main() {
@@ -1026,6 +1029,7 @@
   hint: |
     Ejemplo de ejecución: 
     Temp: 22.1
+    Fijate que solo hay un decimal.
 
 - id: p-2-array-temp
   language: Pseudocode
@@ -1061,11 +1065,13 @@
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
     Declara una matriz float phSuelo.
-    Inicializa con los valores:
+    Inicializa utilizando {} con los valores:
     fila 1: 6.1, 6.3, 6.0
     fila 2: 7.1, 7.0, 6.9
     Imprime el valor de la posición fila 2, columna 1 con el formato "pH: x".
   answer: |
+    #include <stdio.h>
+
     #define FILAS 2
     #define COLUMNAS 3
 
@@ -1113,8 +1119,11 @@
       writeReal(phSuelo[2][1]);
     end algorithm
   hint: |
+    Recuerda que en pseudocódigo no puedes imprimir mas de un dato por linea.
+    
     Ejemplo de ejecución: 
     pH: 7.1
+    
 
 - id: c-2-acceso-paralelos
   language: C
@@ -1125,6 +1134,8 @@
     Inicializa con "Loto", "Boj", "Tejo" y 1.2, 0.4, 4.8.
     Imprime el nombre y altura de la primera planta, cada uno en su línea.
   answer: |
+    #include <stdio.h>
+    #include <string.h>
     #define MAX_PLANTAS 3
     #define MAX_NOMBRE 10
 
@@ -1142,6 +1153,9 @@
         return 0;
     }
   hint: |
+    Recuerda importar las bibliotecas necesarias. Y no olvides los saltos de linea y fijate que el numero solo tiene
+    un decimal.
+    
     Ejemplo de ejecución:
       Loto
       1.2
@@ -1187,6 +1201,8 @@
     Declara la constante MAX_NOMBRE = 15.
     Dentro de main, declara la cadena nombrePlanta y lee su valor por teclado usando scanf. Imprime el nombre en el formato "Nombre: x".
   answer: |
+    #include <stdio.h>
+    
     #define MAX_NOMBRE 15
 
     int main() {
@@ -1196,7 +1212,11 @@
         return 0;
     }
   hint: |
-    El usuario debe teclear un nombre, Ejemplo de ejecución: Nombre: Jacinto
+    Recuerda la biblioteca y el salto de linea en el print.
+    
+    Ejemplo de ejecución: 
+    
+    Nombre: Jacinto
 
 - id: p-2-leer-string
   language: Pseudocode
@@ -1213,7 +1233,7 @@
       nombrePlanta := readString();
       writeString(nombrePlanta);
     end algorithm
-  hint: Recuerda usar readString.
+  hint: Recuerda usar readString para leer el dato.
 
 - id: c-2-leer-array-int
   language: C
@@ -1223,6 +1243,8 @@
     Declara el array edadPlantas.
     Lee 3 valores enteros por teclado y guárdalos en el array. Imprime el segundo valor leído.
   answer: |
+    #include <stdio.h>
+    
     #define MAX_PLANTAS 3
 
     int main() {
@@ -1234,7 +1256,9 @@
         return 0;
     }
   hint: |
-    El usuario debe escribir 3 números. Ejemplo entrada: 7 8 10 | Ejemplo salida: 8
+    El usuario debe escribir 3 números. 
+    Ejemplo entrada: 7 8 10
+    Ejemplo salida: 8
 
 - id: p-2-leer-array-int
   language: Pseudocode
@@ -1266,7 +1290,7 @@
   week: 2
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.  
-    Dentro de la función main, declara e **inicializa** una matriz de enteros llamada `zonas` con los siguientes valores usando llaves `{}`:
+    Dentro de la función main, declara e inicializa una matriz de enteros llamada `zonas` con los siguientes valores usando llaves `{}`:
     - fila 1: 1, 0, 0
     - fila 2: 0, 1, 0
   answer: |
@@ -1281,10 +1305,8 @@
         return 0;
     }
   hint: |
-    Cuando usas constantes con `#define` puedes inicializar la matriz con llaves `{}`.
     Ejemplo: 
-      int matriz[2][3] = { {a, b, c}, {d, e, f} };
-    No funcionaría si FILAS y COLUMNAS fueran variables.
+      tipo matriz[2][3] = { {a, b, c}, {d, e, f} };
 
 - id: c-2-matriz-inicializa-manual
   language: C
@@ -1342,49 +1364,1583 @@
     end algorithm
   hint: |
     En pseudocódigo la inicialización de matrices es siempre manual, elemento a elemento.
-    Los índices comienzan normalmente en 1.
+    Los índices comienzan en 1.
 
 
 ### semana 3 ###
-- id: c-3-if_incremento
+
+#### Semana 3 #####
+
+- id: c-3-enum-declaracion
   language: C
   week: 3
   prompt: |
-    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if, 
-    si el numero es 5 sumale 1 utilizando operador de incremento. En caso contrario restale 1 utilizando operador de decremento
+    Declara un enumerado tTipoAnimal con los valores PERRO, GATO y AVE.
+    
+    Declara la constante MAX_ANIMALES = 3.
+    
+    Dentro de main, declara un array tipoAnimal de tipo tTipoAnimal inicializado con PERRO, GATO y AVE usando llaves {}.
   answer: |
-    int main () {
-      int numero = 5; 
-    
-      if(numero == 5) { 
-        numero++;
-      } else { 
-        numero--; 
-      }
-    
-      return 0;
-    }
-  hint: Usa if else
+    #define MAX_ANIMALES 3
 
-- id: p-3-if_incremento
+    typedef enum {
+        PERRO,
+        GATO,
+        AVE
+    } tTipoAnimal;
+
+    int main() {
+        tTipoAnimal tipoAnimal[MAX_ANIMALES] = { PERRO, GATO, AVE };
+        return 0;
+    }
+  hint: Los enumerativos se inicializan igual que los enteros usando sus etiquetas.
+
+- id: p-3-enum-declaracion
   language: Pseudocode
   week: 3
   prompt: |
-    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if, 
-    si el numero es 5 sumale 1. En caso contrario restale 1.
-  answer: |-
-    var
-      numero: integer;
-    end var
+    Declara el tipo enumerado tTipoAnimal con los valores PERRO, GATO y AVE.
     
-    numero := 5;
+    Declara la constante MAX_ANIMALES = 3.
     
-    if numero = 5 then
-      numero := numero + 1;
-    else
-      numero := numero - 1;
-    end if
-  hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
+    Dentro del algoritmo principal, declara un array tipoAnimal de tTipoAnimal, inicializado con PERRO, GATO y AVE.
+  answer: |
+    const
+      MAX_ANIMALES: integer = 3;
+    end const
+    
+    type
+      tTipoAnimal = { PERRO, GATO, AVE }
+    end type
+
+    algorithm
+      var
+        tipoAnimal: vector[MAX_ANIMALES] of tTipoAnimal;
+      end var
+
+      tipoAnimal[1] := PERRO;
+      tipoAnimal[2] := GATO;
+      tipoAnimal[3] := AVE;
+    end algorithm
+  hint: Enum en pseudocódigo siempre van entre { }.
+
+- id: c-3-enum-to-string-ternario
+  language: C
+  week: 3
+  prompt: |
+    Incluye string y stdio.
+    
+    Declara un enumerado tTipoAnimal con PERRO, GATO y AVE.
+    
+    Declara la constante MAX_ANIMALES = 3 y un array tipoAnimal de tTipoAnimal inicializado con PERRO, GATO y AVE usando {}.
+    
+    Declara una cadena de caracteres tipoStr de longitud 20 (Usa el valor directo).
+    
+    Copia en tipoStr el nombre del primer animal usando strncpy y el operador ternario anidado para convertir el enum a string ("Perro", "Gato" o "Ave").
+    
+    Resumiendo, debes guardar el tipo de animal en un formato string. Para convertir el enumerativo en string, usaras el operador ternario.
+  answer: |
+    #include <stdio.h>
+    #include <string.h>
+
+    #define MAX_ANIMALES 3
+
+    typedef enum {
+        PERRO, GATO, AVE
+    } tTipoAnimal;
+
+    int main() {
+        tTipoAnimal tipoAnimal[MAX_ANIMALES] = { PERRO, GATO, AVE };
+        char tipoStr[20];
+        strncpy(tipoStr,
+            (tipoAnimal[0] == PERRO) ? "Perro" :
+            (tipoAnimal[0] == GATO) ? "Gato" : "Ave",
+            20);
+        return 0;
+    }
+  hint: Usa strncpy siempre y pon el tamaño como tercer parámetro. En el segundo parametro debe ir el operador ternario anidado.
+
+- id: p-3-enum-to-string-anidado
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara el tipo enumerado tTipoAnimal con PERRO, GATO y AVE.
+    
+    Declara la constante MAX_ANIMALES = 3.
+    
+    Dentro del algoritmo principal, declara un array tipoAnimal de tTipoAnimal inicializado con PERRO, GATO y AVE y una variable tipoStr de tipo string.
+    
+    Si tipoAnimal[1] es PERRO, tipoStr debe ser "Perro"; si es GATO, "Gato"; si es AVE, "Ave".
+    
+    Para lograrlo deberás usar if else if anidados.
+  answer: |
+    type
+      tTipoAnimal = { PERRO, GATO, AVE }
+    end type
+
+    const
+      MAX_ANIMALES: integer = 3;
+    end const
+
+    algorithm
+      var
+        tipoAnimal: vector[MAX_ANIMALES] of tTipoAnimal;
+        tipoStr: string;
+      end var
+
+      tipoAnimal[1] := PERRO;
+      tipoAnimal[2] := GATO;
+      tipoAnimal[3] := AVE;
+
+      if tipoAnimal[1] = PERRO then
+        tipoStr := "Perro";
+      else
+        if tipoAnimal[1] = GATO then
+          tipoStr := "Gato";
+        else
+          tipoStr := "Ave";
+        end if
+      end if
+    end algorithm
+  hint: Deberas usar if else if... Los anidados son if dentro de else.
+
+- id: c-3-nombres-strncpy
+  language: C
+  week: 3
+  prompt: |
+    Incluye string y stdio
+    
+    Declara las constantes MAX_ANIMALES = 2 y MAX_NOMBRE = 15.
+    
+    Dentro de main, declara dos cadenas de caracteres usando MAX_NOMBRE: nombre1 y nombre2.
+    
+    Inicializa nombre1 y nombre2 con "Nina" y "Rocky" respectivamente usando strncpy.
+  answer: |
+    #include <stdio.h>
+    #include <string.h>
+
+    #define MAX_ANIMALES 2
+    #define MAX_NOMBRE 15
+
+    int main() {
+        char nombre1[MAX_NOMBRE];
+        char nombre2[MAX_NOMBRE];
+        strncpy(nombre1, "Nina", MAX_NOMBRE);
+        strncpy(nombre2, "Rocky", MAX_NOMBRE);
+        return 0;
+    }
+  hint: strncpy(destino, origen, tamaño) para inicializar strings.
+
+- id: p-3-nombres-strings
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAX_ANIMALES = 2.
+    
+    Dentro del algoritmo principal, declara un array nombre de strings para dos animales.
+    
+    Inicializa nombre[1] con "Nina" y nombre[2] con "Rocky".
+  answer: |
+    const
+      MAX_ANIMALES: integer = 2;
+    end const
+
+    algorithm
+      var
+        nombre: vector[MAX_ANIMALES] of string;
+      end var
+
+      nombre[1] := "Nina";
+      nombre[2] := "Rocky";
+    end algorithm
+  hint:
+
+- id: c-3-compara-strcmp
+  language: C
+  week: 3
+  prompt: |
+    Incluye string y stdio.
+    
+    Declara la constante MAX_NOMBRE = 10.
+    
+    Dentro de main, declara dos cadenas de caracteres nombre1 y nombre2 inicializados con "Kira" y "Max" usando strncpy.
+    
+    Usa strcmp para comparar si son iguales. Si lo son, imprime "Nombres iguales", si no, imprime "Nombres diferentes".
+  answer: |
+    #include <stdio.h>
+    #include <string.h>
+
+    #define MAX_NOMBRE 10
+
+    int main() {
+        char nombre1[MAX_NOMBRE];
+        char nombre2[MAX_NOMBRE];
+        strncpy(nombre1, "Kira", MAX_NOMBRE);
+        strncpy(nombre2, "Max", MAX_NOMBRE);
+        if(strcmp(nombre1, nombre2) == 0) {
+            printf("Nombres iguales\n");
+        } else {
+            printf("Nombres diferentes\n");
+        }
+        return 0;
+    }
+  hint: strcmp devuelve 0 si las cadenas son iguales. No olvides el salto de linea
+
+- id: p-3-compara-strings
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAX_ANIMALES = 2.
+    
+    Dentro del algoritmo principal, declara un array nombre de strings para dos animales.
+    
+    Inicializa nombre[1] con "Kira" y nombre[2] con "Max".
+    
+    Si los nombres son iguales, imprime "Nombres iguales", si no, imprime "Nombres diferentes".
+  answer: |
+    const
+      MAX_ANIMALES: integer = 2;
+    end const
+
+    algorithm
+      var
+        nombre: vector[MAX_ANIMALES] of string;
+      end var
+
+      nombre[1] := "Kira";
+      nombre[2] := "Max";
+
+      if nombre[1] = nombre[2] then
+        writeString("Nombres iguales");
+      else
+        writeString("Nombres diferentes");
+      end if
+    end algorithm
+  hint: En pseudocódigo puedes comparar strings con =
+
+- id: c-3-ternario-vacunado
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio y stdbool.
+    
+    Declara la constante MAX_ANIMALES = 2 y un array booleano vacunado inicializado con true y false con {}.
+    
+    Imprime usando printf y el operador ternario: "Vacunado" si el primer animal está vacunado, "No vacunado" si no lo está.
+    
+    Ejemplo de salida: "Vacunado"
+  answer: |
+    #include <stdio.h>
+    #include <stdbool.h>
+
+    #define MAX_ANIMALES 2
+
+    int main() {
+        bool vacunado[MAX_ANIMALES] = { true, false };
+        printf("%s\n", vacunado[0] ? "Vacunado" : "No vacunado");
+        return 0;
+    }
+  hint: "Recuerda la sintaxis del operador ternario: condicion ? valor_si_true : valor_si_false"
+
+- id: c-3-arrays-paralelos
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara las constantes MAX_ANIMALES = 3 y MAX_NOMBRE = 15.
+    
+    Dentro de main, declara un array de cadenas de caracteres con MAX_ANIMALES y MAX_NOMBRE y un array de enteros edad[MAX_ANIMALES].
+    
+    Inicializa los arrays usando llaves {}, con los nombres "Bobby", "Lili", "Rex" y las edades 2, 5, 3.
+    
+    Imprime en diferentes líneas cada nombre seguido de la edad, usando printf, en el formato: "Nombre: Bobby, Edad: 2".
+  answer: |
+    #include <stdio.h>
+
+    #define MAX_ANIMALES 3
+    #define MAX_NOMBRE 15
+
+    int main() {
+        char nombre[MAX_ANIMALES][MAX_NOMBRE] = { "Bobby", "Lili", "Rex" };
+        int edad[MAX_ANIMALES] = { 2, 5, 3 };
+        printf("Nombre: %s, Edad: %d\n", nombre[0], edad[0]);
+        printf("Nombre: %s, Edad: %d\n", nombre[1], edad[1]);
+        printf("Nombre: %s, Edad: %d\n", nombre[2], edad[2]);
+        return 0;
+    }
+  hint: Cada printf debe estar en una línea diferente y no olvides el salto de linea.
+
+- id: p-3-arrays-paralelos
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAX_ANIMALES = 3.
+    
+    Dentro del algoritmo principal, declara un array nombre de strings y un array edad de enteros para tres animales.
+    
+    Inicializa nombre con "Bobby", "Lili", "Rex" y edad con 2, 5, 3.
+    
+    Imprime el nombre y la edad de cada animal, uno por línea, usando writeString y writeInteger.
+    
+    Ejemplo de salida:
+      Nombre: Bobby
+      Edad: 2
+      Nombre: Lili
+      Edad: 5
+      Nombre: Rex
+      Edad: 3
+  answer: |
+    const
+      MAX_ANIMALES: integer = 3;
+    end const
+
+    algorithm
+      var
+        nombre: vector[MAX_ANIMALES] of string;
+        edad: vector[MAX_ANIMALES] of integer;
+      end var
+
+      nombre[1] := "Bobby";
+      nombre[2] := "Lili";
+      nombre[3] := "Rex";
+
+      edad[1] := 2;
+      edad[2] := 5;
+      edad[3] := 3;
+
+      writeString("Nombre: ");
+      writeString(nombre[1]);
+      writeString("Edad: ");
+      writeInteger(edad[1]);
+      writeString("Nombre: ");
+      writeString(nombre[2]);
+      writeString("Edad: ");
+      writeInteger(edad[2]);
+      writeString("Nombre: ");
+      writeString(nombre[3]);
+      writeString("Edad: ");
+      writeInteger(edad[3]);
+    end algorithm
+  hint: Cada writeString/writeInteger en su línea.
+
+- id: c-3-matriz-booleana
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio y stdbool.
+    
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
+    Dentro de main, declara una matriz de booleanos estadoVacuna[FILAS][COLUMNAS] e inicialízala manualmente con: 
+      fila 0: true, false, true
+      fila 1: false, true, false
+    
+    Imprime el valor de cada casilla en una línea con printf. 
+    
+    Ejemplo: "Fila 0, Col 0: 1" (donde 1 es true y 0 es false)
+  answer: |
+    #include <stdio.h>
+    #include <stdbool.h>
+
+    #define FILAS 2
+    #define COLUMNAS 3
+
+    int main() {
+        bool estadoVacuna[FILAS][COLUMNAS];
+        estadoVacuna[0][0] = true;
+        estadoVacuna[0][1] = false;
+        estadoVacuna[0][2] = true;
+        estadoVacuna[1][0] = false;
+        estadoVacuna[1][1] = true;
+        estadoVacuna[1][2] = false;
+
+        printf("Fila 0, Col 0: %d\n", estadoVacuna[0][0]);
+        printf("Fila 0, Col 1: %d\n", estadoVacuna[0][1]);
+        printf("Fila 0, Col 2: %d\n", estadoVacuna[0][2]);
+        printf("Fila 1, Col 0: %d\n", estadoVacuna[1][0]);
+        printf("Fila 1, Col 1: %d\n", estadoVacuna[1][1]);
+        printf("Fila 1, Col 2: %d\n", estadoVacuna[1][2]);
+        return 0;
+    }
+  hint: Imprime todos los valores de la matriz, un dato por línea.
+
+- id: p-3-matriz-booleana
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
+    Dentro del algoritmo principal, declara una matriz booleana estadoVacuna[FILAS][COLUMNAS] e inicialízala manualmente con: 
+      fila 1: true, false, true
+      fila 2: false, true, false
+    
+    Imprime el valor de cada casilla, uno por línea, usando writeBoolean.
+    
+    Ejemplo de salida:
+      true
+      false
+      true
+      ...
+  answer: |
+    const
+      FILAS: integer = 2;
+      COLUMNAS: integer = 3;
+    end const
+
+    algorithm
+      var
+        estadoVacuna: vector[FILAS][COLUMNAS] of boolean;
+      end var
+
+      estadoVacuna[1][1] := true;
+      estadoVacuna[1][2] := false;
+      estadoVacuna[1][3] := true;
+      estadoVacuna[2][1] := false;
+      estadoVacuna[2][2] := true;
+      estadoVacuna[2][3] := false;
+
+      writeBoolean(estadoVacuna[1][1]);
+      writeBoolean(estadoVacuna[1][2]);
+      writeBoolean(estadoVacuna[1][3]);
+      writeBoolean(estadoVacuna[2][1]);
+      writeBoolean(estadoVacuna[2][2]);
+      writeBoolean(estadoVacuna[2][3]);
+    end algorithm
+  hint: Escribe un dato por línea, usando writeBoolean.
+
+- id: c-3-lee-edad
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara la constante MAX_ANIMALES = 2.
+    
+    Dentro de main, declara un array de enteros edad. 
+    
+    Pide al usuario que introduzca las edades usando scanf, guardando los valores en edad[0] y edad[1].
+    
+    Usa el siguiente formato:
+      "Introduce la edad del animal 1: "
+      "Introduce la edad del animal 2: "
+  answer: |
+    #include <stdio.h>
+
+    #define MAX_ANIMALES 2
+
+    int main() {
+        int edad[MAX_ANIMALES];
+        printf("Introduce la edad del animal 1: ");
+        scanf("%d", &edad[0]);
+        printf("Introduce la edad del animal 2: ");
+        scanf("%d", &edad[1]);
+        return 0;
+    }
+  hint: recuerda el especificador de formato de los enteros para leer el dato.
+
+- id: p-3-lee-edad
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAX_ANIMALES = 2.
+    
+    Dentro del algoritmo principal, declara un array edad de enteros.
+    
+    Pide al usuario que introduzca las edades con readInteger y guarda los valores en edad[1] y edad[2].
+  answer: |
+    const
+      MAX_ANIMALES: integer = 2;
+    end const
+
+    algorithm
+      var
+        edad: vector[MAX_ANIMALES] of integer;
+      end var
+
+      writeString("Introduce la edad del animal 1: ");
+      edad[1] := readInteger();
+      writeString("Introduce la edad del animal 2: ");
+      edad[2] := readInteger();
+    end algorithm
+  hint: Lee y guarda cada valor por separado.
+
+- id: c-3-if-simple
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Dentro de main, declara una variable edad y pídele al usuario que la introduzca.
+    
+    Usa un if para comprobar si la edad es mayor que 10. Si lo es, imprime "Mayor que 10".
+  answer: |
+    #include <stdio.h>
+
+    int main() {
+        int edad;
+    
+        printf("Introduce la edad del animal: ");
+        scanf("%d", &edad);
+    
+        if(edad > 10) {
+            printf("Mayor que 10\n");
+        }
+    
+        return 0;
+    }
+  hint: Usa if y no olvides el salto de linea.
+
+- id: p-3-if-simple
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Dentro del algoritmo principal, declara una variable edad, pide el valor al usuario.
+    
+    Usa un if para comprobar si la edad es mayor que 10. Si lo es, imprime "Mayor que 10".
+  answer: |
+
+    algorithm
+      var
+        edad: integer;
+      end var
+
+      writeString("Introduce la edad del animal: ");
+      edad := readInteger();
+
+      if edad > 10 then
+        writeString("Mayor que 10");
+      end if
+    end algorithm
+  hint: No hace falta else.
+
+- id: c-3-if-else
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.h.
+    
+    Dentro de main, declara una variable vacunado (bool) y pide al usuario un número (0 para no vacunado, 1 para vacunado).
+    
+    Usa un if else para imprimir "Vacunado" o "No vacunado". 
+    
+    Usa este formato de pregunta: "¿El animal está vacunado? (1 = sí, 0 = no): "
+  answer: |
+    #include <stdio.h>
+    #include <stdbool.h>
+
+    int main() {
+        bool vacunado;
+   
+        printf("¿El animal está vacunado? (1 = sí, 0 = no): ");
+        scanf("%d", &vacunado);
+    
+        if(vacunado) {
+            printf("Vacunado\n");
+        } else {
+            printf("No vacunado\n");
+        }
+        return 0;
+    }
+  hint: El valor 0 es false, 1 es true.
+
+- id: p-3-if-else
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Dentro del algoritmo principal, declara una variable vacunado (boolean).
+    
+    Pide al usuario que introduzca true o false (usa readBoolean). 
+    
+    Usa un if else para imprimir "Vacunado" o "No vacunado".
+    
+    Usa este formato de pregunta: "¿El animal está vacunado? (true/false): "
+  answer: |
+    algorithm
+      var
+        vacunado: boolean;
+      end var
+
+      writeString("¿El animal está vacunado? (true/false): ");
+      vacunado := readBoolean();
+
+      if vacunado then
+        writeString("Vacunado");
+      else
+        writeString("No vacunado");
+      end if
+    end algorithm
+  hint: Usa readBoolean para leer el dato.
+
+- id: c-3-if-else-encadenado
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Dentro de main, declara una variable edad y pide al usuario una edad y usa if, else if y else para imprimir:
+    - "Joven" si la edad es menor que 5,
+    - "Adulto" si es entre 5 y 10 (ambos inclusive),
+    - "Senior" si es mayor de 10.
+    
+    Usa el siguiente formato de pregunta: "Introduce la edad del animal: "
+  answer: |
+    #include <stdio.h>
+
+    int main() {
+        int edad;
+    
+        printf("Introduce la edad del animal: ");
+        scanf("%d", &edad);
+    
+        if(edad < 5) {
+            printf("Joven\n");
+        } else if(edad <= 10) {
+            printf("Adulto\n");
+        } else {
+            printf("Senior\n");
+        }
+        return 0;
+    }
+  hint: Usa else if para el rango intermedio.
+
+- id: p-3-if-else-encadenado
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Dentro del algoritmo principal, declara una variable edad, pide una edad al usuario y usa if, else, if anidados para imprimir:
+    - "Joven" si la edad es menor que 5,
+    - "Adulto" si es entre 5 y 10 (ambos inclusive),
+    - "Senior" si es mayor de 10.
+    
+    Usa el siguiente formato de pregunta: "Introduce la edad del animal: "
+
+  answer: |
+    algorithm
+      var
+        edad: integer;
+      end var
+
+      writeString("Introduce la edad del animal: ");
+      edad := readInteger();
+
+      if edad < 5 then
+        writeString("Joven");
+      else
+        if edad <= 10 then
+          writeString("Adulto");
+        else
+          writeString("Senior");
+        end if
+      end if
+    end algorithm
+  hint: Usa if anidados en el else.
+
+- id: c-3-switch
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.h.
+    
+    Dentro de main, crea una variable entera opcion y pide al usuario un entero entre 1 y 3.
+    
+    Usa el siguiente formato: "Introduce el tipo de animal (1-Perro, 2-Gato, 3-Ave): 1"
+
+    Usa switch para imprimir:
+      1 → "Perro"
+      2 → "Gato"
+      3 → "Ave"
+      cualquier otro → "Opción inválida"
+
+  answer: |
+    #include <stdio.h>
+
+    int main() {
+        int opcion;
+    
+        printf("Introduce el tipo de animal (1-Perro, 2-Gato, 3-Ave): ");
+        scanf("%d", &opcion);
+    
+        switch(opcion) {
+            case 1:
+                printf("Perro\n");
+                break;
+            case 2:
+                printf("Gato\n");
+                break;
+            case 3:
+                printf("Ave\n");
+                break;
+            default:
+                printf("Opción inválida\n");
+        }
+        return 0;
+    }
+  hint: Usa switch...case...break. Y recuerda los saltos de linea.
+
+- id: p-3-switch
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Dentro del algoritmo principal, crea una variable entera opcion y pide al usuario un entero entre 1 y 3.
+    
+    Usa el siguiente formato: "Introduce el tipo de animal (1-Perro, 2-Gato, 3-Ave): 1"
+
+    Usa switch para imprimir:
+      1 → "Perro"
+      2 → "Gato"
+      3 → "Ave"
+      cualquier otro → "Opción inválida"
+  answer: |
+    algorithm
+      var
+        opcion: integer;
+      end var
+
+      writeString("Introduce el tipo de animal (1-Perro, 2-Gato, 3-Ave): ");
+      opcion := readInteger();
+
+      switch opcion
+        case 1 then
+          writeString("Perro");
+        end case
+        case 2 then
+          writeString("Gato");
+        end case
+        case 3 then
+          writeString("Ave");
+        end case
+        case default then
+          writeString("Opción inválida");
+        end case
+      end switch
+    end algorithm
+  hint: Recuerda la estructura del switch en pseudocódigo.
+
+#### SEMANA 3: BUCLES ESCALADOS ####
+
+- id: c-3-for-indice-basico
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.h.
+    
+    Declara la constante MAXIMO = 10.
+    
+    Dentro de main, declara una variable i.
+    
+    Utiliza un bucle for para que i tome valores de 0 a 9, ambos incluidos, e imprime el valor de i en cada iteración.
+    
+    La salida debe ser una línea por número, ejemplo:
+      0
+      1
+      2
+      ...
+      9
+  answer: |
+    #include <stdio.h>
+    #define MAXIMO 10
+
+    int main() {
+        int i;
+    
+        for(i = 0; i < MAXIMO; i++) {
+            printf("%d\n", i);
+        }
+        return 0;
+    }
+  hint: "El for clásico en C es: for(inicio; condicion; incremento)"
+
+- id: p-3-for-indice-basico
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAXIMO = 10.
+    
+    Dentro del algoritmo principal, declara una variable i.
+    
+    Utiliza un bucle for para que i tome valores de 1 a MAXIMO e imprime el valor de i en cada iteración.
+    
+    La salida debe ser una línea por número del 1 al 10. Ejemplo
+    1
+    2
+    3
+    ...
+    10
+
+  answer: |
+    const
+      MAXIMO: integer = 10;
+    end const
+
+    algorithm
+      var
+        i: integer;
+      end var
+
+      for i := 1 to MAXIMO do
+        writeInteger(i);
+      end for
+    end algorithm
+  hint: En pseudocódigo los arrays y los índices empiezan en 1.
+
+- id: c-3-for-array-imprimir
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara la constante MAX_DATOS = 4.
+    
+    Dentro de main, declara un array de enteros datos con MAX_DATOS inicializado con a 7, 2, 5, 8 usando { }.
+    
+    Usa un bucle for para imprimir cada dato, uno por línea. Necesitaras una variable i.
+    
+    Ejemplo de ejecución:
+      7
+      2
+      5
+      8
+  answer: |
+    #include <stdio.h>
+    #define MAX_DATOS 4
+
+    int main() {
+        int datos[MAX_DATOS] = {7, 2, 5, 8};
+        int i;
+        for(i = 0; i < MAX_DATOS; i++) {
+            printf("%d\n", datos[i]);
+        }
+        return 0;
+    }
+  hint: Recuerda que los arrays en C empiezan en 0.
+
+- id: p-3-for-array-imprimir
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAX_DATOS = 4.
+    
+    Dentro del algoritmo principal, declara un array de enteros datos con MAX_DATOS.
+    
+    Inicialízalo a mano con los valores 7, 2, 5, 8.
+    
+    Usa un bucle for para imprimir cada dato, uno por línea. Necesitarás una variable i.
+    
+    Ejemplo de ejecución:
+      7
+      2
+      5
+      8
+  answer: |
+    const
+      MAX_DATOS: integer = 4;
+    end const
+
+    algorithm
+      var
+        datos: vector[MAX_DATOS] of integer;
+        i: integer;
+      end var
+
+      datos[1] := 7;
+      datos[2] := 2;
+      datos[3] := 5;
+      datos[4] := 8;
+
+      for i := 1 to MAX_DATOS do
+        writeInteger(datos[i]);
+      end for
+    end algorithm
+  hint: El índice comienza en 1 en pseudocódigo.
+
+- id: c-3-for-leer-array
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara la constante MAXIMO = 3.
+    
+    Dentro de main, declara un array de decimales valores con MAXIMO.
+    
+    Usa un bucle for para pedir al usuario que ingrese 3 decimales y guardarlos en el array.
+    
+    Necesitarás una variable i para usar de iterador.
+    
+    Luego imprime los valores, uno por línea utilizando otro for.
+    
+    Ejemplo de ejecución:
+      Ingresa valor 1: 3.2
+      Ingresa valor 2: 1.0
+      Ingresa valor 3: 4.8
+      3.2
+      1.0
+      4.8
+  answer: |
+    #include <stdio.h>
+    #define MAXIMO 3
+
+    int main() {
+        float valores[MAXIMO];
+        int i;
+        for(i = 0; i < MAXIMO; i++) {
+            printf("Ingresa valor %d: ", i+1);
+            scanf("%f", &valores[i]);
+        }
+        for(i = 0; i < MAXIMO; i++) {
+            printf("%.1f\n", valores[i]);
+        }
+        return 0;
+    }
+  hint: Usa dos bucles for, uno para leer y otro para imprimir. Imprime los valores con 1 solo decimal.
+
+- id: p-3-for-leer-array
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAXIMO = 3.
+    
+    Dentro del algoritmo principal, declara un array de reales valores con MAXIMO.
+    
+    Usa un bucle for para leer 3 decimales del usuario y guardarlos en el array.
+    
+    Necesitarás una variable i para usar de iterador.
+    
+    Luego usa otro bucle for para imprimir los valores, uno por línea.
+    
+    Ejemplo de ejecución:
+      Ingresa valor 1: 3.2
+      Ingresa valor 2: 1.0
+      Ingresa valor 3: 4.8
+      3.2
+      1.0
+      4.8
+  answer: |
+    const
+      MAXIMO: integer = 3;
+    end const
+
+    algorithm
+      var
+        valores: vector[MAXIMO] of real;
+        i: integer;
+      end var
+
+      for i := 1 to MAXIMO do
+        writeString("Ingresa valor ");
+        writeInteger(i);
+        writeString(": ");
+        valores[i] := readReal();
+      end for
+
+      for i := 1 to MAXIMO do
+        writeReal(valores[i]);
+      end for
+    end algorithm
+  hint: Usa dos bucles for, uno para leer y otro para imprimir. Recuerda que en pseudocodigo debes imprimir los datos en diferentes lineas.
+
+
+
+- id: c-3-while-indice-basico
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara la constante MAXIMO = 10.
+    
+    Dentro de main, declara una variable i inicializada a 0.
+    
+    Utiliza un bucle while para imprimir el valor de i mientras i sea menor que MAXIMO.
+    
+    La salida debe ser una línea por número, del 0 al 9.
+  answer: |
+    #include <stdio.h>
+    #define MAXIMO 10
+
+    int main() {
+        int i = 0;
+        while(i < MAXIMO) {
+            printf("%d\n", i);
+            i++;
+        }
+        return 0;
+    }
+  hint: Recuerda inicializar i antes del while e incrementarla antes de finalizar cada iteración para no crear un bucle infinito.
+
+- id: p-3-while-indice-basico
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAXIMO = 10.
+    
+    Dentro del algoritmo principal, declara una variable i inicializada a 1.
+    
+    Usa un bucle while para imprimir el valor de i mientras i sea menor o igual que MAXIMO.
+    
+    La salida debe ser una línea por número del 1 al 10.
+  answer: |
+    const
+      MAXIMO: integer = 10;
+    end const
+
+    algorithm
+      var
+        i: integer;
+      end var
+
+      i := 1;
+      while i <= MAXIMO do
+        writeInteger(i);
+        i := i + 1;
+      end while
+    end algorithm
+  hint: En pseudocódigo los índices empiezan en 1 y se incrementan manualmente.
+
+
+
+- id: c-3-do-while-indice-basico
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara la constante MAXIMO = 10.
+    
+    Dentro de main, declara una variable i inicializada a 0.
+    
+    Usa un bucle do while para imprimir el valor de i mientras i sea menor que MAXIMO.
+    
+    La salida debe ser una línea por número, del 0 al 9.
+  answer: |
+    #include <stdio.h>
+    #define MAXIMO 10
+
+    int main() {
+        int i = 0;
+        do {
+            printf("%d\n", i);
+            i++;
+        } while(i < MAXIMO);
+        return 0;
+    }
+  hint: El cuerpo de do while siempre se ejecuta al menos una vez. No olvides el salto de linea en el print.
+
+- id: p-3-do-while-indice-basico
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAXIMO = 10.
+    
+    Dentro del algoritmo principal, declara una variable e inicializala a 1.
+    
+    Usa un bucle do while para imprimir el valor de i mientras i sea menor o igual que MAXIMO.
+    
+    La salida debe ser una línea por número del 1 al 10.
+  answer: |
+    const
+      MAXIMO: integer = 10;
+    end const
+
+    algorithm
+      var
+        i: integer;
+      end var
+
+      i := 1;
+      do
+        writeInteger(i);
+        i := i + 1;
+      while i <= MAXIMO;
+    end algorithm
+  hint: En pseudocódigo los índices empiezan en 1.
+
+- id: c-3-for-suma-array
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara la constante MAX = 4.
+    
+    Dentro de main, declara un array de enteros valores con MAX inicializado a 1, 2, 3, 4 usando { }.
+    
+    Declara una variable suma para almacenar la suma de todos los elementos del array e inicializala en 0.
+    
+    También necesitarás una variable i para utilizar en el bucle.
+    
+    Usa un bucle for para calcular la suma de todos los elementos y al final imprime el resultado así:
+    
+    Suma: x
+    
+    Para la suma utiliza el operador compuesto.
+    
+    Ejemplo de ejecución:
+      Suma: 10
+  answer: |
+    #include <stdio.h>
+    #define MAX 4
+
+    int main() {
+        int valores[MAX] = {1, 2, 3, 4};
+        int suma = 0;
+        int i;
+        for(i = 0; i < MAX; i++) {
+            suma += valores[i];
+        }
+        printf("Suma: %d\n", suma);
+        return 0;
+    }
+  hint: Acumula la suma con suma += . Imprime el resultado fuera del bucle y no olvides el salto de linea.
+
+- id: p-3-for-suma-array
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAX = 4.
+    
+    Declara un array de enteros valores con MAX.
+    
+    Inicialízalo a mano con los valores 1, 2, 3, 4.
+    
+    Declara una variable suma para almacenar la suma de todos los elementos del array e inicializala en 0.
+    
+    También necesitarás una variable i para utilizar en el bucle.
+    
+    Usa un bucle for para calcular la suma de todos los elementos y al final imprime el resultado así:
+    
+    Suma: x
+    
+    Ejemplo de ejecución:
+      Suma: 10
+  answer: |
+    const
+      MAX: integer = 4;
+    end const
+
+    algorithm
+      var
+        valores: vector[MAX] of integer;
+        suma: integer;
+        i: integer;
+      end var
+
+      valores[1] := 1;
+      valores[2] := 2;
+      valores[3] := 3;
+      valores[4] := 4;
+      suma := 0;
+
+      for i := 1 to MAX do
+        suma := suma + valores[i];
+      end for
+
+      writeString("Suma: ");
+      writeInteger(suma);
+    end algorithm
+  hint: Recuerda inicializar suma a 0. Imprime el resultado fuera del bucle. Los indices empiezan en 1.
+
+- id: c-3-for-strncpy-paralelo
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio y string.
+    
+    Declara la constante MAX = 3 y MAX_NOMBRE = 12.
+    
+    Dentro de main, declara un array de cadenas nombres con MAX y MAX_NOMBRE.
+    
+    Declara otro array de cadenas ejemplos con MAX y MAX_NOMBRE e inicializalo con los siguientes nombres usando { }: 
+    Ana", "Luis" y "Eva"
+    
+    Declara una variable i para utilizar en los bucles.
+    
+    Usa strncpy para inicializar los nombres con "Ana", "Luis" y "Eva" usando un bucle for.
+    
+    Después, imprime cada nombre, uno por línea con otro bucle for.
+    
+    Ejemplo de ejecución:
+      Ana
+      Luis
+      Eva
+  answer: |
+    #include <stdio.h>
+    #include <string.h>
+    #define MAX 3
+    #define MAX_NOMBRE 12
+
+    int main() {
+        char nombres[MAX][MAX_NOMBRE];
+        char ejemplos[MAX][MAX_NOMBRE]; = {"Ana", "Luis", "Eva"};
+        int i;
+        for(i = 0; i < MAX; i++) {
+            strncpy(nombres[i], ejemplos[i], MAX_NOMBRE);
+        }
+        for(i = 0; i < MAX; i++) {
+            printf("%s\n", nombres[i]);
+        }
+        return 0;
+    }
+  hint: Usa strncpy(destino, origen, tamaño).
+
+- id: p-3-for-array-paralelo
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara la constante MAX = 3.
+    
+    Declara un array de strings nombres con MAX.
+    
+    Inicialízalos a mano como "Ana", "Luis" y "Eva".
+    
+    Usa un bucle for para imprimir cada nombre, uno por línea.
+    
+    Ejemplo de ejecución:
+      Ana
+      Luis
+      Eva
+  answer: |
+    const
+      MAX: integer = 3;
+    end const
+
+    algorithm
+      var
+        nombres: vector[MAX] of string;
+        i: integer;
+      end var
+
+      nombres[1] := "Ana";
+      nombres[2] := "Luis";
+      nombres[3] := "Eva";
+
+      for i := 1 to MAX do
+        writeString(nombres[i]);
+      end for
+    end algorithm
+  hint: Los índices empiezan en 1.
+
+- id: c-3-for-matriz-manual
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
+    Dentro de main, declara una matriz de enteros tabla con FILAS x COLUMNAS e inicialízala manualmente usando asignaciones.
+    
+    Declara dos variables i j para utilizar en los bucles.
+    
+    Asigna manualmente los valores siguientes:
+      fila 1: 2, 4, 6
+      fila 2: 1, 3, 5
+    
+    Usa dos bucles for anidados para imprimir la matriz como una tabla.
+    
+    Después de cada bucle interno, imprime un salto de linea para lograr el output facilitado.
+    
+    Ejemplo de ejecución:
+      2 4 6
+      1 3 5
+  answer: |
+    #include <stdio.h>
+    #define FILAS 2
+    #define COLUMNAS 3
+
+    int main() {
+        int tabla[FILAS][COLUMNAS];
+        int i, j;
+    
+        tabla[0][0] = 2; 
+        tabla[0][1] = 4; 
+        tabla[0][2] = 6;
+        tabla[1][0] = 1; 
+        tabla[1][1] = 3; 
+        tabla[1][2] = 5;
+
+        for(i = 0; i < FILAS; i++) {
+            for(j = 0; j < COLUMNAS; j++) {
+                printf("%d ", tabla[i][j]);
+            }
+            printf("\n");
+        }
+        return 0;
+    }
+  hint: Inicializa cada elemento manualmente.
+
+- id: p-3-for-matriz-manual
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
+    Declara una matriz de enteros tabla con FILAS x COLUMNAS.
+    
+    Declara dos variables i j para utilizar en los bucles.
+
+    Asigna manualmente los valores:
+      fila 1: 2, 4, 6
+      fila 2: 1, 3, 5
+    
+    Usa dos bucles for anidados para imprimir la matriz como una tabla.
+    
+    Ejemplo de ejecución:
+      2 4 6
+      1 3 5
+  answer: |
+    const
+      FILAS: integer = 2;
+      COLUMNAS: integer = 3;
+    end const
+
+    algorithm
+      var
+        tabla: vector[FILAS][COLUMNAS] of integer;
+        i: integer;
+        j: integer;
+      end var
+
+      tabla[1][1] := 2; 
+      tabla[1][2] := 4; 
+      tabla[1][3] := 6;
+      tabla[2][1] := 1; 
+      tabla[2][2] := 3; 
+      tabla[2][3] := 5;
+
+      for i := 1 to FILAS do
+        for j := 1 to COLUMNAS do
+          writeInteger(tabla[i][j]);
+        end for
+      end for
+    end algorithm
+  hint: Los bucles anidados recorren filas y columnas.
+
+- id: c-3-for-matriz-inicializa-llaves
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara las constantes FILAS = 2 y COLUMNAS = 2.
+    
+    Dentro de main, declara una matriz de decimales temp con FILAS x COLUMNAS e inicialízala con { } con los valores:
+      22.1, 18.3 y 19.5, 20.0 (fila1 y fila2)
+    
+    Declara dos variables i j para utilizar en los bucles.
+    
+    Usa dos bucles for anidados para imprimir cada valor con un decimal, uno por línea.
+    
+    Ejemplo de ejecución:
+      22.1
+      18.3
+      19.5
+      20.0
+  answer: |
+    #include <stdio.h>
+    #define FILAS 2
+    #define COLUMNAS 2
+
+    int main() {
+        float temp[FILAS][COLUMNAS] = {
+            {22.1, 18.3},
+            {19.5, 20.0}
+        };
+        int i, j;
+        for(i = 0; i < FILAS; i++) {
+            for(j = 0; j < COLUMNAS; j++) {
+                printf("%.1f\n", temp[i][j]);
+            }
+        }
+        return 0;
+    }
+  hint: Usa inicialización con llaves y no olvides el salto de linea.
+
+- id: p-3-for-matriz-inicializa-manual
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 2.
+    
+    Declara una matriz de reales temp con FILAS x COLUMNAS.
+    
+    Asigna manualmente los valores:
+      22.1, 18.3 y 19.5,20.0 (fila1 y fila2)
+    
+    Declara dos variables i j para utilizar en los bucles.
+    
+    Usa dos bucles for anidados para imprimir cada valor, uno por línea.
+    
+    Ejemplo de ejecución:
+      22.1
+      18.3
+      19.5
+      20.0
+  answer: |
+    const
+      FILAS: integer = 2;
+      COLUMNAS: integer = 2;
+    end const
+
+    algorithm
+      var
+        temp: vector[FILAS][COLUMNAS] of real;
+        i: integer;
+        j: integer;
+      end var
+
+      temp[1][1] := 22.1;
+      temp[1][2] := 18.3;
+      temp[2][1] := 19.5;
+      temp[2][2] := 20.0;
+
+      for i := 1 to FILAS do
+        for j := 1 to COLUMNAS do
+          writeReal(temp[i][j]);
+        end for
+      end for
+    end algorithm
+  hint: En pseudocódigo la inicialización es manual.
+
+- id: c-3-for-suma-matriz
+  language: C
+  week: 3
+  prompt: |
+    Incluye stdio.
+    
+    Declara las constantes FILAS = 2 y COLUMNAS = 2.
+    
+    Dentro de main, declara una matriz de enteros tabla con FILAS x COLUMNAS inicializada con (3, 1) y (5, 2).
+    
+    Declara una variable suma e inicializala en 0.
+    
+    Declara dos variables i, j en la misma linea para utilizar en los bucles.
+    
+    Usa dos bucles for anidados para calcular la suma de todos los elementos y luego imprime:
+    
+    Suma: x
+    
+    La suma realizala con operador compuesto.
+    
+    Ejemplo de ejecución:
+      Suma: 11
+  answer: |
+    #include <stdio.h>
+    #define FILAS 2
+    #define COLUMNAS 2
+
+    int main() {
+        int tabla[FILAS][COLUMNAS] = {
+            {3, 1},
+            {5, 2}
+        };
+        int suma = 0;
+        int i, j;
+        for(i = 0; i < FILAS; i++) {
+            for(j = 0; j < COLUMNAS; j++) {
+                suma += tabla[i][j];
+            }
+        }
+        printf("Suma: %d\n", suma);
+        return 0;
+    }
+  hint: Suma con suma += tabla[i][j].
+
+- id: p-3-for-suma-matriz
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara las constantes FILAS = 2 y COLUMNAS = 2.
+    
+    Dentro del algoritmo principal, declara una matriz de enteros tabla con FILAS x COLUMNAS inicializada con (3, 1) y (5, 2).
+    
+    Declara una variable suma e inicializala en 0.
+    
+    Declara dos variables i, j para utilizar en los bucles.
+    
+    Usa dos bucles for anidados para calcular la suma de todos los elementos y luego imprime:
+    
+    Suma: x
+    
+    Ejemplo de ejecución:
+      Suma: 11
+  answer: |
+    const
+      FILAS: integer = 2;
+      COLUMNAS: integer = 2;
+    end const
+
+    algorithm
+      var
+        tabla: vector[FILAS][COLUMNAS] of integer;
+        suma: integer;
+        i: integer;
+        j: integer;
+      end var
+
+      tabla[1][1] := 3;
+      tabla[1][2] := 1;
+      tabla[2][1] := 5;
+      tabla[2][2] := 2;
+      suma := 0;
+
+      for i := 1 to FILAS do
+        for j := 1 to COLUMNAS do
+          suma := suma + tabla[i][j];
+        end for
+      end for
+
+      writeString("Suma: ");
+      writeInteger(suma);
+    end algorithm
+  hint: Los indices empiezan en 1. Primero declara y luego inicializa
+
+
+
+
+
+
+
+#- id: c-3-if_incremento
+#  language: C
+#  week: 3
+#  prompt: |
+#    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
+#    si el numero es 5 sumale 1 utilizando operador de incremento. En caso contrario restale 1 utilizando operador de decremento
+#  answer: |
+#    int main () {
+#      int numero = 5;
+#
+#      if(numero == 5) {
+#        numero++;
+#      } else {
+#        numero--;
+#      }
+#
+#      return 0;
+#    }
+#  hint: Usa if else
+#
+#- id: p-3-if_incremento
+#  language: Pseudocode
+#  week: 3
+#  prompt: |
+#    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
+#    si el numero es 5 sumale 1. En caso contrario restale 1.
+#  answer: |-
+#    var
+#      numero: integer;
+#    end var
+#
+#    numero := 5;
+#
+#    if numero = 5 then
+#      numero := numero + 1;
+#    else
+#      numero := numero - 1;
+#    end if
+#  hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
 
 
 
