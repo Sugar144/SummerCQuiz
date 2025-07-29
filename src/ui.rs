@@ -42,7 +42,7 @@ pub fn pseudo_syntax() -> Syntax {
 
 impl eframe::App for QuizApp {
 
-    fn update(&mut self, ctx: &Context, frame: &mut Frame) {
+    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         // BOTÓN SUPERIOR DE REINICIAR (solo visible durante el quiz y resumen)
         if matches!(self.state, AppState::Quiz | AppState::Summary) {
             egui::TopBottomPanel::top("menu_panel").show(ctx, |ui| {
@@ -185,10 +185,7 @@ impl eframe::App for QuizApp {
 
                                     #[cfg(not(target_arch = "wasm32"))]
                                     if salir.clicked() {
-                                        if let Some(storage) = frame.storage_mut() {
-                                            set_value(&mut *storage, APP_KEY, self);
-                                        }
-                                        std::process::exit(0);
+                                        ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                                     }
 
 
@@ -467,8 +464,8 @@ impl eframe::App for QuizApp {
                         .inner_margin(egui::Margin::symmetric(120, 20))
                         .show(ui, |ui| {
                             ui.vertical_centered(|ui| {
-                                if let Some(idx) = self.current_in_week {
-                                    ui.heading(format!("🌀 Ronda {}", self.round));
+                                if let Some(idx) = self.progress().current_in_week {
+                                    ui.heading(format!("🌀 Ronda {}", self.progress().round));
                                     // Prompt con scroll fijo
                                     let prompt_max_height = 250.0;
                                     let prompt_min_lines = 4.0;
@@ -517,9 +514,9 @@ impl eframe::App for QuizApp {
 
                                     if self.questions[idx].fails >= 2 {
                                         // Si no se ha mostrado la solución todavía
-                                        if !self.show_solution {
+                                        if !self.progress().show_solution {
                                             if ui.button("Solución").clicked() {
-                                                self.show_solution = true;
+                                                self.progress_mut().show_solution = true;
                                             }
 
                                             // INPUT DEL USUARIO con resaltado (editable)
@@ -536,7 +533,7 @@ impl eframe::App for QuizApp {
                                                         .with_syntax(syntax)
                                                         .with_numlines(true)
                                                         .vscroll(false)
-                                                        .show(ui, &mut self.input);
+                                                        .show(ui, &mut self.progress_mut().input);
                                                 });
                                         } else {
                                             if ui.button("Siguiente pregunta").clicked() {
@@ -578,7 +575,7 @@ impl eframe::App for QuizApp {
                                                     .with_syntax(syntax)
                                                     .with_numlines(true)
                                                     .vscroll(false)
-                                                    .show(ui, &mut self.input);
+                                                    .show(ui, &mut self.progress_mut().input);
                                             });
                                     }
 
@@ -591,8 +588,11 @@ impl eframe::App for QuizApp {
                                     ui.add_space(5.0);
 
                                     if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
-                                        let week = self.current_week.unwrap_or(1);
+                                        let week = self.progress().current_week.unwrap_or(1);
                                         let language = self.selected_language.unwrap_or(Language::C);
+
+                                        // 1. Marca las preguntas como completadas y acumula los IDs
+                                        let mut ids_a_marcar = Vec::new();
                                         for q in self.questions.iter_mut() {
                                             if q.week == week && q.language == language {
                                                 q.is_done = true;
@@ -601,18 +601,27 @@ impl eframe::App for QuizApp {
                                                 q.fails = 0;
                                                 q.skips = 0;
                                                 if let Some(id) = &q.id {
-                                                    self.completed_ids.insert(id.clone());
+                                                    ids_a_marcar.push(id.clone());
                                                 }
                                             }
                                         }
-                                        self.current_in_week = self.next_pending_in_week();
+
+                                        // 2. Solo aquí pide el borrow mutable del progreso
+                                        let next_idx = self.next_pending_in_week();
+
+                                        {
+                                            let progress = self.progress_mut();
+                                            for id in ids_a_marcar {
+                                                progress.completed_ids.insert(id);
+                                            }
+                                            progress.current_in_week = next_idx;
+                                        }
+
                                         // Si ya no quedan preguntas, muestra resumen
-                                        if self.current_in_week.is_none() {
+                                        if self.progress().current_in_week.is_none() {
                                             self.state = AppState::Summary;
                                         }
                                     }
-
-
 
                                     // Botones
                                     ui.horizontal(|ui| {
@@ -622,8 +631,8 @@ impl eframe::App for QuizApp {
                                         let saltar = ui.add_sized([button_width, 36.0], egui::Button::new("Saltar pregunta"));
 
                                         if enviar.clicked() {
-                                            if let Some(idx) = self.current_in_week {
-                                                let input = self.input.clone();
+                                            if let Some(idx) = self.progress().current_in_week {
+                                                let input = self.progress().input.clone();
                                                 self.procesar_respuesta(&input, idx);
                                             }
                                         }
@@ -694,7 +703,7 @@ impl eframe::App for QuizApp {
                                     .max_height(max_height)
                                     .max_width(panel_width)
                                     .show(ui, |ui| {
-                                        let week = self.current_week.unwrap_or(1);
+                                        let week = self.progress().current_week.unwrap_or(1);
 
                                         egui::Grid::new("quiz_results_grid")
                                             .striped(true)
@@ -736,7 +745,7 @@ impl eframe::App for QuizApp {
                                 // Aquí los botones, dentro del mismo bloque
                                 ui.vertical_centered(|ui| {
 
-                                    let current_week = self.current_week.unwrap_or(1);
+                                    let current_week = self.progress().current_week.unwrap_or(1);
                                     let language = self.selected_language.unwrap_or(Language::C);
                                     let total_weeks = self.questions
                                         .iter()
