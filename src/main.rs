@@ -37,10 +37,16 @@ fn main() -> eframe::Result<()> {
                 cc.egui_ctx.set_visuals(Visuals::light());
             }
 
-            // === NUEVO BLOQUE: Cargar progreso si existe ===
-            let app = if let Some(storage) = cc.storage {
+            // === CARGAR PROGRESO SI EXISTE ===
+            let app: QuizApp = if let Some(storage) = cc.storage {
+                // `storage` aquí es `&mut dyn Storage`
                 if let Some(mut state) = eframe::get_value::<QuizApp>(storage, eframe::APP_KEY) {
-                    // Siempre empezar en select language:
+                    // Recalcular bloqueos de semanas según lo completado:
+                    state.sync_is_done();
+                    if state.selected_language.is_some() {
+                        state.recalculate_unlocked_weeks();
+                    }
+                    // Siempre empezar en selector de idioma
                     state.state = AppState::LanguageSelect;
                     state.has_saved_progress = true;
                     state
@@ -56,6 +62,7 @@ fn main() -> eframe::Result<()> {
                 app.has_saved_progress = false;
                 app
             };
+
 
 
             Ok(Box::new(app))

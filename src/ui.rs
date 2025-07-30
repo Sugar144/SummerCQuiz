@@ -111,9 +111,9 @@ impl eframe::App for QuizApp {
                 if !self.update_thread_launched {
                     self.update_thread_launched = true;
                     let updater = if cfg!(windows) {
-                        "SummerQuizUpdater.exe".to_string()
+                        "summer_quiz_updater.exe".to_string()
                     } else {
-                        "./SummerQuizUpdater".to_string()
+                        "./summer_quiz_updater".to_string()
                     };
                     std::thread::spawn(move || {
                         let res = descargar_binario_nuevo();

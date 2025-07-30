@@ -238,13 +238,27 @@ impl QuizApp {
     /// Borra progreso y reinicia el quiz para el lenguaje actual
     pub fn reset_progress(&mut self) {
         if let Some(language) = self.selected_language {
+            // 1) reconstruye sólo el estado para este idioma
             *self = QuizApp::new_for_language(language);
-            self.continuar_quiz();         // esto hace select_week(...) y setea Quiz
+
+            // 2) vuelve a “sembrar” el progreso vacío para el otro idioma,
+            //    así tu HashMap siempre tiene ambas claves
+            let other = match language {
+                Language::C => Language::Pseudocode,
+                Language::Pseudocode => Language::C,
+            };
+            self.progresses.insert(other, QuizProgress::default());
+
+            // 3) elige la primera semana/pregunta y pasa a Quiz
+            self.continuar_quiz();
+
+            // 4) limpia las banderas de UI
             self.confirm_reset = false;
             self.message.clear();
             self.has_saved_progress = false;
         }
     }
+
 
 
 
@@ -272,100 +286,99 @@ impl QuizApp {
 
     /// Cambia el lenguaje y carga o inicializa el progreso, y va a la bienvenida
     pub fn seleccionar_lenguaje(&mut self, lang: Language) {
+        // 0) Asegura que exista un entry en el HashMap
+        self.progresses.entry(lang).or_insert_with(QuizProgress::default);
+
+        // 1) Asigna el nuevo lenguaje
         self.selected_language = Some(lang);
 
-        // 1. Cargar preguntas nuevas del lenguaje elegido (solo lectura)
-        let questions = read_questions_embedded()
+        // 2) Carga SOLO las preguntas de ese lenguaje
+        let mut questions: Vec<Question> = read_questions_embedded()
             .into_iter()
             .filter(|q| q.language == lang)
-            .collect::<Vec<_>>();
-
-        // 2. Calcula valid_ids y weeks ANTES de mutar nada
-        let valid_ids: HashSet<_> = questions
-            .iter()
-            .filter_map(|q| q.id.as_ref())
-            .cloned()
             .collect();
 
+        // 3) Guarda los IDs completados del progreso anterior
+        let prev_completed = self.progress().completed_ids.clone();
+
+        // 4) Marca cada pregunta local como hecha si su ID estaba en prev_completed
+        for q in &mut questions {
+            q.is_done = q.id
+                .as_ref()
+                .map(|id| prev_completed.contains(id))
+                .unwrap_or(false);
+        }
+
+        // 5) Extrae y ordena las semanas disponibles
         let mut weeks: Vec<usize> = questions.iter().map(|q| q.week).collect();
         weeks.sort_unstable();
         weeks.dedup();
 
-        // 3. Calcula qué preguntas deberían aparecer marcadas como completadas,
-        //    leyendo primero el set de completed_ids para este lenguaje
-        let completed_ids = self.progress().completed_ids.clone();
-
-        let mut questions = questions; // ahora mutable
-        for q in &mut questions {
-            if let Some(id) = &q.id {
-                q.is_done = completed_ids.contains(id);
-            } else {
-                q.is_done = false;
-            }
-        }
-
-        // 4. Calcula el máximo de semana desbloqueada ANTES del borrow mutable
+        // 6) Calcula max_unlocked_week: comienza en 1, y por cada semana w,
+        //    si todas las preguntas de w están hechas, desbloquea w+1
         let mut max_week = 1;
         for &w in &weeks {
-            // is_week_completed accede a self, así que hazlo aquí fuera
-            if self.is_week_completed(w) {
+            let all_done = questions
+                .iter()
+                .filter(|q| q.week == w)
+                .all(|q| q.is_done);
+            if all_done {
                 max_week = max_week.max(w + 1);
             }
         }
 
-        // 5. Calcula la posición a restaurar o la próxima pendiente (ANTES del borrow mutable)
+        // 7) Decide en qué pregunta/semana reanudar
         let (restored_week, restored_idx) = {
-            let progress = self.progress();
-            if let (Some(week), Some(idx)) = (progress.current_week, progress.current_in_week) {
-                if week != 0 && idx < questions.len() && questions[idx].language == lang {
-                    (Some(week), Some(idx))
+            let prog = self.progress();
+            if let (Some(cw), Some(ci)) = (prog.current_week, prog.current_in_week) {
+                // Si el índice anterior sigue apuntando a la misma semana, lo mantenemos
+                if ci < questions.len() && questions[ci].week == cw {
+                    (Some(cw), Some(ci))
                 } else {
-                    let next_week = questions.iter()
-                        .filter(|q| q.language == lang && !q.is_done)
-                        .map(|q| q.week)
-                        .min();
-                    (next_week, None)
+                    // Si no, buscamos la primera pendiente
+                    let next_w = questions.iter()
+                        .find(|q| !q.is_done)
+                        .map(|q| q.week);
+                    (next_w, None)
                 }
             } else {
-                let next_week = questions.iter()
-                    .filter(|q| q.language == lang && !q.is_done)
-                    .map(|q| q.week)
-                    .min();
-                (next_week, None)
+                let next_w = questions.iter()
+                    .find(|q| !q.is_done)
+                    .map(|q| q.week);
+                (next_w, None)
             }
         };
 
-        // 6. Asigna las preguntas ya listas
+        // 8) Asigna las preguntas ya procesadas
         self.questions = questions;
 
-        // 7. Ahora SÍ puedes pedir el borrow mutable para actualizar el progreso
+        // 9) Actualiza el progreso mutándolo
         let progress = self.progress_mut();
-
-        // Limpia completed_ids obsoletos (solo mantiene los ids que existen en las nuevas preguntas)
-        progress.completed_ids.retain(|id| valid_ids.contains(id));
-
-        // Actualiza máximo de semanas y desbloqueadas
+        //   - conserva solo los completed_ids que siguen existiendo
+        progress.completed_ids.retain(|id| prev_completed.contains(id));
+        //   - fija el máximo de semana
         progress.max_unlocked_week = max_week;
+        //   - rellena unlocked_weeks de 1..=max_week
         progress.unlocked_weeks.clear();
         for w in 1..=max_week {
             progress.unlocked_weeks.push(w);
         }
-
-        // Restaura posición actual
+        //   - restaura posición actual
         progress.current_week = restored_week;
         progress.current_in_week = restored_idx;
-
-        // Limpia input y estado
+        //   - resetea estado de input/rondas
         progress.input.clear();
         progress.round = 1;
         progress.shown_this_round.clear();
         progress.show_solution = false;
         progress.finished = false;
 
-        // UI general
+        // 10) UI: vuelve al menú principal
         self.state = AppState::Welcome;
         self.message.clear();
         self.has_saved_progress = true;
+
+        // 11) Asegura coherencia de is_done en self.questions
         self.sync_is_done();
     }
 
@@ -636,15 +649,35 @@ impl QuizApp {
     }
 
 
+    /// Sincroniza el flag `is_done` de cada pregunta a partir de `completed_ids`,
+    /// y elimina de `completed_ids` todas las IDs que ya no existen en `self.questions`.
+    /// Sincroniza `is_done` y elimina de `completed_ids` las IDs que ya no existen.
     pub fn sync_is_done(&mut self) {
-        let completed_ids = self.progress().completed_ids.clone(); // <-- clone para evitar double borrow
+        // 1) Recoge todas las IDs válidas que hay ahora en las preguntas:
+        let valid_ids: HashSet<String> = self
+            .questions
+            .iter()
+            .filter_map(|q| q.id.clone())
+            .collect();
 
+        // 2) Dentro de este bloque mutamos sólo `completed_ids`.
+        {
+            let progress = self.progress_mut();
+            progress
+                .completed_ids
+                .retain(|id| valid_ids.contains(id));
+        } // <-- aquí termina el préstamo mutable de `progress`
+
+        // 3) Clona el set purgado para no tener que volver a pedir prestado mutablemente el progreso.
+        let completed_ids = self.progress().completed_ids.clone();
+
+        // 4) Ahora sí, pide prestado `&mut self.questions` y actualiza `is_done`.
         for q in &mut self.questions {
-            q.is_done = if let Some(id) = &q.id {
-                completed_ids.contains(id)
-            } else {
-                false
-            };
+            q.is_done = q
+                .id
+                .as_ref()
+                .map(|id| completed_ids.contains(id))
+                .unwrap_or(false);
         }
     }
 

@@ -2982,46 +2982,46 @@
 
 
 
-
-- id: c-3-if_incremento
-  language: C
-  week: 3
-  prompt: |
-    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
-    si el numero es 5 sumale 1 utilizando operador de incremento. En caso contrario restale 1 utilizando operador de decremento
-  answer: |
-    int main () {
-      int numero = 5;
-
-      if(numero == 5) {
-        numero++;
-      } else {
-        numero--;
-      }
-
-      return 0;
-    }
-  hint: Usa if else
-
-- id: p-3-if_incremento
-  language: Pseudocode
-  week: 3
-  prompt: |
-    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
-    si el numero es 5 sumale 1. En caso contrario restale 1.
-  answer: |-
-    var
-      numero: integer;
-    end var
-
-    numero := 5;
-
-    if numero = 5 then
-      numero := numero + 1;
-    else
-      numero := numero - 1;
-    end if
-  hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
+## Testeo
+#- id: c-3-if_incremento
+#  language: C
+#  week: 3
+#  prompt: |
+#    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
+#    si el numero es 5 sumale 1 utilizando operador de incremento. En caso contrario restale 1 utilizando operador de decremento
+#  answer: |
+#    int main () {
+#      int numero = 5;
+#
+#      if(numero == 5) {
+#        numero++;
+#      } else {
+#        numero--;
+#      }
+#
+#      return 0;
+#    }
+#  hint: Usa if else
+#
+#- id: p-3-if_incremento
+#  language: Pseudocode
+#  week: 3
+#  prompt: |
+#    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
+#    si el numero es 5 sumale 1. En caso contrario restale 1.
+#  answer: |-
+#    var
+#      numero: integer;
+#    end var
+#
+#    numero := 5;
+#
+#    if numero = 5 then
+#      numero := numero + 1;
+#    else
+#      numero := numero - 1;
+#    end if
+#  hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
 
 
 
