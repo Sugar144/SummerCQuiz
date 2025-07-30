@@ -19,9 +19,9 @@ fn main() -> eframe::Result<()> {
             // Tamaño interior inicial
             .with_inner_size([1280.0, 1024.0])
             // Tamaño interior mínimo
-            .with_min_inner_size([800.0, 600.0])
+            .with_min_inner_size([1024.0, 768.0])
             // Deshabilita que el usuario redimensione la ventana
-            .with_resizable(false),
+            .with_resizable(true),
         ..Default::default()
     };
 

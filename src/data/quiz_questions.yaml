@@ -547,6 +547,7 @@
   week: 2
   prompt: |
     Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
+    
     Dentro de main, declara un array de cadenas nombrePlanta para los nombres de las plantas usando ambas constantes.
   answer: |
     #define MAX_PLANTS 5
@@ -563,6 +564,7 @@
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5.
+    
     Dentro del algoritmo principal, declara un array de strings nombrePlanta para los nombres de las plantas usando dicha constante.
   answer: |
     const
@@ -581,6 +583,7 @@
   week: 2
   prompt: |
     Incluye la biblioteca necesaria para booleanos.
+    
     Declara la constante MAX_PLANTS = 5 y un array booleano sensoresActivos usando MAX_PLANTS dentro de main.
   answer: |
     #include <stdbool.h>
@@ -597,6 +600,7 @@
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5.
+    
     Dentro del algoritmo principal, declara un array de booleanos sensoresActivos usando dicha constante.
   answer: |
     const
@@ -675,7 +679,8 @@
   language: C
   week: 2
   prompt: |
-    Declara la constante MAX_PLANTS = 5 y un array de enteros humedad con MAX_PLANTS, 
+    Declara la constante MAX_PLANTS = 5 y un array de enteros humedad con MAX_PLANTS,
+    
     inicializado con los valores "60, 85, 72, 91, 65" en la misma linea dentro de main.
   answer: |
     #define MAX_PLANTS 5
@@ -691,7 +696,9 @@
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5.
+    
     Dentro del algoritmo principal, declara un array de enteros humedad con MAX_PLANTS.
+    
     Inicializa el array con los valores "60, 85, 72, 91, 65".
   answer: |
     const
@@ -751,6 +758,7 @@
   week: 2
   prompt: |
     Declara las constantes FILAS = 3 y COLUMNAS = 4.
+    
     Dentro de main, declara una matriz de enteros sensoresTemperatura con FILAS Y COLUMNAS.
   answer: |
     #define FILAS 3
@@ -767,6 +775,7 @@
   week: 2
   prompt: |
     Declara las constantes FILAS = 3 y COLUMNAS = 4.
+    
     Dentro del algoritmo principal, declara una matriz de enteros sensoresTemperatura con FILAS Y COLUMNAS.
   answer: |
     const
@@ -787,7 +796,9 @@
   week: 2
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
     Dentro de main, declara una matriz booleana zonas con FILAS Y COLUMNAS.
+    
     Inicialízala con los valores: 
     fila 1: true, false, false 
     fila 2: false, true, false.
@@ -816,7 +827,9 @@
   week: 2
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
     Dentro del algoritmo principal, declara una matriz booleana zonas con FILAS Y COLUMNAS. 
+    
     Inicialízala con los valores: 
     fila 1: true, false, false 
     fila 2: false, true, false.
@@ -845,7 +858,10 @@
   language: C
   week: 2
   prompt: |
+    Incluye string
+    
     Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
+    
     Dentro de main, declara un array de cadenas nombrePlanta para los nombres de las plantas y 
     usa strncpy para inicializar el primer elemento a "Margarita".
   answer: |
@@ -865,6 +881,7 @@
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5. 
+    
     Dentro del algoritmo principal, declara un array de strings nombrePlanta y asigna "Margarita" al primer elemento.
   answer: |
     const
@@ -883,7 +900,10 @@
   language: C
   week: 2
   prompt: |
+    Incluye string.
+    
     Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
+    
     Dentro de main, declara un array de cadenas nombrePlanta y usa strncpy para inicializar los nombres 
     "Margarita", "Rosa", "Lirio", "Orquídea", "Girasol" en el array.
   answer: |
@@ -930,7 +950,10 @@
   language: C
   week: 2
   prompt: |
+    Incluye stdio y string.
+    
     Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
+    
     Declara un array de cadenas nombrePlanta, inicializa el primer elemento con "Margarita" usando strncpy,
     y muestra el primer nombre con printf.
   answer: |
@@ -953,6 +976,7 @@
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5. 
+    
     Declara un array de strings nombrePlanta, asigna "Margarita" al primer elemento 
     y muestra ese nombre con writeString.
   answer: |
@@ -973,7 +997,10 @@
   language: C
   week: 2
   prompt: |
+    Incluye string.
+    
     Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25. Declara un array de cadenas nombrePlanta.
+    
     Usa strncpy para copiar el nombre "Margarita" en el primer elemento y después usa strncpy para copiar ese mismo nombre
     al segundo elemento.
   answer: |
@@ -994,6 +1021,7 @@
   week: 2
   prompt: |
     Declara la constante MAX_PLANTS = 5. 
+    
     Declara un array de strings nombrePlanta, asigna "Margarita" al primer elemento
     y copia ese nombre al segundo elemento.
   answer: |
@@ -1014,8 +1042,13 @@
   language: C
   week: 2
   prompt: |
+    Incluye stdio.
+    
     Declara la constante MAX_PLANTAS = 4 y un array float tempPlantas.
-    Inicializa los valores a 19.2, 20.5, 22.1 y 18.9. Imprime el tercer valor con el formato "Temp: x".
+    
+    Inicializa los valores a 19.2, 20.5, 22.1 y 18.9. 
+    
+    Imprime el tercer valor con el formato "Temp: x".
   answer: |
     #include <stdio.h>
 
@@ -1036,8 +1069,12 @@
   week: 2
   prompt: |
     Declara la constante MAX_PLANTAS = 4.
+    
     Declara un array real tempPlantas.
-    Inicializa los valores a 19.2, 20.5, 22.1 y 18.9. Imprime el tercer valor.
+    
+    Inicializa los valores a 19.2, 20.5, 22.1 y 18.9. 
+    
+    Imprime el tercer valor.
   answer: |
     const
       MAX_PLANTAS: integer = 4;
@@ -1063,11 +1100,16 @@
   language: C
   week: 2
   prompt: |
+    Incluye stdio.
+    
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
     Declara una matriz float phSuelo.
+    
     Inicializa utilizando {} con los valores:
     fila 1: 6.1, 6.3, 6.0
     fila 2: 7.1, 7.0, 6.9
+    
     Imprime el valor de la posición fila 2, columna 1 con el formato "pH: x".
   answer: |
     #include <stdio.h>
@@ -1092,10 +1134,13 @@
   week: 2
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
     Declara una matriz real phSuelo.
+    
     Inicializa los valores:
     fila 1: 6.1, 6.3, 6.0
     fila 2: 7.1, 7.0, 6.9
+    
     Imprime el valor de la posición fila 2, columna 1 el formato "pH: x".
   answer: |
     const
@@ -1129,9 +1174,14 @@
   language: C
   week: 2
   prompt: |
+    Incluye stdio y string.
+    
     Declara las constantes MAX_PLANTAS = 3, MAX_NOMBRE = 10.
+    
     Declara nombrePlantas (cadenas) y alturaPlantas (float).
+    
     Inicializa con "Loto", "Boj", "Tejo" y 1.2, 0.4, 4.8.
+    
     Imprime el nombre y altura de la primera planta, cada uno en su línea.
   answer: |
     #include <stdio.h>
@@ -1165,8 +1215,11 @@
   week: 2
   prompt: |
     Declara la constante MAX_PLANTAS = 3.
+    
     Declara nombrePlantas (strings) y alturaPlantas (reales).
+    
     Inicializa con "Loto", "Boj", "Tejo" y 1.2, 0.4, 4.8.
+    
     Imprime el nombre y altura de la primera planta, cada uno en su línea.
   answer: |
     const
@@ -1198,7 +1251,10 @@
   language: C
   week: 2
   prompt: |
+    Incluye stdio.
+    
     Declara la constante MAX_NOMBRE = 15.
+    
     Dentro de main, declara la cadena nombrePlanta y lee su valor por teclado usando scanf. Imprime el nombre en el formato "Nombre: x".
   answer: |
     #include <stdio.h>
@@ -1223,6 +1279,7 @@
   week: 2
   prompt: |
     Dentro del algoritmo principal, declara una variable nombrePlanta de tipo string.
+    
     Lee su valor usando readString y después imprímelo.
   answer: |
     algorithm
@@ -1239,8 +1296,12 @@
   language: C
   week: 2
   prompt: |
+    Incluye stdio.
+    
     Declara la constante MAX_PLANTAS = 3.
+    
     Declara el array edadPlantas.
+    
     Lee 3 valores enteros por teclado y guárdalos en el array. Imprime el segundo valor leído.
   answer: |
     #include <stdio.h>
@@ -1257,7 +1318,9 @@
     }
   hint: |
     El usuario debe escribir 3 números. 
+    
     Ejemplo entrada: 7 8 10
+    
     Ejemplo salida: 8
 
 - id: p-2-leer-array-int
@@ -1265,7 +1328,9 @@
   week: 2
   prompt: |
     Declara la constante MAX_PLANTAS = 3.
+    
     Declara el array edadPlantas.
+    
     Lee 3 valores enteros usando readInteger y guárdalos en el array. Imprime el segundo valor.
   answer: |
     const
@@ -1289,7 +1354,8 @@
   language: C
   week: 2
   prompt: |
-    Declara las constantes FILAS = 2 y COLUMNAS = 3.  
+    Declara las constantes FILAS = 2 y COLUMNAS = 3. 
+    
     Dentro de la función main, declara e inicializa una matriz de enteros llamada `zonas` con los siguientes valores usando llaves `{}`:
     - fila 1: 1, 0, 0
     - fila 2: 0, 1, 0
@@ -1313,6 +1379,7 @@
   week: 2
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
     Dentro de la función main, declara una matriz de enteros llamada `zonas` y **asigna manualmente** los siguientes valores:
     - fila 1: 1, 0, 0
     - fila 2: 0, 1, 0
@@ -1340,7 +1407,9 @@
   week: 2
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
+    
     Dentro del algoritmo principal, declara una matriz de enteros zonas de tamaño FILAS x COLUMNAS.
+    
     Inicializa la matriz manualmente con los valores siguientes:
     - fila 1: 1, 0, 0
     - fila 2: 0, 1, 0
@@ -1365,9 +1434,6 @@
   hint: |
     En pseudocódigo la inicialización de matrices es siempre manual, elemento a elemento.
     Los índices comienzan en 1.
-
-
-### semana 3 ###
 
 #### Semana 3 #####
 
@@ -1575,8 +1641,10 @@
     int main() {
         char nombre1[MAX_NOMBRE];
         char nombre2[MAX_NOMBRE];
+    
         strncpy(nombre1, "Kira", MAX_NOMBRE);
         strncpy(nombre2, "Max", MAX_NOMBRE);
+    
         if(strcmp(nombre1, nombre2) == 0) {
             printf("Nombres iguales\n");
         } else {
@@ -1616,7 +1684,7 @@
         writeString("Nombres diferentes");
       end if
     end algorithm
-  hint: En pseudocódigo puedes comparar strings con =
+  hint: En pseudocódigo puedes comparar strings con = .
 
 - id: c-3-ternario-vacunado
   language: C
@@ -1732,7 +1800,7 @@
     
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
     
-    Dentro de main, declara una matriz de booleanos estadoVacuna[FILAS][COLUMNAS] e inicialízala manualmente con: 
+    Dentro de main, declara una matriz de booleanos estadoVacuna con FILAS x COLUMNAS e inicialízala manualmente con: 
       fila 0: true, false, true
       fila 1: false, true, false
     
@@ -1771,7 +1839,7 @@
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
     
-    Dentro del algoritmo principal, declara una matriz booleana estadoVacuna[FILAS][COLUMNAS] e inicialízala manualmente con: 
+    Dentro del algoritmo principal, declara una matriz booleana estadoVacuna con FILAS x COLUMNAS e inicialízala manualmente con: 
       fila 1: true, false, true
       fila 2: false, true, false
     
@@ -1819,7 +1887,7 @@
     
     Dentro de main, declara un array de enteros edad. 
     
-    Pide al usuario que introduzca las edades usando scanf, guardando los valores en edad[0] y edad[1].
+    Pide al usuario que introduzca las edades usando scanf, guardando los valores en el primer y segundo elemento del array.
     
     Usa el siguiente formato:
       "Introduce la edad del animal 1: "
@@ -1847,7 +1915,7 @@
     
     Dentro del algoritmo principal, declara un array edad de enteros.
     
-    Pide al usuario que introduzca las edades con readInteger y guarda los valores en edad[1] y edad[2].
+    Pide al usuario que introduzca las edades con readInteger y guarda los valores en el primer y segundo elemento del array.
   answer: |
     const
       MAX_ANIMALES: integer = 2;
@@ -1863,7 +1931,7 @@
       writeString("Introduce la edad del animal 2: ");
       edad[2] := readInteger();
     end algorithm
-  hint: Lee y guarda cada valor por separado.
+  hint: Lee y guarda cada valor por separado. Los indices empiezan en 1.
 
 - id: c-3-if-simple
   language: C
@@ -1872,6 +1940,8 @@
     Incluye stdio.
     
     Dentro de main, declara una variable edad y pídele al usuario que la introduzca.
+    
+    Usa el formato de pregunta: "Introduce la edad del animal: ".
     
     Usa un if para comprobar si la edad es mayor que 10. Si lo es, imprime "Mayor que 10".
   answer: |
@@ -1889,7 +1959,7 @@
     
         return 0;
     }
-  hint: Usa if y no olvides el salto de linea.
+  hint: Usa if y no olvides el salto de linea. Recuerda que para leer cualquier dato que no sea un string necesitamos el operador &.
 
 - id: p-3-if-simple
   language: Pseudocode
@@ -1897,7 +1967,11 @@
   prompt: |
     Dentro del algoritmo principal, declara una variable edad, pide el valor al usuario.
     
+    Usa el formato de pregunta: "Introduce la edad del animal: ".
+    
     Usa un if para comprobar si la edad es mayor que 10. Si lo es, imprime "Mayor que 10".
+    
+
   answer: |
 
     algorithm
@@ -2002,7 +2076,7 @@
         }
         return 0;
     }
-  hint: Usa else if para el rango intermedio.
+  hint: Usa ifs encadenados. No olvides los saltos de linea.
 
 - id: p-3-if-else-encadenado
   language: Pseudocode
@@ -2034,7 +2108,7 @@
         end if
       end if
     end algorithm
-  hint: Usa if anidados en el else.
+  hint: Usa if anidados.
 
 - id: c-3-switch
   language: C
@@ -2116,6 +2190,13 @@
       end switch
     end algorithm
   hint: Recuerda la estructura del switch en pseudocódigo.
+    switch
+      case    then
+      end case
+      
+      case default then
+      end case
+    end switch
 
 #### SEMANA 3: BUCLES ESCALADOS ####
 
@@ -2902,45 +2983,45 @@
 
 
 
-#- id: c-3-if_incremento
-#  language: C
-#  week: 3
-#  prompt: |
-#    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
-#    si el numero es 5 sumale 1 utilizando operador de incremento. En caso contrario restale 1 utilizando operador de decremento
-#  answer: |
-#    int main () {
-#      int numero = 5;
-#
-#      if(numero == 5) {
-#        numero++;
-#      } else {
-#        numero--;
-#      }
-#
-#      return 0;
-#    }
-#  hint: Usa if else
-#
-#- id: p-3-if_incremento
-#  language: Pseudocode
-#  week: 3
-#  prompt: |
-#    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
-#    si el numero es 5 sumale 1. En caso contrario restale 1.
-#  answer: |-
-#    var
-#      numero: integer;
-#    end var
-#
-#    numero := 5;
-#
-#    if numero = 5 then
-#      numero := numero + 1;
-#    else
-#      numero := numero - 1;
-#    end if
-#  hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
+- id: c-3-if_incremento
+  language: C
+  week: 3
+  prompt: |
+    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
+    si el numero es 5 sumale 1 utilizando operador de incremento. En caso contrario restale 1 utilizando operador de decremento
+  answer: |
+    int main () {
+      int numero = 5;
+
+      if(numero == 5) {
+        numero++;
+      } else {
+        numero--;
+      }
+
+      return 0;
+    }
+  hint: Usa if else
+
+- id: p-3-if_incremento
+  language: Pseudocode
+  week: 3
+  prompt: |
+    Declara un entero llamado numero y asignale el valor 5, luego haciendo uso de la estructura if,
+    si el numero es 5 sumale 1. En caso contrario restale 1.
+  answer: |-
+    var
+      numero: integer;
+    end var
+
+    numero := 5;
+
+    if numero = 5 then
+      numero := numero + 1;
+    else
+      numero := numero - 1;
+    end if
+  hint: Usa if else, recuerda que en pseudocódigo la condición no va entre paréntesis.
 
 
 

@@ -38,9 +38,9 @@ pub fn descargar_binario_nuevo() -> Result<(), Box<dyn std::error::Error>> {
     let release = releases.first().expect("No hay releases");
 
     let (asset_name, local_name) = if cfg!(windows) {
-        ("SummerQuiz.exe", "SummerQuiz_new.exe")
+        ("summer_quiz_bin.exe", "summer_quiz_bin_new.exe")
     } else {
-        ("SummerQuiz", "SummerQuiz_new")
+        ("summer_quiz_bin", "summer_quiz_bin_new")
     };
 
     let asset = release
@@ -53,7 +53,7 @@ pub fn descargar_binario_nuevo() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new();
     let mut resp = client
         .get(&asset.download_url)
-        .header(USER_AGENT, "SummerQuiz-Updater/1.0")
+        .header(USER_AGENT, "summer_quiz_updater/1.0")
         .header(reqwest::header::ACCEPT, "application/octet-stream")
         .send()?;
     let mut out = File::create(local_name)?;
