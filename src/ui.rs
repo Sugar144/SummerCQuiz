@@ -30,7 +30,7 @@ pub fn pseudo_syntax() -> Syntax {
         .with_comment("//")
         .with_comment_multiline(["/*", "*/"])
         .with_keywords([
-            "end", "const", "var", "type", "record", "for", "to", "while", "if", "then",
+            "end", "const", "var", "type", "record", "for", "to", "while", "if", "then","else",
             "switch", "case", "default", "function", "action", "algorithm", "vector", "of"
         ])
         .with_types([
@@ -484,7 +484,7 @@ impl eframe::App for QuizApp {
                                     });
                                     let needed_height = galley.size().y.max(prompt_min_height).min(prompt_max_height);
                                     ui.allocate_ui_with_layout(
-                                        egui::vec2(panel_width, needed_height),
+                                        egui::vec2(panel_width * 0.9, needed_height),
                                         // Layout vertical “top-down” con alineación mínima (izquierda)
                                         egui::Layout::top_down(Align::Min),
                                         |ui| {
@@ -635,7 +635,7 @@ impl eframe::App for QuizApp {
                                             }
                                         }
                                         if saltar.clicked() {
-                                            self.saltar_pregunta(idx);
+                                            self.saltar_pregunta();
                                         }
                                     });
 

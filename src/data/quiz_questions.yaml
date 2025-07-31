@@ -1441,9 +1441,9 @@
   language: C
   week: 3
   prompt: |
-    Declara un enumerado tTipoAnimal con los valores PERRO, GATO y AVE.
-    
     Declara la constante MAX_ANIMALES = 3.
+    
+    Declara un enumerado tTipoAnimal con los valores PERRO, GATO y AVE.
     
     Dentro de main, declara un array tipoAnimal de tipo tTipoAnimal inicializado con PERRO, GATO y AVE usando llaves {}.
   answer: |
@@ -1459,16 +1459,16 @@
         tTipoAnimal tipoAnimal[MAX_ANIMALES] = { PERRO, GATO, AVE };
         return 0;
     }
-  hint: Los enumerativos se inicializan igual que los enteros usando sus etiquetas.
+  hint: Los enumerativos se inicializan igual que los enteros usando sus etiquetas. No olvides la función main y el return 0.
 
 - id: p-3-enum-declaracion
   language: Pseudocode
   week: 3
   prompt: |
-    Declara el tipo enumerado tTipoAnimal con los valores PERRO, GATO y AVE.
-    
     Declara la constante MAX_ANIMALES = 3.
-    
+
+    Declara el tipo enumerado tTipoAnimal con los valores PERRO, GATO y AVE.
+        
     Dentro del algoritmo principal, declara un array tipoAnimal de tTipoAnimal, inicializado con PERRO, GATO y AVE.
   answer: |
     const
@@ -1496,9 +1496,11 @@
   prompt: |
     Incluye string y stdio.
     
+    Declara la constante MAX_ANIMALES = 3
+    
     Declara un enumerado tTipoAnimal con PERRO, GATO y AVE.
     
-    Declara la constante MAX_ANIMALES = 3 y un array tipoAnimal de tTipoAnimal inicializado con PERRO, GATO y AVE usando {}.
+    Declara un array tipoAnimal de tTipoAnimal inicializado con PERRO, GATO y AVE usando {}.
     
     Declara una cadena de caracteres tipoStr de longitud 20 (Usa el valor directo).
     
@@ -1530,23 +1532,25 @@
   language: Pseudocode
   week: 3
   prompt: |
-    Declara el tipo enumerado tTipoAnimal con PERRO, GATO y AVE.
-    
     Declara la constante MAX_ANIMALES = 3.
     
-    Dentro del algoritmo principal, declara un array tipoAnimal de tTipoAnimal inicializado con PERRO, GATO y AVE y una variable tipoStr de tipo string.
+    Declara el tipo enumerado tTipoAnimal con PERRO, GATO y AVE.
+    
+    Dentro del algoritmo principal, declara un array tipoAnimal de tTipoAnimal inicializado con PERRO, GATO y AVE.
+    
+    Declara una variable tipoStr de tipo string.
     
     Si tipoAnimal[1] es PERRO, tipoStr debe ser "Perro"; si es GATO, "Gato"; si es AVE, "Ave".
     
     Para lograrlo deberás usar if else if anidados.
   answer: |
-    type
-      tTipoAnimal = { PERRO, GATO, AVE }
-    end type
-
     const
       MAX_ANIMALES: integer = 3;
     end const
+    
+    type
+      tTipoAnimal = { PERRO, GATO, AVE }
+    end type
 
     algorithm
       var
@@ -1652,7 +1656,7 @@
         }
         return 0;
     }
-  hint: strcmp devuelve 0 si las cadenas son iguales. No olvides el salto de linea
+  hint: strcmp devuelve 0 si las cadenas son iguales. No olvides los saltos de linea.
 
 - id: p-3-compara-strings
   language: Pseudocode

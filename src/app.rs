@@ -519,46 +519,42 @@ impl QuizApp {
         }
     }
 
-    pub fn saltar_pregunta(&mut self, idx: usize) {
-        // Mutaciones sobre la pregunta
-        self.questions[idx].skips += 1;
-        self.questions[idx].attempts += 1;
-        self.questions[idx].saw_solution = false;
+    pub fn saltar_pregunta(&mut self) {
+        // 1) Registra stats de la pregunta actual
+        if let Some(idx) = self.progress().current_in_week {
+            self.questions[idx].skips += 1;
+            self.questions[idx].attempts += 1;
+            self.questions[idx].saw_solution = false;
+            // Marca que la has “mostrado” en esta ronda:
+            let progress = self.progress_mut();
+            if !progress.shown_this_round.contains(&idx) {
+                progress.shown_this_round.push(idx);
+            }
+        }
 
-        // Estado del progreso actual
-        let week = self.progress().current_week.unwrap_or(1);
-        let language = self.selected_language.unwrap_or(Language::C);
-
-        // Indices de preguntas de la semana y lenguaje actual
-        let indices: Vec<usize> = self.questions.iter().enumerate()
-            .filter(|(_, q)| q.week == week && q.language == language)
-            .map(|(i, _)| i)
-            .collect();
-
-        // Encuentra la siguiente pendiente
-        let pos_in_week = indices.iter().position(|&i| i == idx);
-        let next_idx = pos_in_week.and_then(|pos| {
-            indices.iter().skip(pos + 1)
-                .find(|&&i| !self.questions[i].is_done)
-                .copied()
-        });
-
-        // Mutar solo el progreso
+        // 2) Busca la siguiente pendiente, o arranca nueva ronda
+        let next_idx = self.next_pending_in_week();
         {
             let progress = self.progress_mut();
             progress.current_in_week = next_idx;
             progress.input.clear();
         }
 
-        self.message = "⏩ Pregunta saltada. La verás en la siguiente ronda.".to_string();
-        self.update_input_prefill();
-
-        // Verificar si toca ir al resumen
-        let is_none = self.progress().current_in_week.is_none();
-        if is_none && self.is_week_completed(week) {
-            self.complete_week(week);
-            self.state = AppState::Summary;
+        // 3) Si tras el salto ya no queda NINGUNA pendiente...
+        let week = self.progress().current_week.unwrap_or(1);
+        if self.progress().current_in_week.is_none() {
+            // 3a) …y la semana está completa, pasa al resumen
+            if self.is_week_completed(week) {
+                self.complete_week(week);
+                self.state = AppState::Summary;
+            }
+            // 3b) …si NO está completa, next_pending_in_week
+            //     habría arrancado una ronda nueva y ya nos habría dado idx.
         }
+
+        // 4) Actualiza UI/input y mensaje
+        self.update_input_prefill();
+        self.message = "⏩ Pregunta saltada. La verás en la siguiente ronda.".to_string();
     }
 
     pub fn avanzar_a_siguiente_pregunta(&mut self, idx: usize) {
