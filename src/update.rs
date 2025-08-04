@@ -7,6 +7,10 @@ use self_update::backends::github::ReleaseList;
 #[cfg(not(target_arch = "wasm32"))]
 use std::fs::File;
 
+
+
+
+
 #[cfg(not(target_arch = "wasm32"))]
 pub fn check_latest_release() -> Result<Option<String>, Box<dyn std::error::Error>> {
     let releases = ReleaseList::configure()

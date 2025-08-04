@@ -4,6 +4,7 @@ use crate::code_utils::normalize_code;
 use crate::model::{AppState, Language, Question};
 use crate::data::read_questions_embedded;
 use eframe::egui;
+use crate::update::descargar_binario_nuevo;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct QuizProgress {
@@ -784,6 +785,38 @@ impl QuizApp {
     pub fn progress(&self) -> &QuizProgress {
         let lang = self.selected_language.expect("No language selected");
         self.progresses.get(&lang).expect("No progress for selected language")
+    }
+
+    pub fn ensure_update_thread(&mut self) {
+        if self.update_thread_launched {
+            return;
+        }
+        self.update_thread_launched = true;
+
+        // El nombre del updater según plataforma
+        let updater = if cfg!(windows) {
+            "summer_quiz_updater.exe".to_string()
+        } else {
+            "./summer_quiz_updater".to_string()
+        };
+
+        // Hilo que descarga y arranca el updater
+        std::thread::spawn(move || {
+            match descargar_binario_nuevo() {
+                Ok(()) => {
+                    // Pequeña pausa para que el mensaje se vea
+                    std::thread::sleep(std::time::Duration::from_secs(2));
+                    // Lanza el updater y sale
+                    std::process::Command::new(&updater)
+                        .spawn()
+                        .expect("No se pudo lanzar el updater");
+                    std::process::exit(0);
+                }
+                Err(e) => {
+                    eprintln!("Error al descargar actualización: {e}");
+                }
+            }
+        });
     }
 
 }

@@ -2401,6 +2401,8 @@
       3.2
       1.0
       4.8
+    
+    El numero seguido de valor toma el valor del indice en cada iteración.
   answer: |
     const
       MAXIMO: integer = 3;
@@ -2481,7 +2483,7 @@
         i := i + 1;
       end while
     end algorithm
-  hint: En pseudocódigo los índices empiezan en 1 y se incrementan manualmente.
+  hint: En pseudocódigo los índices empiezan en 1 y se incrementan manualmente. No olvides incrementar el indice.
 
 
 
