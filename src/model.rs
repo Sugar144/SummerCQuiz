@@ -31,6 +31,25 @@ pub struct Question {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Level {
+    pub number: usize,
+    pub explanation: String,
+    pub questions: Vec<Question>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Week {
+    pub number: usize,
+    pub explanation: String,
+    pub levels: Vec<Level>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Quiz {
+    pub weeks: Vec<Week>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum AppState {
     LanguageSelect,
     Welcome,
