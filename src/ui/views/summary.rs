@@ -26,75 +26,90 @@ pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
                     ui.add_space(5.0);
 
                     let max_height = 700.0;
-
                     ScrollArea::vertical()
                         .max_height(max_height)
                         .max_width(panel_width)
                         .show(ui, |ui| {
-                            let week = app.progress().current_week.unwrap_or(1);
-
-                            Grid::new("quiz_results_grid")
-                                .striped(true)
-                                .spacing([8.0, 0.0])
-                                .show(ui, |ui| {
-                                    ui.label("Pregunta");
-                                    ui.label("Intentos");
-                                    ui.label("Fallos");
-                                    ui.label("Saltos");
-                                    ui.label("Solución vista");
-                                    ui.label("Estado");
-                                    ui.end_row();
-
-                                    for (i, q) in app.questions.iter().enumerate() {
-                                        if q.week != week { continue; }
-                                        let status = if q.is_done && !q.saw_solution {
-                                            "✅ Correcta"
-                                        } else if q.saw_solution {
-                                            "❌ Fallida"
-                                        } else {
-                                            "❌ Sin responder"
-                                        };
-                                        let solucion_vista = if q.saw_solution { "Sí" } else { "No" };
-                                        ui.label(format!("{}", i + 1));
-                                        ui.label(format!("{}", q.attempts));
-                                        ui.label(format!("{}", q.fails));
-                                        ui.label(format!("{}", q.skips));
-                                        ui.label(solucion_vista);
-                                        ui.label(status);
+                            // Extraer índice de semana actual
+                            let wi = app.progress().current_week.unwrap_or(0);
+                            if let Some(week) = app.quiz.weeks.get(wi) {
+                                Grid::new("quiz_results_grid")
+                                    .striped(true)
+                                    .spacing([8.0, 0.0])
+                                    .show(ui, |ui| {
+                                        ui.label("Nivel");
+                                        ui.label("Pregunta");
+                                        ui.label("Intentos");
+                                        ui.label("Fallos");
+                                        ui.label("Saltos");
+                                        ui.label("Solución vista");
+                                        ui.label("Estado");
                                         ui.end_row();
-                                    }
-                                });
+
+                                        for (li, level) in week.levels.iter().enumerate() {
+                                            for (qi, q) in level.questions.iter().enumerate() {
+                                                let status = if q.is_done && !q.saw_solution {
+                                                    "✅ Correcta"
+                                                } else if q.saw_solution {
+                                                    "❌ Fallida"
+                                                } else {
+                                                    "❌ Sin responder"
+                                                };
+                                                let solv = if q.saw_solution { "Sí" } else { "No" };
+
+                                                ui.label(format!("{}", level.number));
+                                                ui.label(format!("{}", qi + 1));
+                                                ui.label(format!("{}", q.attempts));
+                                                ui.label(format!("{}", q.fails));
+                                                ui.label(format!("{}", q.skips));
+                                                ui.label(solv);
+                                                ui.label(status);
+                                                ui.end_row();
+                                            }
+                                        }
+                                    });
+                            } else {
+                                ui.label("No hay datos de progreso para esta semana.");
+                            }
                         });
 
                     ui.add_space(5.0);
 
                     // Botones de control
                     ui.vertical_centered(|ui| {
-                        let current_week = app.progress().current_week.unwrap_or(1);
-                        let language = app.selected_language.unwrap_or(Language::C);
-                        let total_weeks = app.questions
+                        let current_week = app.progress().current_week.unwrap_or(0);
+                        let lang = app.selected_language.unwrap_or(Language::C);
+                        // Construir lista de semanas válidas para el lenguaje
+                        let valid_weeks: Vec<usize> = app
+                            .quiz
+                            .weeks
                             .iter()
-                            .filter(|q| q.language == language)
-                            .map(|q| q.week)
-                            .max()
-                            .unwrap_or(current_week);
+                            .enumerate()
+                            .filter_map(|(i, wk)| {
+                                if wk.levels.iter().any(|lvl| lvl.questions.iter().any(|q| q.language == lang)) {
+                                    Some(i)
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect();
+                        let pos = valid_weeks.iter().position(|&i| i == current_week).unwrap_or(0);
+                        let has_next = pos + 1 < valid_weeks.len();
+                        let is_complete = app.is_week_completed(current_week);
 
-                        let is_current_week_complete = app.is_week_completed(current_week);
-                        let has_next_week = current_week < total_weeks;
-
-                        if is_current_week_complete && has_next_week {
+                        if is_complete && has_next {
                             if ui.add_sized([button_width, button_height], Button::new("Siguiente Semana")).clicked() {
-                                app.avanzar_a_siguiente_semana(current_week);
+                                app.avanzar_a_siguiente_semana();
                             }
-                        } else if is_current_week_complete {
+                        } else if is_complete {
                             ui.add_space(10.0);
-                            ui.label("¡Bien hecho! Has completado todas las semana disponibles, pulsa volver para ir al menú.");
+                            ui.label("¡Bien hecho! Has completado todas las semanas disponibles.");
                             ui.add_space(10.0);
                             if ui.add_sized([button_width, button_height], Button::new("Volver")).clicked() {
                                 app.guardar_y_salir();
                             }
                         } else {
-                            if ui.add_sized([button_width, button_height], Button::new("Atras")).clicked() {
+                            if ui.add_sized([button_width, button_height], Button::new("Atrás")).clicked() {
                                 app.state = AppState::Quiz;
                             }
                         }

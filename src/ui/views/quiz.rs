@@ -17,154 +17,143 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
             .inner_margin(egui::Margin::symmetric(120, 20))
             .show(ui, |ui| {
                 ui.vertical_centered(|ui| {
-                    if let Some(idx) = app.progress().current_in_week {
+                    if let (Some(wi), Some(li), Some(qi)) = (
+                        app.progress().current_week,
+                        app.progress().current_level,
+                        app.progress().current_in_level,
+                    ) {
+                        let question = app.quiz.weeks[wi].levels[li].questions[qi].clone();
+
+                        // Ronda
                         ui.heading(format!("🌀 Ronda {}", app.progress().round));
                         ui.add_space(10.0);
+
                         // Prompt con scroll fijo
-                        let prompt_max_height = 150.0;
+                        let prompt_text = &question.prompt;
+                        let prompt_max_h = 150.0;
                         let prompt_min_lines = 4.0;
                         let font_id = egui::TextStyle::Body.resolve(ui.style());
-                        let line_height = ui.fonts(|f| f.row_height(&font_id));
-                        let prompt_min_height = prompt_min_lines * line_height;
-                        let prompt_text = app.questions[idx].prompt.clone();
-                        let galley = ui.fonts(|fonts| {
-                            fonts.layout(
-                                prompt_text.clone(),
-                                font_id.clone(),
-                                egui::Color32::WHITE,
-                                panel_width,
-                            )
-                        });
-                        let needed_height = galley.size().y.max(prompt_min_height).min(prompt_max_height);
+                        let line_h = ui.fonts(|f| f.row_height(&font_id));
+                        let prompt_min_h = prompt_min_lines * line_h;
+                        let galley = ui.fonts(|fonts| fonts.layout(
+                            prompt_text.clone(), font_id.clone(), egui::Color32::WHITE, panel_width));
+                        let needed_h = galley.size().y.max(prompt_min_h).min(prompt_max_h);
                         ui.allocate_ui_with_layout(
-                            egui::vec2(panel_width, needed_height),
+                            egui::vec2(panel_width, needed_h),
                             egui::Layout::top_down(Align::Min),
                             |ui| {
                                 ScrollArea::vertical()
-                                    .max_height(prompt_max_height)
-                                    .show(ui, |ui| {
-                                        ui.label(&prompt_text);
-                                    });
-                            }
+                                    .max_height(prompt_max_h)
+                                    .show(ui, |ui| { ui.label(prompt_text); });
+                            },
                         );
 
                         ui.add_space(5.0);
 
-                        let max_input_height = 245.0;
-                        let min_lines = 15;
-                        let font_id = egui::TextStyle::Monospace.resolve(ui.style());
-                        let line_height = ui.fonts(|f| f.row_height(&font_id));
-                        let code_rows = min_lines;
-
-                        let syntax = match app.selected_language.unwrap_or(Language::C) {
+                        // Editor de código o solución
+                        let language = app.selected_language.unwrap_or(Language::C);
+                        let syntax = match language {
                             Language::C => c_syntax(),
                             Language::Pseudocode => pseudo_syntax(),
                         };
+                        let max_input_h = 245.0;
+                        let min_lines = 15;
+                        let font_id = egui::TextStyle::Monospace.resolve(ui.style());
+                        let line_h = ui.fonts(|f| f.row_height(&font_id));
+                        let code_rows = min_lines;
 
-                        if app.questions[idx].fails >= 2 {
+                        if question.fails >= 2 {
                             if !app.progress().show_solution {
-                                // Botón para mostrar solución
                                 if ui.button("Solución").clicked() {
                                     app.progress_mut().show_solution = true;
                                 }
-                                // Editor de usuario
                                 code_editor_input(
-                                    ui,
-                                    "user_input",
-                                    panel_width,
-                                    code_rows,
-                                    line_height,
-                                    syntax.clone(),
-                                    &mut app.progress_mut().input,
-                                    max_input_height,
+                                    ui, "user_input", panel_width, code_rows, line_h,
+                                    syntax.clone(), &mut app.progress_mut().input, max_input_h,
                                 );
                             } else {
-                                // Botón “Siguiente pregunta”
                                 if ui.button("Siguiente pregunta").clicked() {
-                                    app.avanzar_a_siguiente_pregunta(idx);
+                                    app.avanzar_a_siguiente_pregunta();
                                 }
-                                // Editor de solo lectura con solución
                                 code_editor_solution(
-                                    ui,
-                                    panel_width,
-                                    code_rows,
-                                    line_height,
-                                    syntax,
-                                    &app.questions[idx].answer,
-                                    max_input_height,
+                                    ui, panel_width, code_rows, line_h,
+                                    syntax, &question.answer, max_input_h,
                                 );
                             }
                         } else {
-                            // Editor estándar de usuario
                             code_editor_input(
-                                ui,
-                                "user_input",
-                                panel_width,
-                                code_rows,
-                                line_height,
-                                syntax,
-                                &mut app.progress_mut().input,
-                                max_input_height,
+                                ui, "user_input", panel_width, code_rows, line_h,
+                                syntax, &mut app.progress_mut().input, max_input_h,
                             );
                         }
 
-                        if app.questions[idx].fails >= 1 {
-                            if let Some(hint) = &app.questions[idx].hint {
-                                ui.label(format!("💡 Pista: {hint}"));
+                        // Pista si falla
+                        if question.fails >= 1 {
+                            if let Some(hint) = &question.hint {
+                                ui.label(format!("💡 Pista: {}", hint));
                             }
                         }
 
                         ui.add_space(5.0);
 
+                        // Botón de test: marcar semana completa
                         if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
-                            let week = app.progress().current_week.unwrap_or(1);
-                            let language = app.selected_language.unwrap_or(Language::C);
-                            let mut ids_a_marcar = Vec::new();
-                            for q in app.questions.iter_mut() {
-                                if q.week == week && q.language == language {
-                                    q.is_done = true;
-                                    q.saw_solution = false;
-                                    q.attempts = 1;
-                                    q.fails = 0;
-                                    q.skips = 0;
-                                    if let Some(id) = &q.id {
-                                        ids_a_marcar.push(id.clone());
+                            if let Some(wi) = app.progress().current_week {
+                                let lang = app.selected_language.unwrap_or(Language::C);
+                                let mut ids_to_mark = Vec::new();
+
+                                // 1) Marcar todas las preguntas de esta semana como hechas
+                                for level in &mut app.quiz.weeks[wi].levels {
+                                    for q in &mut level.questions {
+                                        if q.language == lang {
+                                            q.is_done = true;
+                                            q.saw_solution = false;
+                                            q.attempts = 1;
+                                            q.fails = 0;
+                                            q.skips = 0;
+                                            if let Some(id) = &q.id {
+                                                ids_to_mark.push(id.clone());
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                            let next_idx = app.next_pending_in_week();
-                            {
-                                let progress = app.progress_mut();
-                                for id in ids_a_marcar {
-                                    progress.completed_ids.insert(id);
+
+                                // 2) Insertar los IDs en completed_ids
+                                {
+                                    let prog = app.progress_mut();
+                                    for id in ids_to_mark {
+                                        prog.completed_ids.insert(id);
+                                    }
                                 }
-                                progress.current_in_week = next_idx;
-                            }
-                            if app.progress().current_in_week.is_none() {
+
+                                // 3) Completar la semana y desbloquear la siguiente
+                                app.complete_week(wi);
+                                app.recalculate_unlocked_weeks();
+
+                                // ─── ¡NUEVO! Asegúrate de propagar esos completed_ids a `q.is_done` en todas las preguntas ───
+                                app.sync_is_done();
+
+                                // 4) Ir al resumen
                                 app.state = AppState::Summary;
                             }
                         }
 
+
+
+                        // Botones enviar/saltar
                         let (enviar, saltar) = two_button_row(ui, panel_width, "Enviar", "Saltar pregunta");
                         if enviar {
-                            if let Some(idx) = app.progress().current_in_week {
-                                let input = app.progress().input.clone();
-                                app.procesar_respuesta(&input, idx);
-                            }
+                            let input = app.progress().input.clone();
+                            app.procesar_respuesta(&input);
                         }
                         if saltar {
                             app.saltar_pregunta();
                         }
 
-                        // y lo mismo para “Volver” / “Ver progreso”:
-                        let (volver, progreso) =
-                            two_button_row(ui, panel_width, "Volver", "Ver progreso");
-                        if progreso {
-                            app.ver_progreso();
-                        }
-                        if volver {
-                            app.guardar_y_salir();
-                        }
+                        // Volver / ver progreso
+                        let (volver, progreso) = two_button_row(ui, panel_width, "Volver", "Ver progreso");
+                        if progreso { app.ver_progreso(); }
+                        if volver { app.guardar_y_salir(); }
 
                         ui.add_space(8.0);
                         if !app.message.is_empty() {

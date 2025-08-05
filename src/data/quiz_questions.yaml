@@ -1,4 +1,6 @@
 #### Semana 1 #####
+
+## Nivel 1 ##
 - id: c-1-max_nombre
   language: C
   week: 1
@@ -1380,7 +1382,7 @@
   prompt: |
     Declara las constantes FILAS = 2 y COLUMNAS = 3.
     
-    Dentro de la función main, declara una matriz de enteros llamada `zonas` y **asigna manualmente** los siguientes valores:
+    Dentro de la función main, declara una matriz de enteros llamada `zonas` y asigna manualmente los siguientes valores:
     - fila 1: 1, 0, 0
     - fila 2: 0, 1, 0
   answer: |
