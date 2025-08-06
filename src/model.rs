@@ -13,6 +13,8 @@ pub struct Question {
     pub prompt: String,   // Pregunta
     pub answer: String,   // Respuesta
     pub hint: Option<String>,
+    #[serde(skip)]
+    pub number: usize,
     #[serde(default)]
     pub input_prefill: Option<String>,
     #[serde(default)]
@@ -54,8 +56,10 @@ pub enum AppState {
     LanguageSelect,
     Welcome,
     WeekMenu,
+    LevelMenu,
     Quiz,
     Summary,
+    LevelSummary,
     PendingUpdate,
 }
 
@@ -63,5 +67,27 @@ pub enum AppState {
 impl Default for AppState {
     fn default() -> Self {
         AppState::Welcome
+    }
+}
+
+impl Question {
+    /// Reinicia los contadores y flags de esta pregunta.
+    pub fn reset_stats(&mut self) {
+        self.is_done = false;
+        self.attempts = 0;
+        self.fails = 0;
+        self.skips = 0;
+        self.saw_solution = false;
+    }
+
+    /// Marca esta pregunta como completada (modo TEST), resetea estadísticas
+    /// y devuelve su `id` clonada si la tuviera.
+    pub fn mark_done_test(&mut self) -> Option<String> {
+        self.is_done = true;
+        self.saw_solution = false;
+        self.attempts = 1;
+        self.fails = 0;
+        self.skips = 0;
+        self.id.clone()
     }
 }

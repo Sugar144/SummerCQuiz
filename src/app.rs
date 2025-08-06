@@ -495,7 +495,6 @@ impl QuizApp {
     }
 
     /// Cambia el lenguaje y carga o inicializa el progreso, y va a la bienvenida
-    /// Cambia el lenguaje y carga o inicializa el progreso, y va a la bienvenida
     pub fn seleccionar_lenguaje(&mut self, lang: Language) {
         // 0) Asigna el nuevo lenguaje antes de usar self.progress()
         self.selected_language = Some(lang);
@@ -512,11 +511,17 @@ impl QuizApp {
         for w in raw.weeks {
             let mut lvls = Vec::new();
             for mut lvl in w.levels {
-                let qs: Vec<Question> = lvl.questions
+                // Filtramos y renumeramos:
+                let qs: Vec<Question> = lvl
+                    .questions
                     .into_iter()
                     .filter(|q| q.language == lang)
-                    .map(|mut q| {
-                        q.is_done = q.id.as_ref().map(|id| prev_completed.contains(id)).unwrap_or(false);
+                    .enumerate()
+                    .map(|(i, mut q)| {
+                        q.number  = i + 1;  // numeramos de 1 a N dentro de este nivel
+                        q.is_done = q.id.as_ref()
+                            .map(|id| prev_completed.contains(id))
+                            .unwrap_or(false);
                         q
                     })
                     .collect();
@@ -536,12 +541,7 @@ impl QuizApp {
         self.quiz = Quiz { weeks: weeks_filtered };
 
         // 4) IDs válidos tras filtrado
-        let valid_ids: HashSet<String> = self.quiz.weeks
-            .iter()
-            .flat_map(|w| &w.levels)
-            .flat_map(|l| &l.questions)
-            .filter_map(|q| q.id.clone())
-            .collect();
+        let valid_ids: HashSet<String> = self.all_question_ids();
 
         // 5) Calcula max_week_number (basado en Week.number)
         let mut max_week_number = 0;
@@ -636,10 +636,6 @@ impl QuizApp {
         self.has_saved_progress = true;
     }
 
-
-
-
-
     /// 1) Continuar (o iniciar) el quiz: selecciona la primera pregunta pendiente si hace falta.
     pub fn continuar_quiz(&mut self) {
         // Decidir si hace falta seleccionar semana/nivel/pregunta
@@ -653,23 +649,19 @@ impl QuizApp {
         if need_select {
             // Encuentra la primera pregunta pendiente recorriendo semanas→niveles→preguntas
             let lang = self.selected_language.unwrap_or(Language::C);
-            if let Some((wi, li, qi)) = self.quiz
+
+            if let Some(wi) = self.quiz
                 .weeks
                 .iter()
                 .enumerate()
                 .find_map(|(wi, wk)| {
-                    wk.levels.iter().enumerate().find_map(|(li, lvl)| {
-                        lvl.questions.iter().enumerate().find_map(|(qi, q)| {
-                            if q.language == lang {
-                                if let Some(id) = &q.id {
-                                    if !self.progress().completed_ids.contains(id) {
-                                        return Some((wi, li, qi));
-                                    }
-                                }
-                            }
-                            None
-                        })
-                    })
+                    // ¿Algún nivel dentro de wk tiene una pregunta no completada?
+                    let has_pending = wk.levels.iter().flat_map(|lvl| &lvl.questions)
+                        .any(|q| {
+                            q.language == lang
+                                && q.id.as_ref().map(|id| !self.progress().completed_ids.contains(id)).unwrap_or(false)
+                        });
+                    if has_pending { Some(wi) } else { None }
                 })
             {
                 // select_week usará wi para posicionarse en (li,qi)
@@ -798,6 +790,14 @@ impl QuizApp {
             // Completar nivel
             if self.is_level_completed(week_idx, cl) {
                 self.complete_level(week_idx, cl);
+
+                if self.is_week_completed(week_idx) {
+                    // la semana ya acabó, pasamos al resumen semanal
+                    self.state = AppState::Summary;
+                } else {
+                    // nivel completo pero quedan más niveles → resumen de nivel
+                    self.state = AppState::LevelSummary;
+                }
             }
             // Completar semana y preparar summary
             if self.is_week_completed(week_idx) {
@@ -818,13 +818,9 @@ impl QuizApp {
 
     pub fn saltar_pregunta(&mut self) {
         // 1) Extraer índices actuales (o salir si no hay pregunta)
-        let (cw, cl, ci) = match (
-            self.progress().current_week,
-            self.progress().current_level,
-            self.progress().current_in_level,
-        ) {
-            (Some(w), Some(l), Some(i)) => (w, l, i),
-            _ => return,
+        let (cw, cl, ci) = match self.current_position() {
+            Some(pos) => pos,
+            None      => return,
         };
 
         // 2) Registrar estadísticas en la pregunta actual
@@ -854,17 +850,7 @@ impl QuizApp {
         }
 
         // 6) Si no quedan preguntas pendientes en el nivel tras la ronda:
-        if self.progress().current_in_level.is_none() {
-            // 6a) Completar nivel (y desbloquear siguiente nivel o semana)
-            if self.is_level_completed(cw, cl) {
-                self.complete_level(cw, cl);
-            }
-            // 6b) Completar semana si toca, y pasar al resumen
-            if self.is_week_completed(cw) {
-                self.complete_week(cw);
-                self.state = AppState::Summary;
-            }
-        }
+        self.finalize_level_or_week();
 
         // 7) Actualizar prefill y mensaje
         self.update_input_prefill();
@@ -875,13 +861,9 @@ impl QuizApp {
     /// si era la última, completa nivel/semana y puede ir al resumen.
     pub fn avanzar_a_siguiente_pregunta(&mut self) {
         // 1) Extraer índices actuales
-        let (cw, cl, ci) = match (
-            self.progress().current_week,
-            self.progress().current_level,
-            self.progress().current_in_level,
-        ) {
-            (Some(w), Some(l), Some(i)) => (w, l, i),
-            _ => return,
+        let (cw, cl, ci) = match self.current_position() {
+            Some(pos) => pos,
+            None      => return,
         };
 
         // 2) Marcar que vio la solución
@@ -900,17 +882,7 @@ impl QuizApp {
         }
 
         // 4) Si no quedan más preguntas, completar nivel/semana
-        if self.progress().current_in_level.is_none() {
-            // completar nivel
-            if self.is_level_completed(cw, cl) {
-                self.complete_level(cw, cl);
-            }
-            // completar semana y mostrar resumen
-            if self.is_week_completed(cw) {
-                self.complete_week(cw);
-                self.state = AppState::Summary;
-            }
-        }
+        self.finalize_level_or_week();
 
         // 5) Prefill de input
         self.update_input_prefill();
@@ -930,54 +902,24 @@ impl QuizApp {
     /// Avanzar a la siguiente semana (prepara la UI y estado)
     /// Avanza a la siguiente semana que tenga preguntas en el lenguaje actual
     pub fn avanzar_a_siguiente_semana(&mut self) {
-        let lang = self.selected_language.unwrap_or(Language::C);
 
-        // 1) Construir la lista de índices de semanas válidas para este lenguaje
-        let valid_week_idxs: Vec<usize> = self
-            .quiz
-            .weeks
-            .iter()
-            .enumerate()
-            .filter_map(|(wi, wk)| {
-                let has_lang = wk.levels.iter().any(|lvl| {
-                    lvl.questions.iter().any(|q| q.language == lang)
-                });
-                if has_lang { Some(wi) } else { None }
-            })
-            .collect();
+        // 1) Construir la lista de índices de semanas válidas
+        let valid_week_idxs = self.valid_weeks();
 
-        // 2) Obtener el week_idx actual y encontrar su posición en valid_week_idxs
-        let curr = match self.progress().current_week {
-            Some(w) => w,
-            None => {
-                // Si no hay semana actual, arrancamos por la primera válida
-                if let Some(&first) = valid_week_idxs.first() {
-                    self.select_week(first);
-                    self.update_input_prefill();
-                }
-                return;
-            }
-        };
-        let pos = match valid_week_idxs.iter().position(|&wi| wi == curr) {
+        // 2) Obtener la posición actual o inicializar en la primera válida
+        let pos = match self.position_or_init_first(&valid_week_idxs) {
             Some(p) => p,
-            None => {
-                // Si la semana actual dejó de ser válida, arrancamos por la primera
-                if let Some(&first) = valid_week_idxs.first() {
-                    self.select_week(first);
-                    self.update_input_prefill();
-                }
-                return;
-            }
+            None    => return, // ya arrancamos en la primera, nada más que hacer
         };
 
-        // 3) Intentar avanzar al siguiente de esa lista
+        // 3) Intentar avanzar al siguiente índice
         if let Some(&next_wi) = valid_week_idxs.get(pos + 1) {
             if self.is_week_completed(next_wi) {
-                // Ya completada: volvemos al menú de semanas
+                // siguiente semana ya completada: volvemos al menú
                 self.state = AppState::WeekMenu;
-                self.message = "La siguiente semana ya está completada. ¡Escoge otra desde el menú!".to_string();
+                self.message = "La siguiente semana ya está completada. ¡Escoge otra desde el menú!".to_owned();
             } else {
-                // No completada: entramos en ella
+                // entramos en la siguiente semana
                 self.select_week(next_wi);
                 self.recalculate_unlocked_weeks();
                 self.update_input_prefill();
@@ -985,8 +927,78 @@ impl QuizApp {
                 self.message.clear();
             }
         } else {
-            // No hay siguiente semana válida
+            // no hay siguiente semana válida
             self.state = AppState::Welcome;
+        }
+    }
+
+
+    /// Avanza al siguiente nivel que tenga preguntas pendientes en la semana actual.
+    /// Si no hay más niveles pendientes, va al resumen de semana.
+    pub fn avanzar_a_siguiente_nivel(&mut self) {
+        let lang = self.selected_language.unwrap_or(Language::C);
+
+        // 1) Obtener el índice de semana actual
+        let wi = match self.progress().current_week {
+            Some(w) => w,
+            None => return, // Sin semana seleccionada
+        };
+
+        // 2) Lista de niveles válidos (que contienen preguntas de este idioma)
+        let valid_levels: Vec<usize> = self.quiz.weeks[wi]
+            .levels
+            .iter()
+            .enumerate()
+            .filter_map(|(li, lvl)| {
+                if lvl.questions.iter().any(|q| q.language == lang) {
+                    Some(li)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        // 3) Filtrar solo los niveles **no completados**
+        let pending_levels: Vec<usize> = valid_levels
+            .into_iter()
+            .filter(|&li| !self.is_level_completed(wi, li))
+            .collect();
+
+        // 4) Si no hay niveles pendientes, vamos al resumen de semana
+        if pending_levels.is_empty() {
+            self.state = AppState::Summary;
+            return;
+        }
+
+        // 5) Obtener el nivel actual y su posición en pending_levels
+        let curr_li = match self.progress().current_level {
+            Some(li) => li,
+            None => {
+                // Si no había nivel, iniciamos por el primero pendiente
+                let first = pending_levels[0];
+                self.select_level(wi, first);
+                self.state = AppState::Quiz;
+                self.update_input_prefill();
+                return;
+            }
+        };
+
+        // 6) Buscar la posición del nivel actual
+        let pos = pending_levels.iter().position(|&li| li == curr_li);
+
+        match pos {
+            // 7a) Si estaba en la lista y hay siguiente pendiente: avanzamos
+            Some(idx) if idx + 1 < pending_levels.len() => {
+                let next_li = pending_levels[idx + 1];
+                self.select_level(wi, next_li);
+                self.state = AppState::Quiz;
+                self.update_input_prefill();
+                self.message.clear();
+            }
+            // 7b) Si no queda ningún pendiente tras el actual: resumen de semana
+            _ => {
+                self.state = AppState::Summary;
+            }
         }
     }
 
@@ -994,14 +1006,7 @@ impl QuizApp {
     /// Sincroniza `is_done` en todas las preguntas anidadas a partir de `completed_ids`
     pub fn sync_is_done(&mut self) {
         // 1) IDs válidos tras el filtrado anidado
-        let valid_ids: HashSet<String> = self
-            .quiz
-            .weeks
-            .iter()
-            .flat_map(|w| &w.levels)
-            .flat_map(|l| &l.questions)
-            .filter_map(|q| q.id.clone())
-            .collect();
+        let valid_ids: HashSet<String> = self.all_question_ids();
 
         // 2) Purga completed_ids
         {
@@ -1016,11 +1021,12 @@ impl QuizApp {
         for week in &mut self.quiz.weeks {
             for level in &mut week.levels {
                 for q in &mut level.questions {
-                    q.is_done = q
-                        .id
-                        .as_ref()
-                        .map(|id| completed.contains(id))
-                        .unwrap_or(false);
+                    let already = q.is_done; // si tú lo pusiste a mano
+                        q.is_done = q
+                            .id
+                            .as_ref()
+                            .map(|id| completed.contains(id))
+                            .unwrap_or(already);
                 }
             }
         }
@@ -1110,13 +1116,7 @@ impl QuizApp {
         if let Some(week) = self.quiz.weeks.get_mut(week_idx) {
             for level in &mut week.levels {
                 for q in &mut level.questions {
-                    if q.language == lang {
-                        q.is_done = false;
-                        q.attempts = 0;
-                        q.fails = 0;
-                        q.skips = 0;
-                        q.saw_solution = false;
-                    }
+                    q.reset_stats();
                 }
             }
         }
@@ -1125,7 +1125,102 @@ impl QuizApp {
         self.sync_is_done();
     }
 
+    /// Reinicia tot el progreso de un nivel (por índice) dentro de una semana,
+    /// dejando la posición en la primera pregunta pendiente de ese nivel.
+    pub fn reiniciar_nivel(&mut self, week_idx: usize, level_idx: usize) {
+        let lang = self.selected_language.unwrap_or(Language::C);
 
+        // 1) Recopilar IDs de las preguntas de ese nivel + lenguaje
+        let ids_to_remove: Vec<String> = self.quiz.weeks
+            .get(week_idx)
+            .and_then(|w| w.levels.get(level_idx))
+            .into_iter()
+            .flat_map(|lvl| &lvl.questions)
+            .filter(|q| q.language == lang)
+            .filter_map(|q| q.id.clone())
+            .collect();
+
+        // 2) Buscar la primera pregunta pendiente en ese nivel
+        let first_pending = self.quiz.weeks
+            .get(week_idx)
+            .and_then(|w| w.levels.get(level_idx))
+            .and_then(|lvl| {
+                lvl.questions.iter().enumerate().find_map(|(qi, q)| {
+                    if q.language == lang && !q.is_done {
+                        Some(qi)
+                    } else {
+                        None
+                    }
+                })
+            });
+
+        // 3) Borrar IDs y resetear rondas en progress
+        {
+            let prog = self.progress_mut();
+            for id in ids_to_remove {
+                prog.completed_ids.remove(&id);
+            }
+            prog.round = 1;
+            prog.shown_this_round.clear();
+            // Posición inicial en este nivel
+            prog.current_week = Some(week_idx);
+            prog.current_level = Some(level_idx);
+            prog.current_in_level = first_pending;
+        }
+
+        // 4) Resetear flags y estadísticas en las preguntas del nivel
+        if let Some(lvl) = self.quiz.weeks.get_mut(week_idx)
+            .and_then(|w| w.levels.get_mut(level_idx))
+        {
+            for q in &mut lvl.questions {
+                q.reset_stats();
+            }
+        }
+
+        // 5) Volver a sincronizar el estado global de is_done
+        self.sync_is_done();
+    }
+
+    /// Abre el menú de selección de semana desde cualquier vista.
+    pub fn open_week_menu(&mut self) {
+        // Asegura que los estados estén actualizados
+        self.sync_is_done();
+        self.recalculate_unlocked_weeks();
+        self.state = AppState::WeekMenu;
+        self.message.clear();
+    }
+
+    /// Abre el menú de niveles para la semana seleccionada.
+    /// Abre el menú de niveles para la semana seleccionada.
+    pub fn open_level_menu(&mut self) {
+        // 1) Obtener la semana actual
+        let week_idx = match self.progress().current_week {
+            Some(w) => w,
+            None => return,
+        };
+
+        // 2) Asegurar que exista un entry en max_unlocked_level
+        {
+            let prog = self.progress_mut();
+            prog.max_unlocked_level.entry(week_idx).or_insert(0);
+        } // <- aquí suelta `prog`
+
+        // 3) Recalcular niveles desbloqueados (usa un nuevo borrow mutable internamente)
+        self.recalculate_unlocked_levels(week_idx);
+
+        // 4) Fijar el primer nivel desbloqueado como nivel actual
+        {
+            let prog = self.progress_mut();
+            // Ya existe unlocked_levels para week_idx gracias al paso anterior
+            let first_lvl = prog.unlocked_levels[&week_idx][0];
+            prog.current_level = Some(first_lvl);
+            prog.current_in_level = None;
+        } // <- fin del borrow
+
+        // 5) Cambiar estado y limpiar mensaje
+        self.state = AppState::LevelMenu;
+        self.message.clear();
+    }
 
     /// Obtiene el progreso mutable del lenguaje actual.
     pub fn progress_mut(&mut self) -> &mut QuizProgress {
@@ -1204,4 +1299,161 @@ impl QuizApp {
             .collect()
     }
 
+    pub fn has_next_week(&self) -> bool {
+        let current_week = self.progress().current_week.unwrap_or(0);
+        // Construir lista de semanas válidas para el lenguaje
+        let valid_weeks = self.valid_weeks();
+        let pos = valid_weeks.iter().position(|&i| i == current_week).unwrap_or(0);
+        pos + 1 < valid_weeks.len()
+    }
+
+    /******************* TEST ************************/
+    /// Marca *todas* las preguntas de la semana actual como completadas y va al resumen semanal.
+    pub fn complete_all_week(&mut self) {
+        let wi = match self.progress().current_week { Some(w) => w, None => return };
+        let lang = self.selected_language.unwrap_or(Language::C);
+
+        // 1) Marcar cada pregunta y acumular sus IDs
+        let mut ids = Vec::new();
+        for lvl in &mut self.quiz.weeks[wi].levels {
+            for q in &mut lvl.questions {
+                if q.language == lang {
+                    if let Some(id) = q.mark_done_test() {
+                        ids.push(id);
+                    }
+                }
+            }
+        }
+
+        // 2) Añadir a completed_ids
+        {
+            let prog = self.progress_mut();
+            for id in ids {
+                prog.completed_ids.insert(id);
+            }
+        }
+
+        // 4) Desbloquear lógica de semana
+        self.complete_week(wi);
+
+        // 4) **Sincroniza** para propagar completed_ids → q.is_done
+        self.sync_is_done();
+
+        // 5) Ir al resumen semanal
+        self.state = AppState::Summary;
+    }
+
+    /// Marca *todas* las preguntas del nivel actual como completadas y va al resumen de nivel o al resumen semanal si era el último nivel.
+    pub fn complete_all_level(&mut self) {
+        let wi = match self.progress().current_week  { Some(w) => w, None => return };
+        let li = match self.progress().current_level { Some(l) => l, None => return };
+        let lang = self.selected_language.unwrap_or(Language::C);
+
+        // 1) Marcar cada pregunta del nivel y acumular IDs
+        let mut ids = Vec::new();
+        for q in &mut self.quiz.weeks[wi].levels[li].questions {
+            if q.language == lang {
+                if let Some(id) = q.mark_done_test() {
+                    ids.push(id);
+                }
+            }
+        }
+
+        // 2) Añadir a completed_ids
+        {
+            let prog = self.progress_mut();
+            for id in ids {
+                prog.completed_ids.insert(id);
+            }
+        }
+
+
+        // 4) Disparar lógica de completar nivel (desbloquear siguiente nivel o semana)
+        self.complete_level(wi, li);
+
+        // 4) **Sincroniza** para propagar completed_ids → q.is_done
+        self.sync_is_done();
+
+        // 5) Si esa acción completó la semana entera, vamos al resumen semanal;
+        //    en caso contrario, abrimos el resumen de nivel.
+        self.state = AppState::LevelSummary;
+
+    }
+
+    /// Devuelve el conjunto de IDs de todas las preguntas en el quiz
+    fn all_question_ids(&self) -> HashSet<String> {
+        self.quiz
+            .weeks
+            .iter()
+            .flat_map(|w| &w.levels)
+            .flat_map(|l| &l.questions)
+            .filter_map(|q| q.id.clone())
+            .collect()
+    }
+
+    /// Devuelve (week, level, question) o None si falta alguno
+    fn current_position(&self) -> Option<(usize, usize, usize)> {
+        let prog = self.progress();
+        match (prog.current_week, prog.current_level, prog.current_in_level) {
+            (Some(w), Some(l), Some(i)) => Some((w, l, i)),
+            _ => None,
+        }
+    }
+
+    /// Si no hay pregunta en curso, completa nivel y/o semana, y ajusta el estado.
+    fn finalize_level_or_week(&mut self) {
+        let (cw, cl, _) = match self.current_position() {
+            Some(pos) => pos,
+            None => return,
+        };
+        if self.progress().current_in_level.is_none() {
+            // Completar nivel
+            if self.is_level_completed(cw, cl) {
+                self.complete_level(cw, cl);
+            }
+            // Si ahora la semana está completa, ir al resumen semanal
+            if self.is_week_completed(cw) {
+                self.complete_week(cw);
+                self.state = AppState::Summary;
+            }
+        }
+    }
+
+    /// Busca la posición de `current_week` dentro de `valid_idxs`.
+    /// Si no hay `current_week` o no está en la lista, selecciona la primera válida,
+    /// prefill y devuelve `None`.
+    fn position_or_init_first(&mut self, valid_idxs: &[usize]) -> Option<usize> {
+        // 1) Intentar leer el week actual
+        if let Some(curr) = self.progress().current_week {
+            if let Some(pos) = valid_idxs.iter().position(|&wi| wi == curr) {
+                return Some(pos);
+            }
+        }
+        // 2) Si no hay week o no está en valid_idxs, arrancamos por la primera válida
+        if let Some(&first) = valid_idxs.first() {
+            self.select_week(first);
+            self.update_input_prefill();
+        }
+        None
+    }
+
+    /// Devuelve los índices de las semanas que contienen al menos una pregunta
+    /// en el idioma seleccionado.
+    fn valid_weeks(&self) -> Vec<usize> {
+        let lang = self.selected_language.unwrap_or(Language::C);
+        self.quiz
+            .weeks
+            .iter()
+            .enumerate()
+            .filter_map(|(i, wk)| {
+                if wk.levels.iter().any(|lvl| {
+                    lvl.questions.iter().any(|q| q.language == lang)
+                }) {
+                    Some(i)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }

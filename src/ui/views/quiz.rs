@@ -1,6 +1,6 @@
 use egui::{Align, CentralPanel, Context, ScrollArea};
 use crate::code_utils::{c_syntax, pseudo_syntax};
-use crate::model::{AppState, Language};
+use crate::model::{Language};
 use crate::QuizApp;
 use crate::ui::layout::{code_editor_input, code_editor_solution, two_button_row};
 
@@ -96,48 +96,19 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
 
                         ui.add_space(5.0);
 
+                        /*************** TEST *****************/
+
                         // Botón de test: marcar semana completa
                         if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
-                            if let Some(wi) = app.progress().current_week {
-                                let lang = app.selected_language.unwrap_or(Language::C);
-                                let mut ids_to_mark = Vec::new();
-
-                                // 1) Marcar todas las preguntas de esta semana como hechas
-                                for level in &mut app.quiz.weeks[wi].levels {
-                                    for q in &mut level.questions {
-                                        if q.language == lang {
-                                            q.is_done = true;
-                                            q.saw_solution = false;
-                                            q.attempts = 1;
-                                            q.fails = 0;
-                                            q.skips = 0;
-                                            if let Some(id) = &q.id {
-                                                ids_to_mark.push(id.clone());
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // 2) Insertar los IDs en completed_ids
-                                {
-                                    let prog = app.progress_mut();
-                                    for id in ids_to_mark {
-                                        prog.completed_ids.insert(id);
-                                    }
-                                }
-
-                                // 3) Completar la semana y desbloquear la siguiente
-                                app.complete_week(wi);
-                                app.recalculate_unlocked_weeks();
-
-                                // ─── ¡NUEVO! Asegúrate de propagar esos completed_ids a `q.is_done` en todas las preguntas ───
-                                app.sync_is_done();
-
-                                // 4) Ir al resumen
-                                app.state = AppState::Summary;
-                            }
+                            app.complete_all_week();
                         }
 
+                        ui.add_space(5.0);
+
+                        // Botón de test: marcar semana completa
+                        if ui.button("⚡ Marcar nivel como completado (TEST)").clicked() {
+                            app.complete_all_level();
+                        }
 
 
                         // Botones enviar/saltar

@@ -66,36 +66,46 @@ pub fn ui_week_menu(app: &mut QuizApp, ctx: &Context) {
                             };
 
                             ui.horizontal(|ui| {
-                                if !*completed {
-                                    if ui
-                                        .add_enabled(*unlocked, Button::new(&label)
-                                            .min_size(Vec2::new(content_width, button_h)))
-                                        .clicked()
-                                        && *unlocked
+                                // botón principal (abrir niveles)
+                                if ui
+                                    .add_enabled(*unlocked, Button::new(&label)
+                                        .min_size(Vec2::new(content_width * if *completed { 0.75 } else { 1.0 }, button_h)))
+                                    .clicked()
+                                    && *unlocked
+                                {
+                                    // 1) Fijar la semana seleccionada
                                     {
-                                        app.acceder_a_semana(*wi);
-                                    }
-                                } else {
+                                        let prog = app.progress_mut();
+                                        prog.current_week = Some(*wi);
+                                    } // <- aquí soltamos el borrow_mut
+
+                                    // 2) Abrir menú de niveles
+                                    app.open_level_menu();
+                                }
+
+                                // reiniciar semana (solo si está completada)
+                                if *completed {
                                     if ui
-                                        .add_enabled(*unlocked, Button::new(&label)
-                                            .min_size(Vec2::new(content_width * 0.75, button_h)))
-                                        .clicked()
-                                        && *unlocked
-                                    {
-                                        app.acceder_a_semana(*wi);
-                                    }
-                                    if ui
-                                        .add_sized([content_width * 0.21, button_h],
-                                                   Button::new("↩").fill(egui::Color32::DARK_RED))
+                                        .add_sized([content_width * 0.21, button_h], Button::new("↩").fill(egui::Color32::DARK_RED))
                                         .on_hover_text("Reinicia la semana")
                                         .clicked()
                                     {
+                                        // 1) Reinicia la semana entera
                                         app.reiniciar_semana(*wi);
-                                        app.acceder_a_semana(*wi);
+
+                                        // 2) Vuelve a fijar la misma semana (ya no está "completed" pero seguimos en ella)
+                                        {
+                                            let prog = app.progress_mut();
+                                            prog.current_week = Some(*wi);
+                                        }
+
+                                        // 3) Y volvemos al menú de niveles
+                                        app.open_level_menu();
                                         return;
                                     }
                                 }
                             });
+
                             ui.add_space(8.0);
                         }
 
