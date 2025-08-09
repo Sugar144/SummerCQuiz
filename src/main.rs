@@ -1,16 +1,10 @@
-mod model;
-mod app;
-mod data;
-mod code_utils;
-mod update;
-mod ui;
 
-use app::QuizApp;
+use summer_quiz::app::QuizApp;
 
 #[cfg(not(target_arch = "wasm32"))]
 use egui::Visuals;
 #[cfg(not(target_arch = "wasm32"))]
-use crate::model::AppState;
+use summer_quiz::model::AppState;
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result<()> {
@@ -26,7 +20,7 @@ fn main() -> eframe::Result<()> {
     };
 
     eframe::run_native(
-        "SummerQuiz - Telegram: @sugarRayL",
+        "summer_quiz - Telegram: @sugarRayL",
         options,
         Box::new(|cc| {
             // Detectar tema preferido del sistema
@@ -42,8 +36,8 @@ fn main() -> eframe::Result<()> {
                 // `storage` aquí es `&mut dyn Storage`
                 if let Some(mut state) = eframe::get_value::<QuizApp>(storage, eframe::APP_KEY) {
                     // Recalcular bloqueos de semanas según lo completado:
-                    state.sync_is_done();
                     if state.selected_language.is_some() {
+                        state.sync_is_done();
                         state.recalculate_unlocked_weeks();
                     }
                     // Siempre empezar en selector de idioma

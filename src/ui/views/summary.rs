@@ -1,8 +1,16 @@
 use egui::{Button, CentralPanel, Context, Grid, ScrollArea};
-use crate::model::{AppState, Language};
+use crate::model::AppState;
+use crate::view_models::QuestionRow;
 use crate::QuizApp;
 
 pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
+    // Si no hay lenguaje, volvemos al selector para evitar panics en progress()
+    if app.selected_language.is_none() {
+        app.state = AppState::LanguageSelect;
+        app.message = "Primero elige un lenguaje para ver el resumen.".to_owned();
+        return;
+    }
+
     CentralPanel::default().show(ctx, |ui| {
         let max_width = 600.0;
         let panel_width = (ui.available_width() * 0.97).min(max_width);
@@ -30,53 +38,37 @@ pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
                         .max_height(max_height)
                         .max_width(panel_width)
                         .show(ui, |ui| {
-                            // Extraer índice de semana actual
-                            let wi = app.progress().current_week.unwrap_or(0);
-                            if let Some(week) = app.quiz.weeks.get(wi) {
-                                let lang = app.selected_language.unwrap_or(Language::C);
-                                let completed = &app.progress().completed_ids;
+                            let rows: Vec<QuestionRow> = app.summary_rows_for_week();
 
-                                Grid::new("quiz_results_grid")
-                                    .striped(true)
-                                    .spacing([8.0, 0.0])
-                                    .show(ui, |ui| {
-                                        ui.label("Nivel");
-                                        ui.label("Pregunta");
-                                        ui.label("Intentos");
-                                        ui.label("Fallos");
-                                        ui.label("Saltos");
-                                        ui.label("Solución vista");
-                                        ui.label("Estado");
-                                        ui.end_row();
-
-                                        for (li, level) in week.levels.iter().enumerate() {
-                                            // solo preguntas del idioma actual
-                                            for (qi, q) in level.questions.iter().enumerate().filter(|(_, q)| q.language == lang) {
-                                                // estado según completed_ids
-                                                let done = q.id.as_ref().map(|id| completed.contains(id)).unwrap_or(false);
-                                                let status = if done {
-                                                    "✅ Correcta"
-                                                } else if q.saw_solution {
-                                                    "❌ Fallida"
-                                                } else {
-                                                    "❌ Sin responder"
-                                                };
-                                                let solv = if q.saw_solution { "Sí" } else { "No" };
-
-                                                ui.label(format!("{}", level.number));
-                                                ui.label(format!("{}", qi + 1));
-                                                ui.label(format!("{}", q.attempts));
-                                                ui.label(format!("{}", q.fails));
-                                                ui.label(format!("{}", q.skips));
-                                                ui.label(solv);
-                                                ui.label(status);
-                                                ui.end_row();
-                                            }
-                                        }
-                                    });
-                            } else {
+                            if rows.is_empty() {
                                 ui.label("No hay datos de progreso para esta semana.");
+                                return;
                             }
+
+                            Grid::new("quiz_results_grid")
+                                .striped(true)
+                                .spacing([8.0, 0.0])
+                                .show(ui, |ui| {
+                                    ui.label("Nivel");
+                                    ui.label("Pregunta");
+                                    ui.label("Intentos");
+                                    ui.label("Fallos");
+                                    ui.label("Saltos");
+                                    ui.label("Solución vista");
+                                    ui.label("Estado");
+                                    ui.end_row();
+
+                                    for r in &rows {
+                                        ui.label(r.level_number.to_string());
+                                        ui.label(r.question_index_1based.to_string());
+                                        ui.label(r.attempts.to_string());
+                                        ui.label(r.fails.to_string());
+                                        ui.label(r.skips.to_string());
+                                        ui.label(if r.saw_solution { "Sí" } else { "No" });
+                                        ui.label(if r.done { "✅ Correcta" } else { "❌ Pendiente" });
+                                        ui.end_row();
+                                    }
+                                });
                         });
 
                     ui.add_space(5.0);
@@ -84,7 +76,6 @@ pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
                     // Botones de control
                     ui.vertical_centered(|ui| {
                         let current_week = app.progress().current_week.unwrap_or(0);
-
                         let has_next = app.has_next_week();
                         let is_complete = app.is_week_completed(current_week);
 

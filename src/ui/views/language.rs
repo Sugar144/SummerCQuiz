@@ -26,7 +26,7 @@ pub fn ui_language_select(app: &mut QuizApp, ctx: &Context) {
                 .show(ui, |ui| {
                     ui.set_width(content_width);
 
-                    ui.heading("👋 ¡Bienvenido a SummerQuiz!");
+                    ui.heading("👋 ¡Bienvenido a summer_quiz!");
                     ui.add_space(18.0);
                     ui.label("Selecciona un lenguaje");
                     ui.add_space(18.0);

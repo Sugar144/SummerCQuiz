@@ -5,6 +5,7 @@ use crate::model::{AppState, Language, Level, Question, Quiz, Week};
 use crate::data::read_questions_embedded;
 use eframe::egui;
 use crate::update::descargar_binario_nuevo;
+use crate::view_models::{QuestionRow, LevelInfo, WeekInfo};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct QuizProgress {
@@ -135,7 +136,8 @@ impl QuizApp {
         };
 
         // Obtén los niveles desbloqueados para esta semana
-        let unlocked_levels = self.progress()
+        let unlocked_levels = self
+            .progress()
             .unlocked_levels
             .get(&week_idx)
             .cloned()
@@ -221,9 +223,16 @@ impl QuizApp {
         if self.is_week_completed(week_idx) {
             let next_week = week_idx + 1;
             // ¿Existe la siguiente semana y contiene al menos una pregunta de ese idioma?
-            let has_questions = self.quiz.weeks.get(next_week)
-                .map(|w| w.levels.iter().flat_map(|l| &l.questions)
-                    .any(|q| q.language == language))
+            let has_questions = self
+                .quiz
+                .weeks
+                .get(next_week)
+                .map(|w| {
+                    w.levels
+                        .iter()
+                        .flat_map(|l| &l.questions)
+                        .any(|q| q.language == language)
+                 })
                 .unwrap_or(false);
 
             if has_questions {
@@ -402,14 +411,18 @@ impl QuizApp {
         });
 
         if hay_pendientes {
-            let mut progress = self.progress_mut().clone();
-            progress.round += 1;
-            progress.shown_this_round.clear();
+            {
+                let progress = self.progress_mut();
+                progress.round += 1;
+                progress.shown_this_round.clear();
+            }
+
             // Busca de nuevo (ahora con shown_this_round vacío)
             for (q_idx, q) in level.questions.iter().enumerate() {
                 if q.language == language {
                     if let Some(id) = &q.id {
                         if !self.progress().completed_ids.contains(id) {
+                            let progress = self.progress_mut();
                             progress.shown_this_round.push((level_idx, q_idx));
                             return Some(q_idx);
                         }
@@ -920,11 +933,7 @@ impl QuizApp {
                 self.message = "La siguiente semana ya está completada. ¡Escoge otra desde el menú!".to_owned();
             } else {
                 // entramos en la siguiente semana
-                self.select_week(next_wi);
-                self.recalculate_unlocked_weeks();
-                self.update_input_prefill();
-                self.state = AppState::Quiz;
-                self.message.clear();
+                self.acceder_a_semana(next_wi);
             }
         } else {
             // no hay siguiente semana válida
@@ -945,7 +954,7 @@ impl QuizApp {
         };
 
         // 2) Lista de niveles válidos (que contienen preguntas de este idioma)
-        let valid_levels: Vec<usize> = self.quiz.weeks[wi]
+        let valid_level_idxs: Vec<usize> = self.quiz.weeks[wi]
             .levels
             .iter()
             .enumerate()
@@ -959,52 +968,56 @@ impl QuizApp {
             .collect();
 
         // 3) Filtrar solo los niveles **no completados**
-        let pending_levels: Vec<usize> = valid_levels
-            .into_iter()
-            .filter(|&li| !self.is_level_completed(wi, li))
-            .collect();
-
-        // 4) Si no hay niveles pendientes, vamos al resumen de semana
-        if pending_levels.is_empty() {
-            self.state = AppState::Summary;
-            return;
-        }
-
-        // 5) Obtener el nivel actual y su posición en pending_levels
-        let curr_li = match self.progress().current_level {
-            Some(li) => li,
+        // 3) Obtener la posición actual o inicializar en la primera válida
+        let pos = match self.progress().current_level {
+            Some(cl) => {
+                if let Some(p) = valid_level_idxs.iter().position(|&li| li == cl) {
+                    p
+                } else {
+                    if let Some(&first) = valid_level_idxs.first() {
+                        self.select_level(wi, first);
+                        self.update_input_prefill();
+                    }
+                    return;
+                }
+            }
             None => {
-                // Si no había nivel, iniciamos por el primero pendiente
-                let first = pending_levels[0];
-                self.select_level(wi, first);
-                self.state = AppState::Quiz;
-                self.update_input_prefill();
+                if let Some(&first) = valid_level_idxs.first() {
+                    self.select_level(wi, first);
+                    self.update_input_prefill();
+                }
                 return;
             }
         };
 
-        // 6) Buscar la posición del nivel actual
-        let pos = pending_levels.iter().position(|&li| li == curr_li);
-
-        match pos {
-            // 7a) Si estaba en la lista y hay siguiente pendiente: avanzamos
-            Some(idx) if idx + 1 < pending_levels.len() => {
-                let next_li = pending_levels[idx + 1];
+        if let Some(&next_li) = valid_level_idxs.get(pos + 1) {
+            if self.is_level_completed(wi, next_li) {
+                // siguiente nivel ya completado: volvemos al menú de semanas
+                self.state = AppState::WeekMenu;
+                self.message =
+                    "El siguiente nivel ya está completado. ¡Escoge otro desde el menú!".to_owned();
+            } else {
                 self.select_level(wi, next_li);
-                self.state = AppState::Quiz;
+                self.recalculate_unlocked_levels(wi);
                 self.update_input_prefill();
+                self.state = AppState::Quiz;
+
                 self.message.clear();
             }
-            // 7b) Si no queda ningún pendiente tras el actual: resumen de semana
-            _ => {
-                self.state = AppState::Summary;
-            }
+        } else {
+            // no hay siguiente nivel válido
+            self.state = AppState::Summary;
         }
     }
 
 
     /// Sincroniza `is_done` en todas las preguntas anidadas a partir de `completed_ids`
     pub fn sync_is_done(&mut self) {
+        
+        if self.selected_language.is_none() {
+            return; // aún no hay idioma: no sincronizar
+        }
+        
         // 1) IDs válidos tras el filtrado anidado
         let valid_ids: HashSet<String> = self.all_question_ids();
 
@@ -1455,5 +1468,67 @@ impl QuizApp {
                 }
             })
             .collect()
+    }
+
+    pub fn week_infos(&self) -> Vec<WeekInfo> {
+        let lang = self.selected_language.unwrap_or(Language::C);
+        self.quiz.weeks.iter().enumerate().map(|(wi, wk)| {
+            let unlocked  = self.is_week_unlocked(wi);
+            let completed = self.is_week_completed(wi);
+            let new_count = self.nuevas_preguntas_en_semana(wi, lang);
+            WeekInfo {
+                idx: wi,
+                number: wk.number,
+                unlocked,
+                completed,
+                new_count,
+            }
+        }).collect()
+    }
+
+    pub fn level_infos_in_current_week(&self) -> Option<Vec<LevelInfo>> {
+        let wi = self.progress().current_week?;
+        let lang = self.selected_language.unwrap_or(Language::C);
+        let week = self.quiz.weeks.get(wi)?;
+        Some(week.levels.iter().enumerate().map(|(li, lvl)| {
+            let unlocked  = self.is_level_unlocked(wi, li);
+            let completed = self.is_level_completed(wi, li);
+            let new_count = lvl.questions.iter()
+                .filter(|q| q.language == lang)
+                .filter(|q| q.id.as_ref()
+                    .map(|id| !self.progress().completed_ids.contains(id))
+                    .unwrap_or(false))
+                .count();
+            LevelInfo {
+                idx: li,
+                number: lvl.number,
+                unlocked,
+                completed,
+                new_count,
+            }
+        }).collect())
+    }
+
+    pub fn summary_rows_for_week(&self) -> Vec<QuestionRow> {
+        let mut rows = Vec::new();
+        let wi = match self.progress().current_week { Some(w) => w, None => return rows };
+        let lang = self.selected_language.unwrap_or(Language::C);
+        if let Some(week) = self.quiz.weeks.get(wi) {
+            for lvl in &week.levels {
+                for (qi, q) in lvl.questions.iter().enumerate().filter(|(_, q)| q.language == lang) {
+                    let done = q.id.as_ref().map(|id| self.progress().completed_ids.contains(id)).unwrap_or(false);
+                    rows.push(QuestionRow {
+                        level_number: lvl.number,
+                        question_index_1based: qi + 1,
+                        attempts: q.attempts,
+                        fails: q.fails,
+                        skips: q.skips,
+                        saw_solution: q.saw_solution,
+                        done,
+                    });
+                }
+            }
+        }
+        rows
     }
 }

@@ -1,5 +1,6 @@
 pub mod views;
 pub mod layout;
+mod helpers;
 
 use crate::app::QuizApp;
 use eframe::{Frame, App, APP_KEY, set_value};
