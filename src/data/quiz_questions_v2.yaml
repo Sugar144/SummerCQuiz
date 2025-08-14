@@ -988,8 +988,6 @@ weeks:
               end algorithm
             hint:
 
-
-
       - number: 2
         explanation: |
           Teoria para solucionar nivel 2 de la semana 2
@@ -1252,6 +1250,7 @@ weeks:
 
               Ejemplo de ejecución: 
               pH: 7.1
+
 
       - number: 3
         explanation: |
@@ -3244,6 +3243,2516 @@ weeks:
                 writeInteger(suma);
               end algorithm
             hint: Los indices empiezan en 1. Primero declara y luego inicializa
+
+  - number: 4
+    explanation: |
+      Explicación de semana 4
+    levels:
+      - number: 1
+        explanation: |
+          Teoria para solucionar nivel 1 de la semana 4
+        questions:
+          - id: c-4-atraccion-basica
+            language: C
+            week: 4
+            prompt: |
+              Crea un tipo de dato llamado tAtraccion para una atracción de parque con los siguientes campos exactos:
+              - Una cadena de caracteres llamada nombre con tamaño máximo definido por la constante MAX_NOMBRE (valor 30).
+              - Un número decimal llamado alturaMinima.
+              - Un valor lógico llamado enMantenimiento.
+
+              Declara una variable llamada atraccion1 de tipo tAtraccion dentro de la función main.
+            answer: |
+              #include <stdbool.h>
+
+              #define MAX_NOMBRE 30
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  float alturaMinima;
+                  bool enMantenimiento;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion atraccion1;
+                  return 0;
+              }
+            hint: Declara primero la constante, luego el typedef del struct y por último la variable atraccion1 dentro de main. No olvides la biblioteca de booleanos
+
+          - id: p-4-atraccion-basica
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Crea un tipo de dato llamado tAtraccion para una atracción de parque con los siguientes campos exactos:
+              - Un texto llamado nombre.
+              - Un número real llamado alturaMinima.
+              - Un valor booleano llamado enMantenimiento.
+
+              Declara una variable llamada atraccion1 de tipo tAtraccion dentro del bloque principal.
+            answer: |
+              type
+                tAtraccion = record
+                  nombre: string;
+                  alturaMinima: real;
+                  enMantenimiento: boolean;
+                end record
+              end type
+
+              algorithm
+                var
+                  atraccion1: tAtraccion;
+                end var
+              end algorithm
+            hint: En pseudocódigo no se especifica el tamaño del texto; usa string.
+
+          - id: c-4-atraccion-con-tipo
+            language: C
+            week: 4
+            prompt: |
+              Crea un tipo enumerado llamado tTipoAtraccion con los valores MONTANA_RUSA, CARRUSEL y SIMULADOR.
+              Crea un tipo tAtraccion con:
+              - Una cadena de caracteres llamada nombre con tamaño máximo definido por la constante MAX_NOMBRE (valor 30).
+              - Un campo llamado tipo de tipo tTipoAtraccion.
+
+              Declara una variable llamada atraccion1 de tipo tAtraccion dentro de la función main.
+            answer: |
+              #define MAX_NOMBRE 30
+
+              typedef enum {
+                  MONTANA_RUSA,
+                  CARRUSEL,
+                  SIMULADOR
+              } tTipoAtraccion;
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  tTipoAtraccion tipo;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion atraccion1;
+                  return 0;
+              }
+            hint: Declara primero la constante, luego el typedef del enum y luego el typedef del struct que lo usa.
+
+          - id: p-4-atraccion-con-tipo
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Crea un tipo enumerado llamado tTipoAtraccion con los valores MONTANA_RUSA, CARRUSEL y SIMULADOR.
+              Crea un tipo tAtraccion con:
+              - Un texto llamado nombre.
+              - Un campo llamado tipo de tipo tTipoAtraccion.
+
+              Declara una variable llamada atraccion1 de tipo tAtraccion dentro del bloque principal.
+            answer: |
+              type
+                tTipoAtraccion = { MONTANA_RUSA, CARRUSEL, SIMULADOR }
+              end type
+
+              type
+                tAtraccion = record
+                  nombre: string;
+                  tipo: tTipoAtraccion;
+                end record
+              end type
+
+              algorithm
+                var
+                  atraccion1: tAtraccion;
+                end var
+              end algorithm
+            hint: Declara el tipo enumerado antes del record que lo utiliza utiliza dos bloques type diferentes.
+
+          - id: c-4-atracciones-lista
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (30) y MAX_ATRACCIONES (5).
+
+              Crea un tipo tAtraccion con:
+              - Una cadena de caracteres llamada nombre con tamaño máximo definido por MAX_NOMBRE (valor 30).
+              - Un número entero llamado capacidadMaxima.
+
+              Dentro de la función principal, declara un array llamado lista de tipo tAtraccion con MAX_ATRACCIONES elementos.
+            answer: |
+              #define MAX_NOMBRE 30
+              #define MAX_ATRACCIONES 5
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  int capacidadMaxima;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion lista[MAX_ATRACCIONES];
+                  return 0;
+              }
+            hint: Las constantes deben definirse antes del typedef del struct.
+
+          - id: p-4-atracciones-lista
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 5.
+
+              Crea un tipo tAtraccion con:
+              - Un texto llamado nombre.
+              - Un número entero llamado capacidadMaxima.
+
+              En el bloque principal, declara un array llamado lista de tipo tAtraccion con MAX_ATRACCIONES elementos.
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 5;
+              end const
+
+              type
+                tAtraccion = record
+                  nombre: string;
+                  capacidadMaxima: integer;
+                end record
+              end type
+
+              algorithm
+                var
+                  lista: vector[MAX_ATRACCIONES] of tAtraccion;
+                end var
+              end algorithm
+            hint: Usa vector[MAX_ATRACCIONES] of tAtraccion para el array de registros.
+
+          - id: c-4-atraccion-horario
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_HORA (6) y MAX_NOMBRE (30).
+              
+              Crea un tipo tHorario con:
+              - Una cadena de caracteres llamada apertura con tamaño máximo definido por MAX_HORA (valor 6).
+              - Una cadena de caracteres llamada cierre con tamaño máximo definido por MAX_HORA (valor 6).
+
+              Crea un tipo tAtraccion con:
+              - Una cadena de caracteres llamada nombre con tamaño máximo definido por MAX_NOMBRE (valor 30).
+              - Un campo llamado horario de tipo tHorario.
+
+              
+              Declara dentro de main una variable llamada atraccion1 de tipo tAtraccion.
+            answer: |
+              #define MAX_HORA 6
+              #define MAX_NOMBRE 30
+
+              typedef struct {
+                  char apertura[MAX_HORA];
+                  char cierre[MAX_HORA];
+              } tHorario;
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  tHorario horario;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion atraccion1;
+                  return 0;
+              }
+            hint: Los structs anidados se declaran con un typedef para cada tipo.
+
+          - id: p-4-atraccion-horario
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Crea un tipo tHorario con:
+              - Un texto llamado apertura.
+              - Un texto llamado cierre.
+
+              Crea un tipo tAtraccion con:
+              - Un texto llamado nombre.
+              - Un campo llamado horario de tipo tHorario.
+
+              Declara una variable llamada atraccion1 de tipo tAtraccion en el bloque principal.
+            answer: |
+              type
+                tHorario = record
+                  apertura: string;
+                  cierre: string;
+                end record
+              
+                tAtraccion = record
+                  nombre: string;
+                  horario: tHorario;
+                end record
+              end type
+
+              algorithm
+                var
+                  atraccion1: tAtraccion;
+                end var
+              end algorithm
+            hint: Declara primero tHorario y luego úsalo como campo en tAtraccion, usa un solo bloque type.
+
+          - id: c-4-ficha-seguridad
+            language: C
+            week: 4
+            prompt: |
+              Declara la constante MAX_NOMBRE con valor 30.
+
+              Crea un tipo tFichaSeguridad con:
+              - Una cadena de caracteres llamada inspector con tamaño máximo definido por MAX_NOMBRE (valor 30).
+              - Un número decimal llamado puntaje.
+              - Un valor lógico llamado aprobada.
+
+              Declara dentro de main una variable llamada ficha1 de tipo tFichaSeguridad.
+            answer: |
+              #include <stdbool.h>
+
+              #define MAX_NOMBRE 30
+
+              typedef struct {
+                  char inspector[MAX_NOMBRE];
+                  float puntaje;
+                  bool aprobada;
+              } tFichaSeguridad;
+
+              int main() {
+                  tFichaSeguridad ficha1;
+                  return 0;
+              }
+            hint: Recuerda incluir <stdbool.h> cuando uses bool en C.
+
+          - id: p-4-ficha-seguridad
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Crea un tipo tFichaSeguridad con:
+              - Un texto llamado inspector.
+              - Un número real llamado puntaje.
+              - Un valor booleano llamado aprobada.
+
+              Declara dentro del bloque principal una variable llamada ficha1 de tipo tFichaSeguridad.
+            answer: |
+              type
+                tFichaSeguridad = record
+                  inspector: string;
+                  puntaje: real;
+                  aprobada: boolean;
+                end record
+              end type
+
+              algorithm
+                var
+                  ficha1: tFichaSeguridad;
+                end var
+              end algorithm
+            hint: El record agrupa campos de distintos tipos en un solo dato.
+
+          - id: c-4-atraccion-restricciones
+            language: C
+            week: 4
+            prompt: |
+              Declara la constante MAX_NOMBRE con valor 30.
+              
+              Crea un tipo enumerado tDificultad con los valores BAJA, MEDIA y ALTA.
+              Crea un tipo tRestriccion con:
+              - Un número decimal llamado alturaMinima.
+              - Un valor lógico llamado embarazadasProhibido.
+
+              Crea un tipo tAtraccion con:
+              - Una cadena de caracteres llamada nombre con tamaño máximo definido por MAX_NOMBRE (valor 30).
+              - Un campo llamado dificultad de tipo tDificultad.
+              - Un campo llamado restriccion de tipo tRestriccion.
+
+              
+              Declara dentro de main una variable llamada atraccion1 de tipo tAtraccion.
+            answer: |
+              #include <stdbool.h>
+
+              #define MAX_NOMBRE 30
+
+              typedef enum {
+                  BAJA, MEDIA, ALTA
+              } tDificultad;
+
+              typedef struct {
+                  float alturaMinima;
+                  bool embarazadasProhibido;
+              } tRestriccion;
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  tDificultad dificultad;
+                  tRestriccion restriccion;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion atraccion1;
+                  return 0;
+              }
+            hint: Declara enum y structs con typedef y en ese orden antes de main.
+
+          - id: p-4-atraccion-restricciones
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Crea un tipo enumerado tDificultad con los valores BAJA, MEDIA y ALTA.
+              Crea un tipo tRestriccion con:
+              - Un número real llamado alturaMinima.
+              - Un valor booleano llamado embarazadasProhibido.
+
+              Crea un tipo tAtraccion con:
+              - Un texto llamado nombre.
+              - Un campo llamado dificultad de tipo tDificultad.
+              - Un campo llamado restriccion de tipo tRestriccion.
+
+              Declara dentro del bloque principal una variable llamada atraccion1 de tipo tAtraccion.
+            answer: |
+              type
+                tDificultad = { BAJA, MEDIA, ALTA }
+              
+                tRestriccion = record
+                  alturaMinima: real;
+                  embarazadasProhibido: boolean;
+                end record
+              
+                tAtraccion = record
+                  nombre: string;
+                  dificultad: tDificultad;
+                  restriccion: tRestriccion;
+                end record
+              end type
+
+              algorithm
+                var
+                  atraccion1: tAtraccion;
+                end var
+              end algorithm
+            hint:
+              "Define los tipos en orden: enum, record restricción y luego el record atracción. Utiliza un solo bloque type end type."
+
+          - id: c-4-cartelera-atracciones
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (20) y MAX_ATRACCIONES (3).
+              
+              Crea un tipo tAtraccion con:
+              - Una cadena de caracteres llamada nombre con tamaño máximo definido por MAX_NOMBRE (valor 20).
+              - Un número entero llamado duracionMinutos.
+              
+              Declara dentro de main un array llamado cartelera de tipo tAtraccion con MAX_ATRACCIONES elementos.
+            answer: |
+              #define MAX_NOMBRE 20
+              #define MAX_ATRACCIONES 3
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  int duracionMinutos;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion cartelera[MAX_ATRACCIONES];
+                  return 0;
+              }
+            hint: El array de structs se declara como cualquier array, usando el tipo tAtraccion.
+
+          - id: p-4-cartelera-atracciones
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (20) y MAX_ATRACCIONES (3).
+              
+              Crea un tipo tAtraccion con:
+              - Un texto llamado nombre.
+              - Un número entero llamado duracionMinutos.
+
+              Declara dentro del bloque principal un array llamado cartelera de tipo tAtraccion con MAX_ATRACCIONES elementos.
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 3;
+              end const
+
+              type
+                tAtraccion = record
+                  nombre: string;
+                  duracionMinutos: integer;
+                end record
+              end type
+
+              algorithm
+                var
+                  cartelera: vector[MAX_ATRACCIONES] of tAtraccion;
+                end var
+              end algorithm
+            hint: En pseudocódigo los arrays se declaran con vector[tamaño] of tipo.
+
+          - id: c-4-mapa-zona
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (25), FILAS (2) y COLUMNAS (3).
+              
+              Crea un tipo tMapaZona con:
+              - Una cadena de caracteres llamada nombreZona con tamaño máximo definido por MAX_NOMBRE (valor 25).
+              - Una matriz booleana llamada ocupacion con tamaño FILAS x COLUMNAS.
+
+              Declara dentro de main una variable llamada mapa1 de tipo tMapaZona.
+            answer: |
+              #include <stdbool.h>
+
+              #define MAX_NOMBRE 25
+              #define FILAS 2
+              #define COLUMNAS 3
+
+              typedef struct {
+                  char nombreZona[MAX_NOMBRE];
+                  bool ocupacion[FILAS][COLUMNAS];
+              } tMapaZona;
+
+              int main() {
+                  tMapaZona mapa1;
+                  return 0;
+              }
+            hint: Para usar bool en C incluye <stdbool.h>. La matriz va como campo del struct.
+
+          - id: p-4-mapa-zona
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara las constantes FILAS con valor 2 y COLUMNAS con valor 3.
+              
+              Crea un tipo tMapaZona con:
+              - Un texto llamado nombreZona.
+              - Una matriz booleana llamada ocupacion de tamaño FILAS x COLUMNAS.
+              
+              Declara dentro del bloque principal una variable llamada mapa1 de tipo tMapaZona.
+            answer: |
+              const
+                FILAS: integer = 2;
+                COLUMNAS: integer = 3;
+              end const
+
+              type
+                tMapaZona = record
+                  nombreZona: string;
+                  ocupacion: vector[FILAS][COLUMNAS] of boolean;
+                end record
+              end type
+
+              algorithm
+                var
+                  mapa1: tMapaZona;
+                end var
+              end algorithm
+            hint: En pseudocódigo, las matrices se representan como vector[FILAS][COLUMNAS] of tipo.
+
+          - id: c-4-snack-categoria
+            language: C
+            week: 4
+            prompt: |
+              Declara la constante MAX_NOMBRE con valor 20.
+              
+              Crea un tipo tSnack con:
+              - Una cadena de caracteres llamada nombre con tamaño máximo definido por MAX_NOMBRE (valor 20).
+              - Un carácter llamado categoria (por ejemplo 'A', 'B', 'C').
+
+              Declara dentro de main una variable llamada snack1 de tipo tSnack.
+            answer: |
+              #define MAX_NOMBRE 20
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  char categoria;
+              } tSnack;
+
+              int main() {
+                  tSnack snack1;
+                  return 0;
+              }
+            hint: Recuerda que un carácter en C es tipo char y ocupa un solo carácter.
+
+          - id: p-4-snack-categoria
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Crea un tipo tSnack con:
+              - Un texto llamado nombre.
+              - Un carácter llamado categoria.
+
+              Declara dentro del bloque principal una variable llamada snack1 de tipo tSnack.
+            answer: |
+              type
+                tSnack = record
+                  nombre: string;
+                  categoria: character;
+                end record
+              end type
+
+              algorithm
+                var
+                  snack1: tSnack;
+                end var
+              end algorithm
+            hint: El campo categoria es de tipo character (un único símbolo).
+
+          - id: c-4-puesto-precios
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (25) y NUM_PLATOS (4).
+              
+              Crea un tipo tPuestoComida con:
+              - Una cadena de caracteres llamada nombre con tamaño máximo definido por MAX_NOMBRE (valor 25).
+              - Un array de números decimales llamado precios con tamaño NUM_PLATOS.
+
+              Declara dentro de main una variable llamada puesto1 de tipo tPuestoComida.
+            answer: |
+              #define MAX_NOMBRE 25
+              #define NUM_PLATOS 4
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  float precios[NUM_PLATOS];
+              } tPuestoComida;
+
+              int main() {
+                  tPuestoComida puesto1;
+                  return 0;
+              }
+            hint: Declara las constantes antes del typedef; el array precios es de longitud fija.
+
+          - id: p-4-puesto-precios
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante NUM_PLATOS con valor 4.
+              
+              Crea un tipo tPuestoComida con:
+              - Un texto llamado nombre.
+              - Un array de números reales llamado precios con tamaño NUM_PLATOS.
+
+              Declara dentro del bloque principal una variable llamada puesto1 de tipo tPuestoComida.
+            answer: |
+              const
+                NUM_PLATOS: integer = 4;
+              end const
+
+              type
+                tPuestoComida = record
+                  nombre: string;
+                  precios: vector[NUM_PLATOS] of real;
+                end record
+              end type
+
+              algorithm
+                var
+                  puesto1: tPuestoComida;
+                end var
+              end algorithm
+            hint: En pseudocódigo usa vector[NUM_PLATOS] of real para el campo precios.
+
+
+
+
+      - number: 2
+        explanation: |
+          Teoria para solucionar nivel 2 de la semana 4
+        questions:
+          # Semana 4 — Nivel 2 (Structs: declarar + inicializar + acceder/manipular)
+
+          - id: c-4-atraccion-inicializa-imprime
+            language: C
+            week: 4
+            prompt: |
+              Declara la constante MAX_NOMBRE con valor 30.
+
+              Declara el tipo tAtraccion con los campos exactos:
+              - nombre: cadena de caracteres de tamaño MAX_NOMBRE
+              - alturaMinima: número decimal
+              - enMantenimiento: booleano
+
+              Dentro de main, declara la variable atraccion1 de tipo tAtraccion e inicializa:
+              - nombre = "Cometa"
+              - alturaMinima = 1.20
+              - enMantenimiento = false
+
+              Imprime dos líneas:
+              - "Nombre: x"
+              - "Altura mínima: x" (Con dos decimales)
+            answer: |
+              #include <stdio.h>
+              #include <stdbool.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 30
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  float alturaMinima;
+                  bool enMantenimiento;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion atraccion1;
+                  strncpy(atraccion1.nombre, "Cometa", MAX_NOMBRE);
+                  atraccion1.alturaMinima = 1.20;
+                  atraccion1.enMantenimiento = false;
+
+                  printf("Nombre: %s\n", atraccion1.nombre);
+                  printf("Altura mínima: %.2f\n", atraccion1.alturaMinima);
+                  return 0;
+              }
+            hint: Usa strncpy para copiar al campo nombre y printf en líneas separadas.
+
+          - id: p-4-atraccion-inicializa-imprime
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara el tipo tAtraccion con los campos exactos:
+              - nombre: texto
+              - alturaMinima: real
+              - enMantenimiento: booleano
+
+              En el bloque principal, declara la variable atraccion1 de tipo tAtraccion e inicializa:
+              - nombre := "Cometa"
+              - alturaMinima := 1.20
+              - enMantenimiento := false
+
+              Imprime dos líneas:
+              - "Nombre: x"
+              - "Altura mínima: x"
+            answer: |
+              type
+                tAtraccion = record
+                  nombre: string;
+                  alturaMinima: real;
+                  enMantenimiento: boolean;
+                end record
+              end type
+
+              algorithm
+                var
+                  atraccion1: tAtraccion;
+                end var
+
+                atraccion1.nombre := "Cometa";
+                atraccion1.alturaMinima := 1.20;
+                atraccion1.enMantenimiento := false;
+
+                writeString("Nombre: ");
+                writeString(atraccion1.nombre);
+                writeString("Altura mínima: ");
+                writeReal(atraccion1.alturaMinima);
+              end algorithm
+            hint: Cada operación en su propia línea.
+
+          - id: c-4-atraccion-con-enum-imprime
+            language: C
+            week: 4
+            prompt: |
+              Declara la constante MAX_NOMBRE con valor 25.
+
+              Declara un tipo enumerado tTipoAtraccion con los valores RUEDA, BARCA y SIMULADOR.
+              
+              Declara el tipo tAtraccion con:
+              - nombre: cadena de caracteres de tamaño MAX_NOMBRE
+              - tipo: tTipoAtraccion
+
+              Dentro de main, declara la variable atraccion1 de tipo tAtraccion e inicializa:
+              - nombre = "Rueda Panorámica"
+              - tipo = RUEDA
+
+              Imprime una sola línea con el formato "Tipo: x" mostrando Rueda, Barca o Simulador en texto.
+              
+              Debes mapear el enum a string utilizando if else if.
+            answer: |
+              #include <stdio.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 25
+
+              typedef enum { RUEDA, BARCA, SIMULADOR } tTipoAtraccion;
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  tTipoAtraccion tipo;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion atraccion1;
+                  strncpy(atraccion1.nombre, "Rueda Panorámica", MAX_NOMBRE);
+                  atraccion1.tipo = RUEDA;
+
+                  if (atraccion1.tipo == RUEDA) {
+                      printf("Tipo: Rueda\n");
+                  } else if (atraccion1.tipo == BARCA) {
+                      printf("Tipo: Barca\n");
+                  } else {
+                      printf("Tipo: Simulador\n");
+                  }
+                  return 0;
+              }
+            hint: Hay 3 posibles casos en los que deberás imprimir el mensaje.
+
+          - id: p-4-atraccion-con-enum
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara el tipo enumerado tTipoAtraccion con los valores RUEDA, BARCA y SIMULADOR.
+              Declara el tipo tAtraccion con:
+              - nombre: texto
+              - tipo: tTipoAtraccion
+
+              En el bloque principal, declara la variable atraccion1 de tipo tAtraccion e inicializa:
+              - nombre := "Rueda Panorámica"
+              - tipo := RUEDA
+
+              Imprime dos líneas:
+              - "Nombre: x"
+              - "Tipo: x" (imprime el valor del enumerado tal cual)
+            answer: |
+              type
+                tTipoAtraccion = { RUEDA, BARCA, SIMULADOR }
+              end type
+
+              type
+                tAtraccion = record
+                  nombre: string;
+                  tipo: tTipoAtraccion;
+                end record
+              end type
+
+              algorithm
+                var
+                  atraccion1: tAtraccion;
+                end var
+
+                atraccion1.nombre := "Rueda Panorámica";
+                atraccion1.tipo := RUEDA;
+
+                writeString("Nombre: ");
+                writeString(atraccion1.nombre);
+                writeString("Tipo: ");
+                writeEnum(atraccion1.tipo);
+              end algorithm
+            hint: Usa writeEnum para mostrar el enumerado.
+
+          - id: c-4-atraccion-horario-inicializa
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (30) y MAX_HORA (6).
+
+              Declara tHorario con:
+              - apertura: cadena de tamaño MAX_HORA
+              - cierre: cadena de tamaño MAX_HORA
+
+              Declara tAtraccion con:
+              - nombre: cadena de tamaño MAX_NOMBRE
+              - horario: tHorario
+
+              Dentro de main, declara atraccion1 e inicializa:
+              - nombre = "Dragón"
+              - horario - apertura = "10:00"
+              - horario - cierre = "19:30"
+
+              Imprime: "Cierra a: x"
+            answer: |
+              #include <stdio.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 30
+              #define MAX_HORA 6
+
+              typedef struct {
+                  char apertura[MAX_HORA];
+                  char cierre[MAX_HORA];
+              } tHorario;
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  tHorario horario;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion atraccion1;
+                  strncpy(atraccion1.nombre, "Dragón", MAX_NOMBRE);
+                  strncpy(atraccion1.horario.apertura, "10:00", MAX_HORA);
+                  strncpy(atraccion1.horario.cierre, "19:30", MAX_HORA);
+
+                  printf("Cierra a: %s\n", atraccion1.horario.cierre);
+                  return 0;
+              }
+            hint: Usa strncpy con el tamaño adecuado para cada campo.
+
+          - id: p-4-atraccion-horario-inicializa
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara tHorario con:
+              - apertura: texto
+              - cierre: texto
+
+              Declara tAtraccion con:
+              - nombre: texto
+              - horario: tHorario
+
+              En el bloque principal, declara atraccion1 e inicializa:
+              - nombre := "Dragón"
+              - horario - apertura := "10:00"
+              - horario - cierre := "19:30"
+
+              Imprime: "Cierra a: x"
+            answer: |
+              type
+                tHorario = record
+                  apertura: string;
+                  cierre: string;
+                end record
+
+                tAtraccion = record
+                  nombre: string;
+                  horario: tHorario;
+                end record
+              end type
+
+              algorithm
+                var
+                  atraccion1: tAtraccion;
+                end var
+
+                atraccion1.nombre := "Dragón";
+                atraccion1.horario.apertura := "10:00";
+                atraccion1.horario.cierre := "19:30";
+
+                writeString("Cierra a: ");
+                writeString(atraccion1.horario.cierre);
+              end algorithm
+            hint: Accede a campos anidados con punto.
+
+          - id: c-4-array-atracciones-suma-capacidad
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (20) y MAX_ATRACCIONES (2).
+
+              Declara tAtraccion con:
+              - nombre: cadena de tamaño MAX_NOMBRE
+              - capacidadMaxima: entero
+
+              Dentro de main, declara lista (array de tAtraccion con MAX_ATRACCIONES) e inicializa:
+              - lista 0 - nombre = "Lanza" y lista 0 - capacidadMaxima = 12
+              - lista 1 - nombre = "Náutica" y lista 1 - capacidadMaxima = 8
+
+              Declara totalCapacidad (entero) y guarda la suma de ambas capacidades. 
+              
+              Imprime "Total: x".
+            answer: |
+              #include <stdio.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 20
+              #define MAX_ATRACCIONES 2
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  int capacidadMaxima;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion lista[MAX_ATRACCIONES];
+
+                  strncpy(lista[0].nombre, "Lanza", MAX_NOMBRE);
+                  lista[0].capacidadMaxima = 12;
+
+                  strncpy(lista[1].nombre, "Náutica", MAX_NOMBRE);
+                  lista[1].capacidadMaxima = 8;
+
+                  int totalCapacidad = lista[0].capacidadMaxima + lista[1].capacidadMaxima;
+                  printf("Total: %d\n", totalCapacidad);
+                  return 0;
+              }
+            hint: Suma campos enteros y muestra el resultado.
+
+          - id: p-4-array-atracciones-suma-capacidad
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 2.
+
+              Declara tAtraccion con:
+              - nombre: texto
+              - capacidadMaxima: entero
+
+              En el bloque principal, declara lista (vector[MAX_ATRACCIONES] de tAtraccion) e inicializa:
+              - lista 0 - nombre = "Lanza" y lista 0 - capacidadMaxima = 12
+              - lista 1 - nombre = "Náutica"; lista 1 - capacidadMaxima = 8
+
+              Declara totalCapacidad (entero) como la suma de ambas capacidades. 
+              
+              Imprime "Total: x".
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 2;
+              end const
+
+              type
+                tAtraccion = record
+                  nombre: string;
+                  capacidadMaxima: integer;
+                end record
+              end type
+
+              algorithm
+                var
+                  lista: vector[MAX_ATRACCIONES] of tAtraccion;
+                  totalCapacidad: integer;
+                end var
+
+                lista[1].nombre := "Lanza";
+                lista[1].capacidadMaxima := 12;
+                lista[2].nombre := "Náutica";
+                lista[2].capacidadMaxima := 8;
+
+                totalCapacidad := lista[1].capacidadMaxima + lista[2].capacidadMaxima;
+
+                writeString("Total: ");
+                writeInteger(totalCapacidad);
+              end algorithm
+            hint: Índices desde 1 en pseudocódigo.
+
+          - id: c-4-precios-promedio
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (25) y NUM_PRECIOS (3).
+
+              Declara tPuestoComida con:
+              - nombre: cadena de tamaño MAX_NOMBRE
+              - precios: array de decimales de tamaño NUM_PRECIOS
+
+              Dentro de main, declara puesto1 e inicializa:
+              - nombre = "Taco Loco"
+              - precios = (3.5, 4.0, 2.5)
+
+              Calcula el promedio en la variable promedio (decimal) e imprime "Promedio: x" con un decimal.
+            answer: |
+              #include <stdio.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 25
+              #define NUM_PRECIOS 3
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  float precios[NUM_PRECIOS];
+              } tPuestoComida;
+
+              int main() {
+                  tPuestoComida puesto1;
+                  strncpy(puesto1.nombre, "Taco Loco", MAX_NOMBRE);
+                  puesto1.precios[0] = 3.5;
+                  puesto1.precios[1] = 4.0;
+                  puesto1.precios[2] = 2.5;
+
+                  float promedio = (puesto1.precios[0] + puesto1.precios[1] + puesto1.precios[2]) / 3;
+                  printf("Promedio: %.1f\n", promedio);
+                  return 0;
+              }
+            hint: El promedio se calcula con la suma de todos los precios dividido entre 3. Utiliza paréntesis en la suma.
+
+          - id: p-4-precios-promedio
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante NUM_PRECIOS con valor 3.
+
+              Declara tPuestoComida con:
+              - nombre: texto
+              - precios: vector[NUM_PRECIOS] de reales
+
+              En el bloque principal, declara puesto1 e inicializa:
+              - nombre = "Taco Loco"
+              - precios = (3.5, 4.0, 2.5)
+
+              Calcula promedio (real) como la media de los tres precios e imprime "Promedio: x".
+            answer: |
+              const
+                NUM_PRECIOS: integer = 3;
+              end const
+
+              type
+                tPuestoComida = record
+                  nombre: string;
+                  precios: vector[NUM_PRECIOS] of real;
+                end record
+              end type
+
+              algorithm
+                var
+                  puesto1: tPuestoComida;
+                  promedio: real;
+                end var
+
+                puesto1.nombre := "Taco Loco";
+                puesto1.precios[1] := 3.5;
+                puesto1.precios[2] := 4.0;
+                puesto1.precios[3] := 2.5;
+
+                promedio := (puesto1.precios[1] + puesto1.precios[2] + puesto1.precios[3]) / 3.0;
+
+                writeString("Promedio: ");
+                writeReal(promedio);
+              end algorithm
+            hint: Una sentencia por línea.
+
+          - id: c-4-ficha-booleano-ternario
+            language: C
+            week: 4
+            prompt: |
+              Declara la constante MAX_NOMBRE con valor 30.
+
+              Declara tFichaSeguridad con:
+              - inspector: cadena de tamaño MAX_NOMBRE
+              - puntaje: decimal
+              - aprobada: booleano
+
+              Dentro de main, declara ficha1 e inicializa:
+              - inspector = "María"
+              - puntaje = 8.7
+              - aprobada = true
+
+              Imprime "Estado: Aprobada" si aprobada es true, o "Estado: Rechazada" si es false usando operador ternario.
+            answer: |
+              #include <stdio.h>
+              #include <stdbool.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 30
+
+              typedef struct {
+                  char inspector[MAX_NOMBRE];
+                  float puntaje;
+                  bool aprobada;
+              } tFichaSeguridad;
+
+              int main() {
+                  tFichaSeguridad ficha1;
+                  strncpy(ficha1.inspector, "María", MAX_NOMBRE);
+                  ficha1.puntaje = 8.7;
+                  ficha1.aprobada = true;
+
+                  printf("Estado: %s\n", ficha1.aprobada ? "Aprobada" : "Rechazada");
+                  return 0;
+              }
+            hint: Este ejercicio usa ternario.
+
+          - id: p-4-ficha-booleano
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara tFichaSeguridad con:
+              - inspector: texto
+              - puntaje: real
+              - aprobada: booleano
+
+              En el bloque principal, declara ficha1 e inicializa:
+              - inspector := "María"
+              - puntaje := 8.7
+              - aprobada := true
+
+              Imprime:
+              - "Inspector: x"
+              - "Aprobada: x" (true o false)
+            answer: |
+              type
+                tFichaSeguridad = record
+                  inspector: string;
+                  puntaje: real;
+                  aprobada: boolean;
+                end record
+              end type
+
+              algorithm
+                var
+                  ficha1: tFichaSeguridad;
+                end var
+
+                ficha1.inspector := "María";
+                ficha1.puntaje := 8.7;
+                ficha1.aprobada := true;
+
+                writeString("Inspector: ");
+                writeString(ficha1.inspector);
+                writeString("Aprobada: ");
+                writeBoolean(ficha1.aprobada);
+              end algorithm
+            hint: No hay operador ternario en pseudocódigo.
+
+          - id: c-4-mapa-ocupacion-contar
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (20), FILAS (2) y COLUMNAS (2).
+
+              Declara tMapaZona con:
+              - nombreZona: cadena de tamaño MAX_NOMBRE
+              - ocupacion: matriz booleana de tamaño FILAS x COLUMNAS
+
+              En main, declara mapa1 e inicializa:
+              - nombreZona = "Zona A"
+              - ocupacion 0-0 = true
+              - ocupacion 0-1 = false
+              - ocupacion 1-0 = true
+              - ocupacion 1-1 = true
+
+              Declara ocupadas (entero), inicializa en 0 y cuenta cuántas casillas true hay con if y sumas ++ (sin bucles ni operador ternario). 
+              
+              Imprime "Ocupadas: x".
+            answer: |
+              #include <stdio.h>
+              #include <stdbool.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 20
+              #define FILAS 2
+              #define COLUMNAS 2
+
+              typedef struct {
+                  char nombreZona[MAX_NOMBRE];
+                  bool ocupacion[FILAS][COLUMNAS];
+              } tMapaZona;
+
+              int main() {
+                  tMapaZona mapa1;
+                  strncpy(mapa1.nombreZona, "Zona A", MAX_NOMBRE);
+                  mapa1.ocupacion[0][0] = true;
+                  mapa1.ocupacion[0][1] = false;
+                  mapa1.ocupacion[1][0] = true;
+                  mapa1.ocupacion[1][1] = true;
+
+                  int ocupadas = 0;
+                  if (mapa1.ocupacion[0][0]) { 
+                    ocupadas++; 
+                  }
+                  if (mapa1.ocupacion[0][1]) { 
+                    ocupadas++; 
+                  }
+                  if (mapa1.ocupacion[1][0]) { 
+                    ocupadas++; 
+                  }
+                  if (mapa1.ocupacion[1][1]) { 
+                    ocupadas++; 
+                  }
+
+                  printf("Ocupadas: %d\n", ocupadas);
+                  return 0;
+              }
+            hint: Usa if y acumulación con ++; no uses operador ternario.
+
+          - id: p-4-mapa-ocupacion-contar
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara las constantes FILAS (2) y COLUMNAS (2).
+
+              Declara tMapaZona con:
+              - nombreZona: texto
+              - ocupacion: matriz booleana FILAS x COLUMNAS
+
+              En el bloque principal, declara mapa1 e inicializa:
+              - nombreZona = "Zona A"
+              - ocupacion 0-0 = true
+              - ocupacion 0-1 = false
+              - ocupacion 1-0 = true
+              - ocupacion 1-1 = true
+
+              Declara ocupadas (entero), inicializa en 0 y cuenta cuántas casillas true hay con if (sin bucles). 
+              
+              Imprime "Ocupadas: x".
+            answer: |
+              const
+                FILAS: integer = 2;
+                COLUMNAS: integer = 2;
+              end const
+
+              type
+                tMapaZona = record
+                  nombreZona: string;
+                  ocupacion: vector[FILAS][COLUMNAS] of boolean;
+                end record
+              end type
+
+              algorithm
+                var
+                  mapa1: tMapaZona;
+                  ocupadas: integer;
+                end var
+
+                mapa1.nombreZona := "Zona A";
+                mapa1.ocupacion[1][1] := true;
+                mapa1.ocupacion[1][2] := false;
+                mapa1.ocupacion[2][1] := true;
+                mapa1.ocupacion[2][2] := true;
+
+                ocupadas := 0;
+                if mapa1.ocupacion[1][1] = true then
+                  ocupadas := ocupadas + 1;
+                end if
+                if mapa1.ocupacion[1][2] = true then
+                  ocupadas := ocupadas + 1;
+                end if
+                if mapa1.ocupacion[2][1] = true then
+                  ocupadas := ocupadas + 1;
+                end if
+                if mapa1.ocupacion[2][2] = true then
+                  ocupadas := ocupadas + 1;
+                end if
+
+                writeString("Ocupadas: ");
+                writeInteger(ocupadas);
+              end algorithm
+            hint: |
+              Forma correcta del if en pseudocódigo: if … then / end if.
+
+          - id: c-4-atraccion-dificultad-a-texto
+            language: C
+            week: 4
+            prompt: |
+              Declara la constante MAX_NOMBRE con valor 20.
+
+              Declara tDificultad con valores BAJA, MEDIA y ALTA.
+              
+              Declara tAtraccion con:
+              - nombre: cadena de tamaño MAX_NOMBRE
+              - dificultad: tDificultad
+
+              Dentro de main, declara atraccion1 e inicializa:
+              - nombre = "Vértigo"
+              - dificultad = ALTA
+
+              Declara tipoStr (cadena de tamaño 10) y copia "Baja", "Media" o "Alta" según la dificultad de la atracción usando if/else. Imprime "Dif: x".
+            answer: |
+              #include <stdio.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 20
+
+              typedef enum { BAJA, MEDIA, ALTA } tDificultad;
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  tDificultad dificultad;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion atraccion1;
+                  strncpy(atraccion1.nombre, "Vértigo", MAX_NOMBRE);
+                  atraccion1.dificultad = ALTA;
+
+                  char tipoStr[10];
+                  if (atraccion1.dificultad == BAJA) {
+                      strncpy(tipoStr, "Baja", 10);
+                  } else if (atraccion1.dificultad == MEDIA) {
+                      strncpy(tipoStr, "Media", 10);
+                  } else {
+                      strncpy(tipoStr, "Alta", 10);
+                  }
+
+                  printf("Dif: %s\n", tipoStr);
+                  return 0;
+              }
+            hint: Usa if/else para seleccionar la cadena y strncpy para copiarla.
+
+          - id: p-4-atraccion-dificultad-texto
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara tDificultad con valores BAJA, MEDIA y ALTA.
+              Declara tAtraccion con:
+              - nombre: texto
+              - dificultad: tDificultad
+
+              En el bloque principal, declara atraccion1 e inicializa:
+              - nombre := "Vértigo"
+              - dificultad := ALTA
+
+              Declara tipoStr (texto) y asígnale:
+              - "Baja" si la dificultad es BAJA, "Media" si es MEDIA, o "Alta" si es ALTA.
+              Imprime "Dif: x".
+            answer: |
+              type
+                tDificultad = { BAJA, MEDIA, ALTA }
+              end type
+
+              type
+                tAtraccion = record
+                  nombre: string;
+                  dificultad: tDificultad;
+                end record
+              end type
+
+              algorithm
+                var
+                  atraccion1: tAtraccion;
+                  tipoStr: string;
+                end var
+
+                atraccion1.nombre := "Vértigo";
+                atraccion1.dificultad := ALTA;
+
+                if atraccion1.dificultad = BAJA then
+                  tipoStr := "Baja";
+                else
+                  if atraccion1.dificultad = MEDIA then
+                    tipoStr := "Media";
+                  else
+                      tipoStr := "Alta";
+                  end if
+                end if
+
+                writeString("Dif: ");
+                writeString(tipoStr);
+              end algorithm
+            hint: Un if por caso también es válido en pseudocódigo.
+
+          - id: c-4-precio-mayor
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (20) y NUM_PRECIOS (3).
+
+              Declara tPuestoComida con:
+              - nombre: cadena de tamaño MAX_NOMBRE
+              - precios: array de decimales de tamaño NUM_PRECIOS
+
+              En main, declara puesto1 e inicializa:
+              - nombre = "Papas Xpress"
+              - precios = (2.5, 3.0, 1.8)
+
+              Declara mayor (decimal) y calcula el mayor de los tres precios usando comparaciones e if (sin bucles ni operador ternario). Imprime "Mayor: x" con un decimal.
+            answer: |
+              #include <stdio.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 20
+              #define NUM_PRECIOS 3
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  float precios[NUM_PRECIOS];
+              } tPuestoComida;
+
+              int main() {
+                  tPuestoComida puesto1;
+                  strncpy(puesto1.nombre, "Papas Xpress", MAX_NOMBRE);
+                  puesto1.precios[0] = 2.5;
+                  puesto1.precios[1] = 3.0;
+                  puesto1.precios[2] = 1.8;
+
+                  float mayor = puesto1.precios[0];
+                  if (puesto1.precios[1] > mayor) { 
+                    mayor = puesto1.precios[1]; 
+                  }
+                  if (puesto1.precios[2] > mayor) { 
+                    mayor = puesto1.precios[2]; 
+                  }
+
+                  printf("Mayor: %.1f\n", mayor);
+                  return 0;
+              }
+            hint: Actualiza mayor si encuentras un valor superior.
+
+          - id: p-4-precio-mayor
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante NUM_PRECIOS (3).
+
+              Declara tPuestoComida con:
+              - nombre: texto
+              - precios: vector[NUM_PRECIOS] de reales
+
+              En el bloque principal, declara puesto1 e inicializa:
+              - puesto1.nombre := "Papas Xpress"
+              - puesto1.precios[1] := 2.5
+              - puesto1.precios[2] := 3.0
+              - puesto1.precios[3] := 1.8
+
+              Declara mayor (real) y calcula el mayor de los tres precios con comparaciones (sin bucles). Imprime "Mayor: x".
+            answer: |
+              const
+                NUM_PRECIOS: integer = 3;
+              end const
+
+              type
+                tPuestoComida = record
+                  nombre: string;
+                  precios: vector[NUM_PRECIOS] of real;
+                end record
+              end type
+
+              algorithm
+                var
+                  puesto1: tPuestoComida;
+                  mayor: real;
+                end var
+
+                puesto1.nombre := "Papas Xpress";
+                puesto1.precios[1] := 2.5;
+                puesto1.precios[2] := 3.0;
+                puesto1.precios[3] := 1.8;
+
+                mayor := puesto1.precios[1];
+                if puesto1.precios[2] > mayor then
+                  mayor := puesto1.precios[2];
+                end if
+                if puesto1.precios[3] > mayor then
+                  mayor := puesto1.precios[3];
+                end if
+
+                writeString("Mayor: ");
+                writeReal(mayor);
+              end algorithm
+            hint: Una sentencia por línea; if con then / end if.
+
+          - id: c-4-cartelera-inicializa-imprime-primera
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_NOMBRE (20) y MAX_ATRACCIONES (2).
+
+              Declara tAtraccion con:
+              - nombre: cadena de tamaño MAX_NOMBRE
+              - duracionMinutos: entero
+
+              En main, declara cartelera (array de tAtraccion con MAX_ATRACCIONES) e inicializa:
+              - cartelera 0 - nombre = "Fantasmagoría" y cartelera 0 - duracionMinutos = 7
+              - cartelera 1 - nombre = "Aqua Rush" y cartelera 1 - duracionMinutos = 12
+
+              Imprime una línea con el formato: "Primera: x (y min)" mostrando el nombre y la duración de la primera atracción.
+            answer: |
+              #include <stdio.h>
+              #include <string.h>
+
+              #define MAX_NOMBRE 20
+              #define MAX_ATRACCIONES 2
+
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  int duracionMinutos;
+              } tAtraccion;
+
+              int main() {
+                  tAtraccion cartelera[MAX_ATRACCIONES];
+
+                  strncpy(cartelera[0].nombre, "Fantasmagoría", MAX_NOMBRE);
+                  cartelera[0].duracionMinutos = 7;
+
+                  strncpy(cartelera[1].nombre, "Aqua Rush", MAX_NOMBRE);
+                  cartelera[1].duracionMinutos = 12;
+
+                  printf("Primera: %s (%d min)\n", cartelera[0].nombre, cartelera[0].duracionMinutos);
+                  return 0;
+              }
+            hint: Recuerda usar strncpy para los nombres.
+
+          - id: p-4-cartelera-inicializa-imprime-primera
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 2.
+
+              Declara tAtraccion con:
+              - nombre: texto
+              - duracionMinutos: entero
+
+              En el bloque principal, declara cartelera (vector de MAX_ATRACCIONES) e inicializa:
+              - cartelera 0 - nombre = "Fantasmagoría" y cartelera 0 - duracionMinutos = 7
+              - cartelera 1 - nombre = "Aqua Rush" y cartelera 1 - duracionMinutos = 12
+
+              Imprime una línea con el formato: "Primera: x (y min)" mostrando el nombre y duración de la primera atracción.
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 2;
+              end const
+
+              type
+                tAtraccion = record
+                  nombre: string;
+                  duracionMinutos: integer;
+                end record
+              end type
+
+              algorithm
+                var
+                  cartelera: vector[MAX_ATRACCIONES] of tAtraccion;
+                end var
+
+                cartelera[1].nombre := "Fantasmagoría";
+                cartelera[1].duracionMinutos := 7;
+                cartelera[2].nombre := "Aqua Rush";
+                cartelera[2].duracionMinutos := 12;
+
+                writeString("Primera: ");
+                writeString(cartelera[1].nombre);
+                writeString(" (");
+                writeInteger(cartelera[1].duracionMinutos);
+                writeString(" min)");
+              end algorithm
+            hint: En pseudocódigo imprimimos por partes, cada llamada en su línea.
+
+
+      - number: 3
+        explanation: |
+          Teoria para solucionar nivel 3 de la semana 4
+        questions:
+          - id: c-4-l3-registro-basico-for
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_ATRACCIONES con valor 3 y MAX_NOMBRE con valor 20.
+              
+              Crea un tipo enumerado llamado tTipoAtraccion con los valores MONTANA_RUSA, CARRUSEL y SIMULADOR.
+              
+              Crea un tipo tAtraccion con los campos exactos:
+              - nombre: texto con tamaño máximo MAX_NOMBRE.
+              - tipo: de tipo tTipoAtraccion.
+              - duracionMinutos: número entero.
+              
+              Dentro de la función principal, declara un array llamado atracciones de tipo tAtraccion con MAX_ATRACCIONES elementos y una variable entera llamada i.
+              
+              Recorre el array con un bucle for y, en cada iteración, pide al usuario:
+              - el nombre (muestra "Nombre: ") y guarda el texto en el campo de nombre de la atracción actual,
+              - el tipo (muestra "Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): ") y guarda el valor en el campo de tipo,
+              - la duración en minutos (muestra "Duración (min): ") y guarda el número en el campo correspondiente.
+              
+              Al final, muestra por pantalla el nombre de la primera atracción en su propia línea.
+            answer: |
+              #include <stdio.h>
+              
+              #define MAX_ATRACCIONES 3
+              #define MAX_NOMBRE 20
+              
+              typedef enum {
+                  MONTANA_RUSA,
+                  CARRUSEL,
+                  SIMULADOR
+              } tTipoAtraccion;
+              
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  tTipoAtraccion tipo;
+                  int duracionMinutos;
+              } tAtraccion;
+              
+              int main() {
+                  tAtraccion atracciones[MAX_ATRACCIONES];
+                  int i;
+              
+                  for(i = 0; i < MAX_ATRACCIONES; i++) {
+                      printf("Nombre: ");
+                      scanf("%19s", atracciones[i].nombre);
+                      printf("Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): ");
+                      scanf("%u", (unsigned int*)&atracciones[i].tipo);
+                      printf("Duración (min): ");
+                      scanf("%d", &atracciones[i].duracionMinutos);
+                  }
+              
+                  printf("%s\n", atracciones[0].nombre);
+                  return 0;
+              }
+            hint: |
+              Limita la lectura del nombre con %19s (si MAX_NOMBRE es 20).
+
+          - id: p-4-l3-registro-basico-for
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Tema Parque de Atracciones.
+              
+              Declara la constante MAX_ATRACCIONES con valor 3.
+              
+              Crea un tipo enumerado llamado tTipoAtraccion con los valores MONTANA_RUSA, CARRUSEL y SIMULADOR.
+              
+              Crea un tipo tAtraccion con los campos exactos:
+              - nombre: texto.
+              - tipo: de tipo tTipoAtraccion.
+              - duracionMinutos: número entero.
+              
+              En el bloque principal, declara un array llamado atracciones de tipo tAtraccion con MAX_ATRACCIONES elementos y una variable entera i.
+              
+              Recorre el array con un bucle for (de 1 a MAX_ATRACCIONES) y, en cada iteración, pide al usuario:
+              - el nombre (muestra "Nombre: ") y guarda el texto en el campo de nombre de la atracción actual,
+              - el tipo (muestra "Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): "); lee un número auxiliar y asígnalo al campo de tipo mediante un switch,
+              - la duración en minutos (muestra "Duración (min): ") y guarda el número en el campo correspondiente.
+              
+              Al final, muestra el nombre de la primera atracción en su propia línea.
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 3;
+              end const
+              
+              type
+                tTipoAtraccion = { MONTANA_RUSA, CARRUSEL, SIMULADOR };
+              end type
+              
+              type
+                tAtraccion = record
+                  nombre: string;
+                  tipo: tTipoAtraccion;
+                  duracionMinutos: integer;
+                end record
+              end type
+              
+              algorithm
+                var
+                  atracciones: vector[MAX_ATRACCIONES] of tAtraccion;
+                  i: integer;
+                  auxTipo: integer;
+                end var
+              
+                for i := 1 to MAX_ATRACCIONES do
+                  writeString("Nombre: ");
+                  atracciones[i].nombre := readString();
+                  writeString("Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): ");
+                  auxTipo := readInteger();
+              
+                  switch auxTipo
+                    case 0 then
+                      atracciones[i].tipo := MONTANA_RUSA;
+                    end case
+                    case 1 then
+                      atracciones[i].tipo := CARRUSEL;
+                    end case
+                    case 2 then
+                      atracciones[i].tipo := SIMULADOR;
+                    end case
+                    case default then
+                      atracciones[i].tipo := MONTANA_RUSA;
+                    end case
+                  end switch
+              
+                  writeString("Duración (min): ");
+                  atracciones[i].duracionMinutos := readInteger();
+                end for
+              
+                writeString(atracciones[1].nombre);
+              end algorithm
+            hint: |
+              Un switch por cada valor auxiliar leído.
+
+          - id: c-4-l3-suma-duraciones-while
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_ATRACCIONES con valor 3 y MAX_NOMBRE con valor 15.
+              
+              Define el tipo tAtraccion con:
+              - nombre: texto con tamaño máximo MAX_NOMBRE.
+              - duracionMinutos: número entero.
+              
+              En la función principal, declara un array atracciones de tipo tAtraccion. Asigna manualmente las duraciones 10, 15 y 20 a sus tres elementos.
+              Declara una variable entera i y otra llamada totalDuracion inicializada a 0. Usando un bucle while, recorre el array y acumula en totalDuracion
+              la suma de las duraciones. Al terminar, imprime en una línea: "Total: x".
+            answer: |
+              #include <stdio.h>
+              
+              #define MAX_ATRACCIONES 3
+              #define MAX_NOMBRE 15
+              
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  int duracionMinutos;
+              } tAtraccion;
+              
+              int main() {
+                  tAtraccion atracciones[MAX_ATRACCIONES];
+                  int i = 0;
+                  int totalDuracion = 0;
+              
+                  atracciones[0].duracionMinutos = 10;
+                  atracciones[1].duracionMinutos = 15;
+                  atracciones[2].duracionMinutos = 20;
+              
+                  while(i < MAX_ATRACCIONES) {
+                      totalDuracion += atracciones[i].duracionMinutos;
+                      i++;
+                  }
+              
+                  printf("Total: %d\n", totalDuracion);
+                  return 0;
+              }
+            hint: |
+              Inicializa i en 0 antes del while.
+
+          - id: p-4-l3-suma-duraciones-while
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 3.
+              
+              Define el tipo tAtraccion con:
+              - nombre: texto.
+              - duracionMinutos: número entero.
+              
+              En el bloque principal, declara un array atracciones de tipo tAtraccion. Asigna manualmente a sus tres elementos las duraciones 10, 15 y 20.
+              Declara una variable i e inicialízala a 1, y otra llamada totalDuracion con valor 0. Recorre el array con un bucle while sumando las duraciones
+              en totalDuracion. Al final, escribe "Total: " y en la línea siguiente el valor acumulado.
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 3;
+              end const
+              
+              type
+                tAtraccion = record
+                  nombre: string;
+                  duracionMinutos: integer;
+                end record
+              end type
+              
+              algorithm
+                var
+                  atracciones: vector[MAX_ATRACCIONES] of tAtraccion;
+                  i: integer;
+                  totalDuracion: integer;
+                end var
+              
+                atracciones[1].duracionMinutos := 10;
+                atracciones[2].duracionMinutos := 15;
+                atracciones[3].duracionMinutos := 20;
+              
+                i := 1;
+                totalDuracion := 0;
+                while i <= MAX_ATRACCIONES do
+                  totalDuracion := totalDuracion + atracciones[i].duracionMinutos;
+                  i := i + 1;
+                end while
+              
+                writeString("Total: ");
+                writeInteger(totalDuracion);
+              end algorithm
+            hint: |
+              En pseudocódigo los índices de arrays empiezan en 1.
+
+          - id: c-4-l3-menu-switch-do-while
+            language: C
+            week: 4
+            prompt: |
+              Declara un tipo enumerado tTipoAtraccion con los valores MONTANA_RUSA, CARRUSEL y SIMULADOR.
+              
+              En la función principal, crea un menú dentro de un bucle do-while:
+              - Pide una opción entera mostrando "Opción (1=MONTANA_RUSA,2=CARRUSEL,3=SIMULADOR,0=Salir): ".
+              - Con un switch, muestra exactamente una de estas líneas según la opción:
+                "Montaña rusa", "Carrusel", "Simulador", "Saliendo..." o "Inválida".
+              
+              El bucle termina cuando la opción sea 0.
+            answer: |
+              #include <stdio.h>
+              
+              typedef enum {
+                  MONTANA_RUSA,
+                  CARRUSEL,
+                  SIMULADOR
+              } tTipoAtraccion;
+              
+              int main() {
+                  int opcion;
+                  do {
+                      printf("Opción (1=MONTANA_RUSA,2=CARRUSEL,3=SIMULADOR,0=Salir): ");
+                      scanf("%d", &opcion);
+              
+                      switch(opcion) {
+                          case 1: printf("Montaña rusa\n"); break;
+                          case 2: printf("Carrusel\n"); break;
+                          case 3: printf("Simulador\n"); break;
+                          case 0: printf("Saliendo...\n"); break;
+                          default: printf("Inválida\n");
+                      }
+                  } while(opcion != 0);
+                  return 0;
+              }
+            hint: |
+              do-while ejecuta el cuerpo al menos una vez.
+
+          - id: p-4-l3-menu-switch-do-while
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Crea un menú en un bucle do-while:
+              - Pide una opción entera mostrando "Opción (1=Montaña rusa,2=Carrusel,3=Simulador,0=Salir): ".
+              - Con un switch, muestra exactamente una de estas líneas:
+                "Montaña rusa", "Carrusel", "Simulador", "Saliendo..." o "Inválida".
+              
+              El bucle termina cuando la opción sea 0.
+            answer: |
+              algorithm
+                var
+                  opcion: integer;
+                end var
+              
+                do
+                  writeString("Opción (1=Montaña rusa,2=Carrusel,3=Simulador,0=Salir): ");
+                  opcion := readInteger();
+              
+                  switch opcion
+                    case 1 then
+                      writeString("Montaña rusa");
+                    end case
+                    case 2 then
+                      writeString("Carrusel");
+                    end case
+                    case 3 then
+                      writeString("Simulador");
+                    end case
+                    case 0 then
+                      writeString("Saliendo...");
+                    end case
+                    case default then
+                      writeString("Inválida");
+                    end case
+                  end switch
+                while opcion <> 0;
+              end algorithm
+            hint: |
+              La condición del do-while va después del bloque.
+
+          - id: c-4-l3-strcmp-dos-atracciones
+            language: C
+            week: 4
+            prompt: |
+              Declara la constante MAX_NOMBRE con valor 25.
+              
+              Define el tipo tAtraccion con:
+              - nombre: texto con tamaño máximo MAX_NOMBRE.
+              
+              En la función principal, declara dos variables a1 y a2 de tipo tAtraccion. Pide al usuario dos nombres:
+              - muestra "Nombre 1: " y guarda el texto en el nombre de a1,
+              - muestra "Nombre 2: " y guarda el texto en el nombre de a2.
+              
+              Compara ambos nombres y muestra "Iguales" si son exactamente iguales, o "Diferentes" en caso contrario.
+            answer: |
+              #include <stdio.h>
+              #include <string.h>
+              
+              #define MAX_NOMBRE 25
+              
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+              } tAtraccion;
+              
+              int main() {
+                  tAtraccion a1, a2;
+              
+                  printf("Nombre 1: ");
+                  scanf("%24s", a1.nombre);
+                  printf("Nombre 2: ");
+                  scanf("%24s", a2.nombre);
+              
+                  if(strcmp(a1.nombre, a2.nombre) == 0) {
+                      printf("Iguales\n");
+                  } else {
+                      printf("Diferentes\n");
+                  }
+              
+                  return 0;
+              }
+            hint: |
+              strcmp devuelve 0 si las cadenas son iguales.
+
+          - id: p-4-l3-compara-nombres-simple
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Define el tipo tAtraccion con:
+              - nombre: texto.
+              
+              En el bloque principal, declara a1 y a2 de tipo tAtraccion. Pide al usuario dos nombres:
+              - muestra "Nombre 1: " y guarda el texto en el nombre de a1,
+              - muestra "Nombre 2: " y guarda el texto en el nombre de a2.
+              
+              Si ambos nombres son iguales, muestra "Iguales"; en caso contrario, muestra "Diferentes".
+            answer: |
+              type
+                tAtraccion = record
+                  nombre: string;
+                end record
+              end type
+              
+              algorithm
+                var
+                  a1: tAtraccion;
+                  a2: tAtraccion;
+                end var
+              
+                writeString("Nombre 1: ");
+                a1.nombre := readString();
+                writeString("Nombre 2: ");
+                a2.nombre := readString();
+              
+                if a1.nombre = a2.nombre then
+                  writeString("Iguales");
+                else
+                  writeString("Diferentes");
+                end if
+              end algorithm
+            hint: |
+              La comparación de textos se realiza con = y <>.
+
+          - id: c-4-l3-horarios-for
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_ATRACCIONES con valor 2, MAX_NOMBRE con valor 20 y MAX_HORA con valor 6.
+              
+              Crea un tipo tHorario con:
+              - apertura: texto con tamaño máximo MAX_HORA.
+              - cierre: texto con tamaño máximo MAX_HORA.
+              
+              Crea un tipo tAtraccion con:
+              - nombre: texto con tamaño máximo MAX_NOMBRE.
+              - horario: de tipo tHorario.
+              
+              En la función principal, declara un array atracciones de tipo tAtraccion y una variable entera i.
+              Recorre el array con un bucle for y para cada elemento pide al usuario:
+              - el nombre (muestra "Nombre: "),
+              - la hora de apertura (muestra "Apertura: "),
+              - la hora de cierre (muestra "Cierre: ").
+              
+              Al finalizar, muestra en una línea la hora de cierre de la segunda atracción.
+            answer: |
+              #include <stdio.h>
+              
+              #define MAX_ATRACCIONES 2
+              #define MAX_NOMBRE 20
+              #define MAX_HORA 6
+              
+              typedef struct {
+                  char apertura[MAX_HORA];
+                  char cierre[MAX_HORA];
+              } tHorario;
+              
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  tHorario horario;
+              } tAtraccion;
+              
+              int main() {
+                  tAtraccion atracciones[MAX_ATRACCIONES];
+                  int i;
+                  for(i = 0; i < MAX_ATRACCIONES; i++) {
+                      printf("Nombre: ");
+                      scanf("%19s", atracciones[i].nombre);
+                      printf("Apertura: ");
+                      scanf("%5s", atracciones[i].horario.apertura);
+                      printf("Cierre: ");
+                      scanf("%5s", atracciones[i].horario.cierre);
+                  }
+                  printf("%s\n", atracciones[1].horario.cierre);
+                  return 0;
+              }
+            hint: |
+              %5s es adecuado para buffers de 6 (incluye el terminador).
+
+          - id: p-4-l3-horarios-for
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 2.
+              
+              Crea un tipo tHorario con:
+              - apertura: texto.
+              - cierre: texto.
+              
+              Crea un tipo tAtraccion con:
+              - nombre: texto.
+              - horario: de tipo tHorario.
+              
+              En el bloque principal, declara un array atracciones de tipo tAtraccion y una variable entera i.
+              Recorre el array con un bucle for (de 1 a MAX_ATRACCIONES) y para cada elemento pide al usuario:
+              - el nombre (muestra "Nombre: "),
+              - la hora de apertura (muestra "Apertura: "),
+              - la hora de cierre (muestra "Cierre: ").
+              
+              Al finalizar, muestra en una línea la hora de cierre de la segunda atracción.
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 2;
+              end const
+              
+              type
+                tHorario = record
+                  apertura: string;
+                  cierre: string;
+                end record
+              end type
+              
+              type
+                tAtraccion = record
+                  nombre: string;
+                  horario: tHorario;
+                end record
+              end type
+              
+              algorithm
+                var
+                  atracciones: vector[MAX_ATRACCIONES] of tAtraccion;
+                  i: integer;
+                end var
+              
+                for i := 1 to MAX_ATRACCIONES do
+                  writeString("Nombre: ");
+                  atracciones[i].nombre := readString();
+                  writeString("Apertura: ");
+                  atracciones[i].horario.apertura := readString();
+                  writeString("Cierre: ");
+                  atracciones[i].horario.cierre := readString();
+                end for
+              
+                writeString(atracciones[2].horario.cierre);
+              end algorithm
+            hint: |
+              Un campo puede ser otro record anidado.
+
+          - id: c-4-l3-contar-mantenimiento-for
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_ATRACCIONES con valor 4 y MAX_NOMBRE con valor 20.
+              
+              Crea un tipo tAtraccion con:
+              - nombre: texto con tamaño máximo MAX_NOMBRE.
+              - enMantenimiento: valor lógico.
+              
+              En la función principal, declara un array atracciones de tipo tAtraccion, una variable entera i y otra entera contador inicializada a 0.
+              Recorre el array con un bucle for. Para cada posición, pide al usuario:
+              - el nombre (muestra "Nombre: ") y guárdalo en el campo de nombre,
+              - si está en mantenimiento (muestra "¿En mantenimiento? (1 sí / 0 no): "); lee un número y conviértelo a valor lógico para el campo enMantenimiento.
+              
+              Luego, con otro bucle for, cuenta cuántas atracciones tienen enMantenimiento verdadero y muestra en una línea: "En mantenimiento: x".
+            answer: |
+              #include <stdio.h>
+              #include <stdbool.h>
+              
+              #define MAX_ATRACCIONES 4
+              #define MAX_NOMBRE 20
+              
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  bool enMantenimiento;
+              } tAtraccion;
+              
+              int main() {
+                  tAtraccion atracciones[MAX_ATRACCIONES];
+                  int i, contador = 0;
+                  int temp;
+              
+                  for(i = 0; i < MAX_ATRACCIONES; i++) {
+                      printf("Nombre: ");
+                      scanf("%19s", atracciones[i].nombre);
+                      printf("¿En mantenimiento? (1 sí / 0 no): ");
+                      scanf("%d", &temp);
+                      atracciones[i].enMantenimiento = (temp != 0);
+                  }
+              
+                  for(i = 0; i < MAX_ATRACCIONES; i++) {
+                      if(atracciones[i].enMantenimiento) {
+                          contador++;
+                      }
+                  }
+              
+                  printf("En mantenimiento: %d\n", contador);
+                  return 0;
+              }
+            hint: |
+              Lee 0/1 y asigna al bool con una comparación.
+
+          - id: p-4-l3-contar-mantenimiento-for
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 4.
+              
+              Crea un tipo tAtraccion con:
+              - nombre: texto.
+              - enMantenimiento: valor booleano.
+              
+              En el bloque principal, declara un array atracciones de tipo tAtraccion, una variable entera i, una entera contador (inicial 0) y una booleana temp.
+              Recorre el array con un bucle for y, para cada posición, pide:
+              - el nombre (muestra "Nombre: ") y guárdalo en el campo de nombre,
+              - si está en mantenimiento (muestra "¿En mantenimiento? (true/false): "); lee el valor en temp y asígnalo al campo enMantenimiento.
+              
+              Después, con otro for, cuenta cuántas atracciones tienen enMantenimiento verdadero y escribe:
+              "En mantenimiento: " y, en la línea siguiente, el número contado.
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 4;
+              end const
+              
+              type
+                tAtraccion = record
+                  nombre: string;
+                  enMantenimiento: boolean;
+                end record
+              end type
+              
+              algorithm
+                var
+                  atracciones: vector[MAX_ATRACCIONES] of tAtraccion;
+                  i: integer;
+                  contador: integer;
+                  temp: boolean;
+                end var
+              
+                for i := 1 to MAX_ATRACCIONES do
+                  writeString("Nombre: ");
+                  atracciones[i].nombre := readString();
+                  writeString("¿En mantenimiento? (true/false): ");
+                  temp := readBoolean();
+                  atracciones[i].enMantenimiento := temp;
+                end for
+              
+                contador := 0;
+                for i := 1 to MAX_ATRACCIONES do
+                  if atracciones[i].enMantenimiento then
+                    contador := contador + 1;
+                  end if
+                end for
+              
+                writeString("En mantenimiento: ");
+                writeInteger(contador);
+              end algorithm
+            hint: |
+              Una sentencia por línea en pseudocódigo.
+
+          - id: c-4-l3-switch-por-tipo
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_ATRACCIONES con valor 3 y MAX_NOMBRE con valor 18.
+              
+              Declara el tipo enumerado tTipoAtraccion con MONTANA_RUSA, CARRUSEL y SIMULADOR.
+              Declara el tipo tAtraccion con:
+              - nombre: texto con tamaño máximo MAX_NOMBRE.
+              - tipo: de tipo tTipoAtraccion.
+              
+              En la función principal, lee los datos de tres atracciones (nombre y tipo numérico 0..2).
+              Recorre el array con un bucle for y, para cada atracción, muestra exactamente una línea con el texto del tipo:
+              "Montaña rusa", "Carrusel" o "Simulador". Usa un switch para decidir el texto.
+            answer: |
+              #include <stdio.h>
+              
+              #define MAX_ATRACCIONES 3
+              #define MAX_NOMBRE 18
+              
+              typedef enum {
+                  MONTANA_RUSA,
+                  CARRUSEL,
+                  SIMULADOR
+              } tTipoAtraccion;
+              
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+                  tTipoAtraccion tipo;
+              } tAtraccion;
+              
+              int main() {
+                  tAtraccion atracciones[MAX_ATRACCIONES];
+                  int i;
+                  unsigned int t;
+              
+                  for(i = 0; i < MAX_ATRACCIONES; i++) {
+                      printf("Nombre: ");
+                      scanf("%17s", atracciones[i].nombre);
+                      printf("Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): ");
+                      scanf("%u", &t);
+                      atracciones[i].tipo = (tTipoAtraccion)t;
+                  }
+              
+                  for(i = 0; i < MAX_ATRACCIONES; i++) {
+                      switch(atracciones[i].tipo) {
+                          case MONTANA_RUSA: printf("Montaña rusa\n"); break;
+                          case CARRUSEL:     printf("Carrusel\n");     break;
+                          case SIMULADOR:    printf("Simulador\n");    break;
+                          default:           printf("Desconocido\n");
+                      }
+                  }
+                  return 0;
+              }
+            hint: |
+              Un switch por cada elemento del array.
+
+          - id: p-4-l3-switch-por-tipo
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 3.
+              
+              Declara el tipo enumerado tTipoAtraccion con MONTANA_RUSA, CARRUSEL y SIMULADOR.
+              Declara el tipo tAtraccion con:
+              - nombre: texto.
+              - tipo: de tipo tTipoAtraccion.
+              
+              En el bloque principal, pide al usuario los datos de tres atracciones (nombre y un número 0..2 para el tipo; usa un switch para asignarlo).
+              Recorre el array con un bucle for y, para cada atracción, muestra exactamente una línea con el texto del tipo:
+              "Montaña rusa", "Carrusel" o "Simulador".
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 3;
+              end const
+              
+              type
+                tTipoAtraccion = { MONTANA_RUSA, CARRUSEL, SIMULADOR };
+              end type
+              
+              type
+                tAtraccion = record
+                  nombre: string;
+                  tipo: tTipoAtraccion;
+                end record
+              end type
+              
+              algorithm
+                var
+                  atracciones: vector[MAX_ATRACCIONES] of tAtraccion;
+                  i: integer;
+                  auxTipo: integer;
+                end var
+              
+                for i := 1 to MAX_ATRACCIONES do
+                  writeString("Nombre: ");
+                  atracciones[i].nombre := readString();
+                  writeString("Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): ");
+                  auxTipo := readInteger();
+              
+                  switch auxTipo
+                    case 0 then
+                      atracciones[i].tipo := MONTANA_RUSA;
+                    end case
+                    case 1 then
+                      atracciones[i].tipo := CARRUSEL;
+                    end case
+                    case 2 then
+                      atracciones[i].tipo := SIMULADOR;
+                    end case
+                    case default then
+                      atracciones[i].tipo := MONTANA_RUSA;
+                    end case
+                  end switch
+                end for
+              
+                for i := 1 to MAX_ATRACCIONES do
+                  switch atracciones[i].tipo
+                    case MONTANA_RUSA then
+                      writeString("Montaña rusa");
+                    end case
+                    case CARRUSEL then
+                      writeString("Carrusel");
+                    end case
+                    case SIMULADOR then
+                      writeString("Simulador");
+                    end case
+                    case default then
+                      writeString("Desconocido");
+                    end case
+                  end switch
+                end for
+              end algorithm
+            hint: |
+              Mantén una sola salida por línea.
+
+          - id: c-4-l3-entrada-hasta-fin-strcmp
+            language: C
+            week: 4
+            prompt: |
+              Declara las constantes MAX_ATRACCIONES con valor 4 y MAX_NOMBRE con valor 20.
+              
+              Define el tipo tAtraccion con:
+              - nombre: texto con tamaño máximo MAX_NOMBRE.
+              
+              En la función principal, declara un array atracciones de tipo tAtraccion, un búfer temporal llamado tempNombre (texto de tamaño MAX_NOMBRE) y una variable entera i inicializada a 0.
+              
+              Repite mientras haya espacio disponible:
+              - pide un nombre mostrando "Nombre (FIN para terminar): " y guárdalo en el búfer temporal,
+              - si el usuario escribe la palabra FIN, detén la repetición,
+              - en caso contrario, copia el contenido del búfer temporal al campo de nombre del siguiente elemento y avanza al siguiente índice.
+              
+              Al terminar, muestra en una línea "Guardados: x" con la cantidad de elementos almacenados.
+            answer: |
+              #include <stdio.h>
+              #include <string.h>
+              
+              #define MAX_ATRACCIONES 4
+              #define MAX_NOMBRE 20
+              
+              typedef struct {
+                  char nombre[MAX_NOMBRE];
+              } tAtraccion;
+              
+              int main() {
+                  tAtraccion atracciones[MAX_ATRACCIONES];
+                  char tempNombre[MAX_NOMBRE];
+                  int i = 0;
+              
+                  while(i < MAX_ATRACCIONES) {
+                      printf("Nombre (FIN para terminar): ");
+                      scanf("%19s", tempNombre);
+                      if(strcmp(tempNombre, "FIN") == 0) {
+                          break;
+                      }
+                      strncpy(atracciones[i].nombre, tempNombre, MAX_NOMBRE);
+                      i++;
+                  }
+              
+                  printf("Guardados: %d\n", i);
+                  return 0;
+              }
+            hint: |
+              Usa strcmp para comparar con "FIN" y strncpy para copiar.
+
+          - id: p-4-l3-entrada-hasta-vacio
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 4.
+              
+              Define el tipo tAtraccion con:
+              - nombre: texto.
+              
+              En el bloque principal, declara un array atracciones de tipo tAtraccion, una variable de texto tempNombre y una entera i inicializada a 1.
+              
+              Mientras no se supere el límite y el usuario no escriba "FIN":
+              - pide un nombre mostrando "Nombre (FIN para terminar): " y guárdalo en tempNombre,
+              - si no es "FIN", guarda el texto en el nombre del siguiente elemento del array y avanza al siguiente índice.
+              
+              Al terminar, muestra "Guardados: " y, en la línea siguiente, la cantidad de elementos realmente guardados.
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 4;
+              end const
+              
+              type
+                tAtraccion = record
+                  nombre: string;
+                end record
+              end type
+              
+              algorithm
+                var
+                  atracciones: vector[MAX_ATRACCIONES] of tAtraccion;
+                  tempNombre: string;
+                  i: integer;
+                end var
+              
+                i := 1;
+                tempNombre := "";
+                while (i <= MAX_ATRACCIONES) and (tempNombre <> "FIN") do
+                  writeString("Nombre (FIN para terminar): ");
+                  tempNombre := readString();
+                  if tempNombre <> "FIN" then
+                    atracciones[i].nombre := tempNombre;
+                    i := i + 1;
+                  end if
+                end while
+              
+                writeString("Guardados: ");
+                writeInteger(i - 1);
+              end algorithm
+            hint: |
+              Controla fin por palabra y por límite.
+
+          - id: c-4-l3-promedio-y-ternario
+            language: C
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 3.
+              
+              Define el tipo tAtraccion con:
+              - duracionMinutos: número entero.
+              
+              En la función principal, declara un array atracciones de tipo tAtraccion, una variable entera i y otra llamada suma con valor inicial 0.
+              Con un bucle for, pide al usuario tres duraciones mostrando "Duración (min): " y guarda cada valor en el campo de duración del elemento actual, acumulándolo en suma.
+              
+              Calcula el promedio como un número decimal dividiendo la suma entre 3.0 y muestra:
+              - en una línea: "Promedio: x.x" (con un decimal),
+              - en la siguiente línea, usa un operador ternario para imprimir "Larga" si el promedio es mayor o igual que 120, o "Corta" en caso contrario.
+            answer: |
+              #include <stdio.h>
+              
+              #define MAX_ATRACCIONES 3
+              
+              typedef struct {
+                  int duracionMinutos;
+              } tAtraccion;
+              
+              int main() {
+                  tAtraccion atracciones[MAX_ATRACCIONES];
+                  int i, suma = 0;
+                  float promedio;
+              
+                  for(i = 0; i < MAX_ATRACCIONES; i++) {
+                      printf("Duración (min): ");
+                      scanf("%d", &atracciones[i].duracionMinutos);
+                      suma += atracciones[i].duracionMinutos;
+                  }
+              
+                  promedio = suma / 3.0f;
+                  printf("Promedio: %.1f\n", promedio);
+                  printf("%s\n", (promedio >= 120.0f) ? "Larga" : "Corta");
+                  return 0;
+              }
+            hint: |
+              Divide entre 3.0f para obtener decimal.
+
+          - id: p-4-l3-promedio-simple
+            language: Pseudocode
+            week: 4
+            prompt: |
+              Declara la constante MAX_ATRACCIONES con valor 3.
+              
+              Define el tipo tAtraccion con:
+              - duracionMinutos: número entero.
+              
+              En el bloque principal, declara un array atracciones de tipo tAtraccion, una variable entera i, otra entera suma y otra real promedio.
+              Con un bucle for, pide al usuario tres duraciones mostrando "Duración (min): " y guarda cada valor en el campo de duración del elemento actual, acumulándolo en suma.
+              
+              Calcula el promedio como número real dividiendo suma entre 3.0 y muestra:
+              - en una línea: "Promedio: "
+              - en la línea siguiente, el valor del promedio.
+            answer: |
+              const
+                MAX_ATRACCIONES: integer = 3;
+              end const
+              
+              type
+                tAtraccion = record
+                  duracionMinutos: integer;
+                end record
+              end type
+              
+              algorithm
+                var
+                  atracciones: vector[MAX_ATRACCIONES] of tAtraccion;
+                  i: integer;
+                  suma: integer;
+                  promedio: real;
+                end var
+              
+                suma := 0;
+                for i := 1 to MAX_ATRACCIONES do
+                  writeString("Duración (min): ");
+                  atracciones[i].duracionMinutos := readInteger();
+                  suma := suma + atracciones[i].duracionMinutos;
+                end for
+              
+                promedio := suma / 3.0;
+                writeString("Promedio: ");
+                writeReal(promedio);
+              end algorithm
+            hint: |
+              Una sentencia por línea; no hay operador ternario en pseudocódigo.
+
+
+
+
+
 
 
 

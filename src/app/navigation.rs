@@ -94,6 +94,10 @@ impl QuizApp {
         progress.current_in_level = Some(select_question);
         progress.round = 1;
         progress.shown_this_round.clear();
+
+        // 🔸 Mostrar teoría antes de empezar
+        self.state = AppState::LevelTheory;
+        self.message.clear();
     }
 
     /// 1) Continuar (o iniciar) el quiz: selecciona la primera pregunta pendiente si hace falta.
@@ -140,7 +144,10 @@ impl QuizApp {
             prog.finished = false;
             prog.input.clear();
         }
-        self.state = AppState::Quiz;
+        if self.state != AppState::LevelTheory {
+            self.state = AppState::Quiz;
+        }        
+
         self.message.clear();
     }
 

@@ -32,6 +32,7 @@ impl App for QuizApp {
             AppState::Quiz           => views::quiz::ui_quiz(self, ctx),
             AppState::Summary        => views::summary::ui_summary_view(self, ctx),
             AppState::LevelSummary   => views::level_summary::ui_level_summary(self, ctx),
+            AppState::LevelTheory    => views::level_theory::ui_level_theory(self, ctx),
         }
 
         if self.confirm_reset {

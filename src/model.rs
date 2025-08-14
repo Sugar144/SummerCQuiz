@@ -51,16 +51,19 @@ pub struct Quiz {
     pub weeks: Vec<Week>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum AppState {
+
+    PendingUpdate,
     LanguageSelect,
     Welcome,
     WeekMenu,
     LevelMenu,
+    LevelTheory,
     Quiz,
-    Summary,
     LevelSummary,
-    PendingUpdate,
+    Summary,
+
 }
 
 // ¡Implementa Default!

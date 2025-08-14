@@ -165,7 +165,7 @@ impl QuizApp {
     }
 
     pub fn ver_progreso(&mut self) {
-        self.state = AppState::Summary;
+        self.state = AppState::LevelSummary;
         self.message.clear();
     }
 }

@@ -37,13 +37,10 @@ pub fn ui_level_menu(app: &mut QuizApp, ctx: &Context) {
 
                             if clicked_main && info.unlocked {
                                 app.select_level(week_idx, info.idx);
-                                app.state = crate::model::AppState::Quiz;
-                                app.update_input_prefill();
                             }
                             if clicked_restart && info.completed {
                                 app.reiniciar_nivel(week_idx, info.idx);
                                 app.select_level(week_idx, info.idx);
-                                app.state = crate::model::AppState::Quiz;
                                 return;
                             }
                             ui.add_space(8.0);

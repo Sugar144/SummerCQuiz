@@ -6,5 +6,6 @@ pub mod quiz;
 pub mod summary;
 pub mod level_menu;
 pub mod level_summary;
+pub mod level_theory;
 
 

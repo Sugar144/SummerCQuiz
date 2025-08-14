@@ -103,7 +103,6 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
                                 .clicked()
                             {
                                 app.select_level(wi, li + 1);
-                                app.state = AppState::Quiz;
 
                                 //app.avanzar_a_siguiente_nivel();
                             }
