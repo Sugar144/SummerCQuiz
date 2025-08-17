@@ -1,6 +1,6 @@
-use egui::{Align, Button, CentralPanel, Context, RichText};
 use crate::model::Language;
 use crate::QuizApp;
+use egui::{Align, Button, CentralPanel, Context, RichText};
 
 pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
     CentralPanel::default().show(ctx, |ui| {
@@ -44,7 +44,7 @@ pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
                         let btn_menu  = ui.add_sized([btn_w, btn_h], Button::new("📅 Seleccionar Semana"));
                         let btn_exit  = ui.add_sized([btn_w, btn_h], Button::new("🔙 Volver"));
 
-                        if let Some(b) = btn_cont { if b.clicked() { app.continuar_quiz(); } }
+                        if let Some(b) = btn_cont { if b.clicked() { app.continuar_quiz(false); } }
                         if btn_start.clicked() {
                             if hay_guardado {
                                 app.confirm_reset = true;

@@ -100,7 +100,10 @@ impl QuizApp {
     }
 
     /// 1) Continuar (o iniciar) el quiz: selecciona la primera pregunta pendiente si hace falta.
-    pub fn continuar_quiz(&mut self) {
+    ///
+    /// Si `force` es `true`, cambia el estado a [`AppState::Quiz`] incluso si
+    /// actualmente estamos en [`AppState::LevelTheory`].
+    pub fn continuar_quiz(&mut self, force: bool) {
         // Decidir si hace falta seleccionar semana/nivel/pregunta
         let need_select = {
             let prog = self.progress();
@@ -113,20 +116,21 @@ impl QuizApp {
             // Encuentra la primera pregunta pendiente recorriendo semanas→niveles→preguntas
             let lang = self.selected_language.unwrap_or(Language::C);
 
-            if let Some(wi) = self.quiz
-                .weeks
-                .iter()
-                .enumerate()
-                .find_map(|(wi, wk)| {
-                    // ¿Algún nivel dentro de wk tiene una pregunta no completada?
-                    let has_pending = wk.levels.iter().flat_map(|lvl| &lvl.questions)
-                        .any(|q| {
-                            q.language == lang
-                                && q.id.as_ref().map(|id| !self.progress().completed_ids.contains(id)).unwrap_or(false)
-                        });
-                    if has_pending { Some(wi) } else { None }
-                })
-            {
+            if let Some(wi) = self.quiz.weeks.iter().enumerate().find_map(|(wi, wk)| {
+                // ¿Algún nivel dentro de wk tiene una pregunta no completada?
+                let has_pending = wk.levels.iter().flat_map(|lvl| &lvl.questions).any(|q| {
+                    q.language == lang
+                        && q.id
+                            .as_ref()
+                            .map(|id| !self.progress().completed_ids.contains(id))
+                            .unwrap_or(false)
+                });
+                if has_pending {
+                    Some(wi)
+                } else {
+                    None
+                }
+            }) {
                 // select_week usará wi para posicionarse en (li,qi)
                 self.select_week(wi);
                 self.update_input_prefill();
@@ -143,7 +147,7 @@ impl QuizApp {
             prog.finished = false;
             prog.input.clear();
         }
-        if self.state != AppState::LevelTheory {
+        if force || self.state != AppState::LevelTheory {
             self.state = AppState::Quiz;
         }
 
@@ -224,7 +228,7 @@ impl QuizApp {
         // 2) Obtener la posición actual o inicializar en la primera válida
         let pos = match self.position_or_init_first(&valid_week_idxs) {
             Some(p) => p,
-            None    => return, // ya arrancamos en la primera, nada más que hacer
+            None => return, // ya arrancamos en la primera, nada más que hacer
         };
 
         // 3) Intentar avanzar al siguiente índice
@@ -232,7 +236,9 @@ impl QuizApp {
             if self.is_week_completed(next_wi) {
                 // siguiente semana ya completada: volvemos al menú
                 self.state = AppState::WeekMenu;
-                self.message = "La siguiente semana ya está completada. ¡Escoge otra desde el menú!".to_owned();
+                self.message =
+                    "La siguiente semana ya está completada. ¡Escoge otra desde el menú!"
+                        .to_owned();
             } else {
                 // entramos en la siguiente semana
                 self.acceder_a_semana(next_wi);
@@ -334,4 +340,3 @@ impl QuizApp {
         }
     }
 }
-

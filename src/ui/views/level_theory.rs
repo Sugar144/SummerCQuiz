@@ -87,17 +87,8 @@ pub fn ui_level_theory(app: &mut QuizApp, ctx: &egui::Context) {
                             app.message.clear();
                         }
                         if comenzar {
-                            {
-                                let prog = app.progress_mut();
-                                if prog.current_in_level.is_none() {
-                                    prog.current_in_level = Some(0);
-                                }
-                                prog.finished = false;
-                                prog.input.clear();
-                            }
+                            app.continuar_quiz(true);
                             app.update_input_prefill();
-                            app.state = AppState::Quiz;
-                            app.message.clear();
                         }
                     }
                 });

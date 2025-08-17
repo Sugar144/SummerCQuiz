@@ -15,7 +15,7 @@ impl QuizApp {
             self.progresses.insert(other, QuizProgress::default());
 
             // 3) elige la primera semana/pregunta y pasa a Quiz
-            self.continuar_quiz();
+            self.continuar_quiz(false);
 
             // 4) limpia las banderas de UI
             self.confirm_reset = false;
@@ -51,7 +51,9 @@ impl QuizApp {
         let lang = self.selected_language.unwrap_or(Language::C);
 
         // 1) Recopilar IDs de esa semana + lenguaje
-        let ids_to_remove: Vec<String> = self.quiz.weeks
+        let ids_to_remove: Vec<String> = self
+            .quiz
+            .weeks
             .get(week_idx)
             .into_iter()
             .flat_map(|w| &w.levels)
@@ -61,19 +63,17 @@ impl QuizApp {
             .collect();
 
         // 2) Buscar primera pregunta pendiente en esa semana
-        let first_pending = self.quiz.weeks
-            .get(week_idx)
-            .and_then(|week| {
-                week.levels.iter().enumerate().find_map(|(li, lvl)| {
-                    lvl.questions.iter().enumerate().find_map(|(qi, q)| {
-                        if q.language == lang && !q.is_done {
-                            Some((li, qi))
-                        } else {
-                            None
-                        }
-                    })
+        let first_pending = self.quiz.weeks.get(week_idx).and_then(|week| {
+            week.levels.iter().enumerate().find_map(|(li, lvl)| {
+                lvl.questions.iter().enumerate().find_map(|(qi, q)| {
+                    if q.language == lang && !q.is_done {
+                        Some((li, qi))
+                    } else {
+                        None
+                    }
                 })
-            });
+            })
+        });
 
         // 3) Borrar IDs y resetear rondas en progress
         {
@@ -108,7 +108,9 @@ impl QuizApp {
         let lang = self.selected_language.unwrap_or(Language::C);
 
         // 1) Recopilar IDs de las preguntas de ese nivel + lenguaje
-        let ids_to_remove: Vec<String> = self.quiz.weeks
+        let ids_to_remove: Vec<String> = self
+            .quiz
+            .weeks
             .get(week_idx)
             .and_then(|w| w.levels.get(level_idx))
             .into_iter()
@@ -118,7 +120,9 @@ impl QuizApp {
             .collect();
 
         // 2) Buscar la primera pregunta pendiente en ese nivel
-        let first_pending = self.quiz.weeks
+        let first_pending = self
+            .quiz
+            .weeks
             .get(week_idx)
             .and_then(|w| w.levels.get(level_idx))
             .and_then(|lvl| {
@@ -146,7 +150,10 @@ impl QuizApp {
         }
 
         // 4) Resetear flags y estadísticas en las preguntas del nivel
-        if let Some(lvl) = self.quiz.weeks.get_mut(week_idx)
+        if let Some(lvl) = self
+            .quiz
+            .weeks
+            .get_mut(week_idx)
             .and_then(|w| w.levels.get_mut(level_idx))
         {
             for q in &mut lvl.questions {
@@ -169,4 +176,3 @@ impl QuizApp {
         self.message.clear();
     }
 }
-
