@@ -1,6 +1,6 @@
 use egui::{Align, CentralPanel, Context, ScrollArea};
 use crate::code_utils::{c_syntax, pseudo_syntax};
-use crate::model::{Language};
+use crate::model::{AppState, Language};
 use crate::QuizApp;
 use crate::ui::layout::{code_editor_input, code_editor_solution, two_button_row};
 
@@ -24,8 +24,13 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                     ) {
                         let question = app.quiz.weeks[wi].levels[li].questions[qi].clone();
 
+                        let week_number = app.quiz.weeks[wi].number;
+                        let level_number = li + 1;
+                        let round = app.progress().round;
                         // Ronda
-                        ui.heading(format!("🌀 Ronda {}", app.progress().round));
+                        ui.heading(format!("📅 Semana {} - ⭐ Nivel {}", week_number, level_number));
+                        ui.heading(format!("🌀 Ronda {}", round));
+
                         ui.add_space(10.0);
 
                         // Prompt con scroll fijo
@@ -38,14 +43,43 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                         let galley = ui.fonts(|fonts| fonts.layout(
                             prompt_text.clone(), font_id.clone(), egui::Color32::WHITE, panel_width));
                         let needed_h = galley.size().y.max(prompt_min_h).min(prompt_max_h);
+
+                        ui.allocate_ui_with_layout(
+                            egui::vec2(panel_width, needed_h),
+                            egui::Layout::top_down(Align::LEFT),
+                            |ui| {
+                                ui.horizontal(|ui| {
+                                    ui.label("Enunciado:");
+
+                                    ui.add_space(panel_width - 150.0);
+
+                                    if ui.button("📘 Ver teoría").clicked() {
+                                        app.open_level_theory(AppState::Quiz);
+                                    }
+
+                                });
+
+                                ui.separator();
+
+                            },
+                        );
+
+
                         ui.allocate_ui_with_layout(
                             egui::vec2(panel_width, needed_h),
                             egui::Layout::top_down(Align::Min),
                             |ui| {
+                                ui.set_width(panel_width);
+
                                 ScrollArea::vertical()
                                     .max_height(prompt_max_h)
-                                    .show(ui, |ui| { ui.label(prompt_text); });
+                                    .show(ui, |ui| {
+                                        ui.set_width(ui.available_width());
+                                        ui.label(prompt_text); });
+
+                                        ui.separator();
                             },
+
                         );
 
                         ui.add_space(5.0);
@@ -61,6 +95,7 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                         let font_id = egui::TextStyle::Monospace.resolve(ui.style());
                         let line_h = ui.fonts(|f| f.row_height(&font_id));
                         let code_rows = min_lines;
+
 
                         if question.fails >= 2 {
                             if !app.progress().show_solution {

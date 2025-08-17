@@ -96,8 +96,7 @@ impl QuizApp {
         progress.shown_this_round.clear();
 
         // 🔸 Mostrar teoría antes de empezar
-        self.state = AppState::LevelTheory;
-        self.message.clear();
+        self.open_level_theory(AppState::LevelMenu);
     }
 
     /// 1) Continuar (o iniciar) el quiz: selecciona la primera pregunta pendiente si hace falta.
@@ -146,7 +145,7 @@ impl QuizApp {
         }
         if self.state != AppState::LevelTheory {
             self.state = AppState::Quiz;
-        }        
+        }
 
         self.message.clear();
     }
@@ -192,6 +191,12 @@ impl QuizApp {
 
         // 5) Cambiar estado y limpiar mensaje
         self.state = AppState::LevelMenu;
+        self.message.clear();
+    }
+
+    pub fn open_level_theory(&mut self, return_to: AppState) {
+        self.theory_return_state = return_to;
+        self.state = AppState::LevelTheory;
         self.message.clear();
     }
 

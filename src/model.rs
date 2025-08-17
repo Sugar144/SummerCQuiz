@@ -35,7 +35,7 @@ pub struct Question {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Level {
     pub number: usize,
-    pub explanation: String,
+    pub explanation: std::collections::HashMap<Language, String>,
     pub questions: Vec<Question>,
 }
 

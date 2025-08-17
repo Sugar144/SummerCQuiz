@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use serde::{Deserialize, Serialize};
 use eframe::egui;
-
+use egui_commonmark::CommonMarkCache;
 use crate::data::read_questions_embedded;
 use crate::model::{AppState, Language, Level, Question, Quiz, Week};
 
@@ -30,7 +30,7 @@ pub struct QuizProgress {
     pub max_unlocked_level: HashMap<usize, usize>,
     pub input: String,
     pub finished: bool,
-    pub round: u32,
+    pub round: usize,
     pub shown_this_round: Vec<(usize, usize)>,   // Ahora es mejor guardar pares (nivel, pregunta)
     pub show_solution: bool,
 }
@@ -69,6 +69,10 @@ pub struct QuizApp {
     #[serde(skip)]
     pub state: AppState,
     #[serde(skip)]
+    pub theory_return_state: AppState,
+    #[serde(skip)]
+    pub cm_cache : CommonMarkCache,
+    #[serde(skip)]
     pub has_update: Option<String>,
     #[serde(skip)]
     pub confirm_reset: bool,
@@ -93,6 +97,8 @@ impl QuizApp {
             quiz,
             message: String::new(),
             state: AppState::LanguageSelect,
+            theory_return_state: AppState::LevelMenu,
+            cm_cache : CommonMarkCache::default(),
             has_update: None,
             confirm_reset: false,
             update_thread_launched: false,
@@ -124,6 +130,8 @@ impl QuizApp {
             quiz,
             message: String::new(),
             state: AppState::Welcome,
+            theory_return_state: AppState::LevelMenu,
+            cm_cache: CommonMarkCache::default(),
             has_update: None,
             confirm_reset: false,
             update_thread_launched: false,

@@ -5,8 +5,120 @@ weeks:
     levels:
       ## Declaración, inicialización y asignación de variables y constantes
       - number: 1
-        explanation: |
-          Teoria para solucionar nivel 1 de la semana 1
+        explanation:
+          C: |-
+            ## Constantes con `#define` (preprocesador)
+            Se usan para definir valores constantes globales sin tipo.  
+            Son sustituidas por su valor antes de compilar y no ocupan memoria.  
+            No llevan `;` al final.
+
+            ```c
+            #define MAX_JUGADORES 4
+            #define PUNTOS_VICTORIA 1000
+            ```
+
+            ## Constantes locales con `const` (con tipo)
+            Se definen dentro de una función, con tipo y valor inicial.  
+            Deben inicializarse al declararlas.
+
+            ```c
+            const float VELOCIDAD_JUGADOR = 5.5;
+            const int VIDAS_INICIALES = 3;
+            ```
+
+            ## Declaración de variables
+            Cada tipo tiene su palabra clave:
+            - `int` → enteros
+            - `float` → decimales
+            - `bool` → booleanos (requiere `#include <stdbool.h>`)
+            - `char` → caracteres individuales
+            - `char[]` → cadenas de caracteres con tamaño fijo
+
+            ```c
+            int puntuacion;
+            float energia;
+            bool nivelCompletado;
+            char inicialJugador;
+            char nombreJugador[30];
+            ```
+
+            También puedes **declarar un `char[]` con datos iniciales** usando comillas dobles:
+
+            ```c
+            char nombreJugador[30] = "Zelda";
+            ```
+
+            ## Inicialización y asignación
+            Puedes **inicializar al declarar**:
+
+            ```c
+            int puntuacion = 500;
+            float energia = VELOCIDAD_JUGADOR;
+            char inicialJugador = 'L';
+            ```
+
+            O **declarar primero y asignar después**:
+
+            ```c
+            int puntuacion;
+            puntuacion = 500;
+
+            float energia;
+            energia = VELOCIDAD_JUGADOR;
+
+            char inicialJugador;
+            inicialJugador = 'L';
+            ```
+
+          Pseudocode: |-
+            ## Constantes
+            Las constantes se definen en un bloque `const ... end const`, indicando tipo y valor.  
+            Se usan para valores que no cambian durante la partida.
+
+            ```text
+            const
+              MAX_JUGADORES: integer = 4;
+              PUNTOS_VICTORIA: integer = 1000;
+              VELOCIDAD_JUGADOR: real = 5.5;
+              VIDAS_INICIALES: integer = 3;
+            end const
+            ```
+
+            ## Variables
+            Se declaran en un bloque `var ... end var` dentro del algoritmo principal, indicando su tipo.  
+            No se pueden inicializar en la misma línea que la declaración.
+
+            ```text
+            var
+              puntuacion: integer;
+              energia: real;
+              nivelCompletado: boolean;
+              inicialJugador: character;
+              nombreJugador: string;
+            end var
+            ```
+
+            ## Asignación de valores
+            Una vez declaradas, se asigna el valor con `:=`.  
+            Para usar una constante, simplemente escribe su nombre.
+
+            ```text
+            puntuacion := 500;
+            energia := VELOCIDAD_JUGADOR;
+            nivelCompletado := false;
+            inicialJugador := 'L';
+            nombreJugador := "Zelda";
+            ```
+
+            ## Tipos básicos
+            - `integer` → enteros
+            - `real` → decimales
+            - `boolean` → valores `true` o `false`
+            - `character` → un solo carácter `'A'`
+            - `string` → cadenas de texto
+        
+        
+
         questions:
           - id: c-1-max_nombre
             language: C
@@ -257,8 +369,144 @@ weeks:
 
       # Entrada y salida
       - number: 2
-        explanation: |
-          Teoria para solucionar nivel 2 de la semana 1
+        explanation:
+          C: |-
+            ## Lectura de datos con `scanf`
+            Se usa para leer información introducida por el jugador.  
+            En variables simples (`int`, `float`, `char`) se pasa la dirección con `&`.  
+            En cadenas (`char[]`), no se usa `&` porque ya son punteros.
+
+            ```c
+            char nombreJugador[30];
+            int nivel;
+            float energia;
+            char teclaAccion;
+
+            scanf("%s", nombreJugador); // cadena
+            scanf("%d", &nivel);        // entero
+            scanf("%f", &energia);      // decimal
+            scanf(" %c", &teclaAccion); // carácter
+            ```
+
+            También puedes leer datos sobre un string que **ya tiene un valor inicial**:  
+            Esto reemplazará el contenido anterior.
+
+            ```c
+            char nombreJugador[30] = "Jugador1";
+            printf("Introduce nuevo nombre: ");
+            scanf("%s", nombreJugador);
+            ```
+
+            ## Formatos comunes en `scanf`
+            - `%s` → cadenas
+            - `%d` → enteros
+            - `%f` → decimales
+            - `%c` → caracteres
+
+            ---
+
+            ## Escritura de datos con `printf`
+            Permite mostrar información de la partida en pantalla.
+
+            ```c
+            char nombreJugador[30] = "Mario";
+            int nivel = 2;
+            float energia = 75.5;
+            char teclaAccion = 'A';
+
+            printf("Jugador: %s\n", nombreJugador);
+            printf("Nivel: %d\n", nivel);
+            printf("Energía: %.1f%%\n", energia);
+            printf("Tecla de acción: %c\n", teclaAccion);
+            ```
+
+            ## Formatos comunes en `printf`
+            - `%s` → cadenas
+            - `%d` → enteros
+            - `%f` → decimales
+            - `%.1f` → decimales con 1 cifra
+            - `%c` → caracteres
+
+            **Notas**
+            - `scanf` → usar `&` para variables simples, no para cadenas.
+            - `printf` → el tipo y orden deben coincidir con los especificadores.
+
+          Pseudocode: |-
+            ## Lectura de datos
+            Cada tipo de dato tiene su función de lectura `readTipo()`.  
+            Devuelven un valor que debes asignar a una variable con `:=`.
+            
+            ```text
+            var
+              nombreJugador: string;
+              nivel: integer;
+              energia: real;
+              teclaAccion: character;
+              modoCoop: boolean;
+            end var
+            
+            nombreJugador := readString();
+            nivel := readInteger();
+            energia := readReal();
+            teclaAccion := readCharacter();
+            modoCoop := readBoolean();
+            ```
+            
+            También puedes leer sobre un string que ya tenga valor inicial (se reemplaza el contenido):
+            
+            ```text
+            var
+              nombreJugador: string;
+            end var
+            
+            nombreJugador := "Jugador1";
+            nombreJugador := readString();
+            ```
+            
+            **Funciones más comunes**
+            - `readString()` → cadenas  
+            - `readInteger()` → enteros  
+            - `readReal()` → decimales  
+            - `readCharacter()` → caracteres  
+            - `readBoolean()` → booleanos (`true` / `false`)
+            
+            ---
+            
+            ## Escritura de datos
+            Cada tipo de dato tiene su función `writeTipo(valor)`.  
+            No se pueden imprimir varios datos en la misma llamada; usa varias llamadas seguidas.
+            
+            ```text
+            writeString("Jugador: ");
+            writeString(nombreJugador);
+            
+            writeString(", Nivel: ");
+            writeInteger(nivel);
+            
+            writeString(", Energía: ");
+            writeReal(energia);
+            
+            writeString(", Tecla de acción: ");
+            writeCharacter(teclaAccion);
+            
+            writeString(", Modo cooperativo: ");
+            writeBoolean(modoCoop);
+            ```
+            
+            **Funciones más comunes**
+            - `writeString(valor)` → cadenas  
+            - `writeInteger(valor)` → enteros  
+            - `writeReal(valor)` → decimales  
+            - `writeCharacter(valor)` → caracteres  
+            - `writeBoolean(valor)` → booleanos
+            
+            **Notas**
+            - Cada `write...` imprime un único dato o texto.
+            - Los booleanos se representan como `true` o `false`.
+            - El orden de las llamadas determina el orden en pantalla.
+        
+        
+
         questions:
           - id: c-1-scanf_nombredron
             language: C
@@ -424,8 +672,160 @@ weeks:
 
 
       - number: 3
-        explanation: |
-          Teoria para solucionar nivel 3 de la semana 1
+        explanation:
+          C: |-
+            ## Enumerativos (enum)
+            Un `enum` define un conjunto finito de etiquetas con valores enteros subyacentes (normalmente `int` empezando en 0).  
+            Útil para estados del juego con nombres legibles en vez de números.
+
+            ```c
+            // Definición y uso
+            typedef enum {
+              IDLE, ATACANDO, KO
+            } tEstadoJugador;
+
+            tEstadoJugador estado = ATACANDO;   // inicialización
+            // Lectura como entero sin signo
+            scanf("%u", &estado);   // %u es el especificador que usaremos para enumerativos
+
+            // Impresión del valor numérico
+            printf("Estado (0=IDLE,1=ATACANDO,2=KO): %u\n", estado);
+            ```
+
+            ## Operadores aritméticos y compuestos
+            Los básicos son `+ - * / %`.  
+            Los compuestos combinan operación y asignación: `+= -= *= /= %=`.  
+            `++` y `--` incrementan/decrementan en 1 (no existen en pseudocódigo).
+
+            ```c
+            int puntuacion = 900;
+            puntuacion += 50;    // 950
+            int vidas = 3;
+            vidas--;             // 2
+            float energia = 87.5f;
+            energia -= 12.5f;    // 75.0
+            ```
+
+            ## Relacionales y lógicos (expresiones booleanas)
+            Comparaciones: `== != < <= > >=` devuelven `bool`.  
+            Lógicos: `&&` (AND), `||` (OR), `!` (NOT). Usa paréntesis para claridad.
+
+            ```c
+            #include <stdbool.h>
+            bool activo = true;
+            bool averiado = false;
+            float bateria = 22.0f;
+
+            bool suficiente = (bateria >= 20.0f);          // true
+            bool enServicio = activo && !averiado;         // true
+            bool puedeJugar = suficiente && (vidas > 0);   // depende de 'vidas'
+            ```
+
+            ## Operador ternario `?:`
+            Selecciona entre dos expresiones según una condición.  
+            Ideal para decidir mensajes cortos o valores simples.
+
+            ```c
+            bool enServicio = true;
+            printf("%s\n", enServicio ? "En servicio" : "Fuera de servicio");
+
+            int bonus = (puntuacion >= 1000) ? 100 : 0;
+            ```
+
+            ## Conversiones (casts)
+            Un *cast* fuerza la conversión de tipo.  
+            Ten presente si es *widening* (pérdida improbable) o *narrowing* (puede truncar).
+
+            ```c
+            float energia = 73.8f;
+            int energiaEntera = (int)energia;    // 73 (trunca)
+            int vidas = 2;
+            float vidasF = (float)vidas;         // 2.0 (amplía)
+            ```
+
+          Pseudocode: |-
+            ## Enumerativos
+            Un tipo enumerativo define un conjunto limitado de etiquetas que representan valores enteros.  
+            En pseudocódigo se definen con `type` y `end type`.
+
+            ```pseudocode
+            type
+              tEstadoJugador = { IDLE, ATACANDO, KO }
+            end type
+
+            var
+              estado: tEstadoJugador;
+            end var
+
+            estado := ATACANDO;
+            estado := readEnum();  { lee el valor de teclado }
+            writeString("Estado actual: ");
+            writeEnum(estado);
+            ```
+
+            ## Operadores aritméticos y compuestos
+            Los operadores básicos son `+ - * / %`.  
+            Los compuestos no existen, pero puedes simularlos reescribiendo la variable.  
+            El incremento y decremento se hacen sumando o restando 1.
+
+            ```pseudocode
+            var
+              puntuacion: integer;
+              vidas: integer;
+              energia: real;
+            end var
+
+            puntuacion := puntuacion + 50;
+            vidas := vidas - 1;
+            energia := energia - 12.5;
+            ```
+
+            ## Operadores relacionales y lógicos
+            Comparaciones: `=`, `≠`, `<`, `≤`, `>`, `≥` devuelven booleanos.  
+            Lógicos: `y` (AND), `o` (OR), `no` (NOT).
+
+            ```pseudocode
+            var
+              activo: boolean;
+              averiado: boolean;
+              bateria: real;
+              suficiente: boolean;
+              puedeJugar: boolean;
+            end var
+
+            suficiente := bateria ≥ 20.0;
+            puedeJugar := suficiente y (vidas > 0);
+            activo := no averiado;
+            writeBoolean(suficiente);
+            ```
+
+            ## Operador ternario
+            En pseudocódigo **no existe** el operador ternario `?:`.  
+            En su lugar, se usa una estructura condicional.
+
+            ```pseudocode
+            if activo then
+              writeString("En servicio");
+            else
+              writeString("Fuera de servicio");
+            end if
+            ```
+
+            ## Conversiones de tipo
+            Para cambiar de tipo se usan funciones como `realToInteger()` o `integerToReal()`.
+
+            ```pseudocode
+            var
+              energia: real;
+              energiaEntera: integer;
+              vidas: integer;
+              vidasF: real;
+            end var
+
+            energiaEntera := realToInteger(energia);
+            vidasF := integerToReal(vidas);
+            ```
+
         questions:
           - id: c-1-enum_tdrone
             language: C
@@ -673,8 +1073,233 @@ weeks:
       Explicación de semana 2
     levels:
       - number: 1
-        explanation: |
-          Teoria para solucionar nivel 1 de la semana 2
+        explanation:
+          C: |-
+            ## Arrays en C
+
+            Un **array** es una colección de elementos del mismo tipo almacenados en posiciones consecutivas de memoria.  
+            El tamaño del array debe ser fijo y conocerse en el momento de compilar.
+
+            ---
+            ### Tamaño con número fijo o con constante
+            El tamaño puede definirse con un número:
+            ```c
+            #define MAX_ENEMIGOS 5
+
+            int main() {
+                int puntosEnemigos[5];
+                return 0;
+            }
+            ```
+
+            O puede definirse con una constante:
+            ```c
+            #define MAX_ENEMIGOS 5
+
+            int main() {
+                int puntosEnemigos[MAX_ENEMIGOS];
+                return 0;
+            }
+            ```
+
+            ---
+            ## Inicialización de arrays de tipos primitivos
+            Se puede inicializar un array al declararlo:
+            ```c
+            #define MAX_ENEMIGOS 5
+
+            int main() {
+                int puntosEnemigos[MAX_ENEMIGOS] = {100, 200, 150, 300, 500};
+                return 0;
+            }
+            ```
+
+            También se puede declarar y luego asignar valores por índice:
+            ```c
+            #define MAX_ENEMIGOS 5
+
+            int main() {
+                int puntosEnemigos[MAX_ENEMIGOS];
+                puntosEnemigos[0] = 100;
+                puntosEnemigos[1] = 200;
+                puntosEnemigos[2] = 150;
+                puntosEnemigos[3] = 300;
+                puntosEnemigos[4] = 500;
+                return 0;
+            }
+            ```
+
+            *Recuerda*: en C los índices empiezan en **0**.
+
+            ---
+            ## Arrays de cadenas
+            Una cadena en C es un array de `char` terminado con `'\0'`.  
+            Para un array de varias cadenas se usa un array bidimensional:
+
+            ```c
+            #define MAX_OBJETOS 3
+            #define MAX_LONGITUD 20
+
+            int main() {
+                char inventario[MAX_OBJETOS][MAX_LONGITUD];
+                return 0;
+            }
+            ```
+
+            ### Inicialización directa
+            ```c
+            #define MAX_OBJETOS 3
+            #define MAX_LONGITUD 20
+
+            int main() {
+                char inventario[MAX_OBJETOS][MAX_LONGITUD] = {"Espada", "Escudo", "Poción"};
+                return 0;
+            }
+            ```
+
+            ### Asignación después de declarar
+            ```c
+            #include <string.h>
+            #define MAX_OBJETOS 3
+            #define MAX_LONGITUD 20
+
+            int main() {
+                char inventario[MAX_OBJETOS][MAX_LONGITUD];
+                strcpy(inventario[0], "Espada");
+                strcpy(inventario[1], "Escudo");
+                strcpy(inventario[2], "Poción");
+                return 0;
+            }
+            ```
+
+            ---
+            ## Acceso a elementos
+            Para acceder a un elemento numérico:
+            ```c
+            #define MAX_ENEMIGOS 5
+
+            int main() {
+                int puntosEnemigos[MAX_ENEMIGOS] = {100, 200, 150, 300, 500};
+                int valor = puntosEnemigos[2]; // 150
+                return 0;
+            }
+            ```
+
+            Para acceder a una cadena:
+            ```c
+            #define MAX_OBJETOS 3
+            #define MAX_LONGITUD 20
+
+            int main() {
+                char inventario[MAX_OBJETOS][MAX_LONGITUD] = {"Espada", "Escudo", "Poción"};
+                // inventario[1] → "Escudo"
+                return 0;
+            }
+            ```
+
+          Pseudocode: |-
+            ## Arrays en pseudocódigo
+
+            Un **array** es una colección de elementos del mismo tipo en posiciones consecutivas.  
+            El tamaño es fijo y se define al crear el array.
+
+            ---
+            ### Tamaño con número fijo o constante
+            Con número fijo:
+            ```text
+            algorithm
+              var
+                puntosEnemigos: vector[5] of integer;
+              end var
+            end algorithm
+            ```
+
+            Con constante:
+            ```text
+            const
+              MAX_ENEMIGOS: integer = 5;
+            end const
+
+            algorithm
+              var
+                puntosEnemigos: vector[MAX_ENEMIGOS] of integer;
+              end var
+            end algorithm
+            ```
+
+            ---
+            ## Inicialización de arrays de tipos primitivos
+            En pseudocódigo **no se permite inicializar arrays con llaves**.  
+            Se declara y luego se asigna valor por índice:
+
+            ```text
+            const
+              MAX_ENEMIGOS: integer = 5;
+            end const
+
+            algorithm
+              var
+                puntosEnemigos: vector[MAX_ENEMIGOS] of integer;
+              end var
+
+              puntosEnemigos[1] := 100;
+              puntosEnemigos[2] := 200;
+              puntosEnemigos[3] := 150;
+              puntosEnemigos[4] := 300;
+              puntosEnemigos[5] := 500;
+            end algorithm
+            ```
+
+            *Recuerda*: en pseudocódigo los índices empiezan en **1**.
+
+            ---
+            ## Arrays de cadenas
+            Un array de cadenas es un vector donde cada elemento es una cadena:
+
+            ```text
+            const
+              MAX_OBJETOS: integer = 3;
+            end const
+
+            algorithm
+              var
+                inventario: vector[MAX_OBJETOS] of string;
+              end var
+
+              inventario[1] := "Espada";
+              inventario[2] := "Escudo";
+              inventario[3] := "Poción";
+            end algorithm
+            ```
+
+            ---
+            ## Acceso a elementos
+            Para acceder a un elemento numérico:
+            ```text
+            algorithm
+              var
+                puntosEnemigos: vector[5] of integer;
+                valor: integer;
+              end var
+
+              puntosEnemigos[1] := 100;
+              valor := puntosEnemigos[1];
+            end algorithm
+            ```
+
+            Para acceder a una cadena:
+            ```text
+            algorithm
+              var
+                inventario: vector[3] of string;
+                objeto: string;
+              end var
+
+              inventario[1] := "Espada";
+              objeto := inventario[1];
+            end algorithm
+            ```
+
         questions:
           - id: c-2-include_stdio
             language: C
@@ -989,8 +1614,199 @@ weeks:
             hint:
 
       - number: 2
-        explanation: |
-          Teoria para solucionar nivel 2 de la semana 2
+        explanation:
+          C: |-
+            ## Matrices (arrays bidimensionales) en C
+
+            Una **matriz** es un array con **filas** y **columnas**.  
+            En C, el tamaño suele fijarse con **constantes del preprocesador** (`#define`) declaradas **fuera** de `main`.  
+            La forma general es: `tipo matriz[FILAS][COLUMNAS];` (siempre **primero filas, luego columnas**).
+
+            ---
+            ### Declaración con constantes fuera de `main`
+            ```c
+            #define FILAS 3
+            #define COLUMNAS 4
+
+            int main() {
+                int tablero[FILAS][COLUMNAS];
+                return 0;
+            }
+            ```
+
+            ---
+            ### Inicialización con llaves `{}` al declarar
+            Puedes dar valores iniciales por filas:
+            ```c
+            #define FILAS 2
+            #define COLUMNAS 3
+
+            int main() {
+                int mapa[FILAS][COLUMNAS] = {
+                    {1, 0, 0},
+                    {0, 1, 0}
+                };
+                return 0;
+            }
+            ```
+
+            ---
+            ### Inicialización **manual** elemento a elemento
+            También puedes asignar después de declarar.  
+            *Recuerda:* en C los índices empiezan en **0**.
+            ```c
+            #define FILAS 2
+            #define COLUMNAS 3
+
+            int main() {
+                int zonas[FILAS][COLUMNAS];
+                zonas[0][0] = 1;
+                zonas[0][1] = 0;
+                zonas[0][2] = 0;
+
+                zonas[1][0] = 0;
+                zonas[1][1] = 1;
+                zonas[1][2] = 0;
+                return 0;
+            }
+            ```
+
+            ---
+            ### Matrices booleanas
+            Para usar `bool`, incluye la cabecera adecuada:
+            ```c
+            #include <stdbool.h>
+            #define FILAS 2
+            #define COLUMNAS 3
+
+            int main() {
+                bool zonaActiva[FILAS][COLUMNAS];
+
+                zonaActiva[0][0] = true;
+                zonaActiva[0][1] = false;
+                zonaActiva[0][2] = false;
+
+                zonaActiva[1][0] = false;
+                zonaActiva[1][1] = true;
+                zonaActiva[1][2] = false;
+                return 0;
+            }
+            ```
+
+            ---
+            ### Acceso a un elemento concreto
+            Acceder siempre como `[fila][columna]`:
+            ```c
+            #define FILAS 2
+            #define COLUMNAS 3
+
+            int main() {
+                float valores[FILAS][COLUMNAS] = {
+                    {6.1f, 6.3f, 6.0f},
+                    {7.1f, 7.0f, 6.9f}
+                };
+                float x = valores[1][0]; // fila 2, columna 1
+                
+                // Puedes usar x como desees (7.1)
+                return 0;
+            }
+            ```
+
+          Pseudocode: |-
+            ## Matrices en pseudocódigo
+
+            Una **matriz** es un vector con **dos dimensiones**: filas y columnas.  
+            El tamaño es **fijo** y se define al crearla.  
+            Las **constantes** van antes del `algorithm`; dentro del `algorithm` se declaran variables en `var ... end var`.  
+            *Importante:* en este pseudocódigo los índices comienzan en **1**.
+
+            ---
+            ### Declaración con constantes y dentro de `algorithm`
+            ```text
+            const
+              FILAS: integer = 3;
+              COLUMNAS: integer = 4;
+            end const
+
+            algorithm
+              var
+                tablero: vector[FILAS][COLUMNAS] of integer;
+              end var
+            end algorithm
+            ```
+
+            ---
+            ### Inicialización **manual** (no se permiten llaves)
+            La matriz se declara primero y luego se asigna **elemento a elemento**:
+            ```text
+            const
+              FILAS: integer = 2;
+              COLUMNAS: integer = 3;
+            end const
+
+            algorithm
+              var
+                zonas: vector[FILAS][COLUMNAS] of integer;
+              end var
+
+              zonas[1][1] := 1;
+              zonas[1][2] := 0;
+              zonas[1][3] := 0;
+
+              zonas[2][1] := 0;
+              zonas[2][2] := 1;
+              zonas[2][3] := 0;
+            end algorithm
+            ```
+
+            ---
+            ### Matrices booleanas
+            ```text
+            const
+              FILAS: integer = 2;
+              COLUMNAS: integer = 3;
+            end const
+
+            algorithm
+              var
+                activo: vector[FILAS][COLUMNAS] of boolean;
+              end var
+
+              activo[1][1] := true;
+              activo[1][2] := false;
+              activo[1][3] := false;
+
+              activo[2][1] := false;
+              activo[2][2] := true;
+              activo[2][3] := false;
+            end algorithm
+            ```
+
+            ---
+            ### Acceso a un elemento concreto
+            Usa siempre `[fila][columna]`:
+            ```text
+            const
+              FILAS: integer = 2;
+              COLUMNAS: integer = 3;
+            end const
+
+            algorithm
+              var
+                valores: vector[FILAS][COLUMNAS] of real;
+                dato: real;
+              end var
+
+              valores[1][1] := 6.1;
+              valores[1][2] := 6.3;
+              valores[1][3] := 6.0;
+              valores[2][1] := 7.1;
+              valores[2][2] := 7.0;
+              valores[2][3] := 6.9;
+
+              dato := valores[2][1];  { fila 2, columna 1 }
+            end algorithm
+
         questions:
           - id: c-2-mat_sensorestemp
             language: C
@@ -1253,8 +2069,168 @@ weeks:
 
 
       - number: 3
-        explanation: |
-          Teoria para solucionar nivel 3 de la semana 2
+        explanation:
+          C: |-
+            ## Entrada y salida con arrays en C
+
+            Ya sabes declarar arrays. En este nivel aprenderás a **leer y escribir** datos dentro de ellos,  
+            y a **copiar** y **comparar** cadenas de caracteres usando funciones estándar.
+
+            ---
+            ### Leer datos numéricos en arrays
+
+            Puedes leer enteros o reales uno por uno usando `scanf`:
+
+            ```c
+            #define MAX_PUNTOS 3
+
+            int main() {
+                int puntos[MAX_PUNTOS];
+
+                printf("Puntos ronda 1: ");
+                scanf("%d", &puntos[0]);
+
+                printf("Puntos ronda 2: ");
+                scanf("%d", &puntos[1]);
+
+                printf("Puntos ronda 3: ");
+                scanf("%d", &puntos[2]);
+
+                return 0;
+            }
+            ```
+
+            ---
+            ### Mostrar datos de un array
+
+            Para imprimir los valores guardados:
+
+            ```c
+            printf("Ronda 1: %d\n", puntos[0]);
+            printf("Ronda 2: %d\n", puntos[1]);
+            printf("Ronda 3: %d\n", puntos[2]);
+            ```
+
+            ---
+            ### Arrays de cadenas: copiar con `strncpy`
+
+            Las cadenas se almacenan en arrays bidimensionales.  
+            Para copiar texto en cada posición, se usa `strncpy`.
+
+            ```c
+            #include <string.h>
+
+            #define MAX_ARMAS 2
+            #define MAX_NOMBRE 20
+
+            int main() {
+                char armas[MAX_ARMAS][MAX_NOMBRE];
+
+                strncpy(armas[0], "Espada de fuego", MAX_NOMBRE);
+                strncpy(armas[1], "Arco helado", MAX_NOMBRE);
+
+                return 0;
+            }
+            ```
+
+            ---
+            ### Comparar cadenas con `strcmp`
+
+            Para saber si dos cadenas son iguales, se usa `strcmp`,  
+            que devuelve 0 si son iguales:
+
+            ```c
+            #include <string.h>
+
+            int esIgual;
+            esIgual = strcmp(armas[0], "Espada de fuego") == 0 ? 1 : 0;
+            ```
+
+            *Si `esIgual` vale 1, las cadenas son iguales.*
+
+          Pseudocode: |-
+            ## Entrada y salida con arrays
+
+            Ahora aprenderás a **leer y mostrar** datos almacenados en arrays.  
+            También verás cómo **copiar cadenas** y realizar **comparaciones simples**.
+
+            ---
+            ### Leer datos numéricos
+
+            ```text
+            const
+              MAX_PUNTOS: integer = 3;
+            end const
+
+            algorithm
+              var
+                puntos: vector[MAX_PUNTOS] of integer;
+              end var
+
+              writeString("Puntos ronda 1:");
+              readInteger(puntos[1]);
+
+              writeString("Puntos ronda 2:");
+              readInteger(puntos[2]);
+
+              writeString("Puntos ronda 3:");
+              readInteger(puntos[3]);
+            end algorithm
+            ```
+
+            ---
+            ### Escribir datos
+
+            ```text
+            algorithm
+              writeString("Ronda 1:");
+              writeInteger(puntos[1]);
+
+              writeString("Ronda 2:");
+              writeInteger(puntos[2]);
+
+              writeString("Ronda 3:");
+              writeInteger(puntos[3]);
+            end algorithm
+            ```
+
+            ---
+            ### Leer cadenas
+
+            ```text
+            const
+              MAX_ARMAS: integer = 2;
+            end const
+
+            algorithm
+              var
+                armas: vector[MAX_ARMAS] of string;
+              end var
+
+              writeString("Nombre del arma 1:");
+              readString(armas[1]);
+
+              writeString("Nombre del arma 2:");
+              readString(armas[2]);
+            end algorithm
+            ```
+
+            ---
+            ### Comparar cadenas (conceptual)
+
+            Para comparar cadenas, se supone una comparación simple:
+
+            ```text
+            algorithm
+              var
+                esIgual: boolean;
+              end var
+
+              esIgual := (armas[1] = "Espada de fuego");
+              writeBoolean(esIgual);
+            end algorithm
+            ```
+
         questions:
           - id: c-2-inicializa-nombreplanta
             language: C
@@ -1448,7 +2424,7 @@ weeks:
 
               Declara la constante MAX_PLANTAS = 4 y un array float tempPlantas.
 
-              Inicializa los valores a 19.2, 20.5, 22.1 y 18.9. 
+              Inicializa los valores a 19.2, 20.5, 22.1 y 18.9 usando {}. 
 
               Imprime el tercer valor con el formato "Temp: x".
             answer: |
@@ -1685,8 +2661,213 @@ weeks:
       Explicación de semana 3
     levels:
       - number: 1
-        explanation: |
-          Teoria para solucionar nivel 1 de la semana 3
+        explanation:
+          C: |-
+            ## Enumerados, cadenas y arrays paralelos (tema: videojuegos)
+
+            Esta semana aprenderás a representar información de videojuegos como tipos de enemigos, nombres de personajes, salud, y estados, usando enumerados, cadenas, arrays paralelos y matrices.
+
+            ---
+            ### Enumerados
+
+            Sirven para definir categorías con nombres.  
+            Por ejemplo, los **tipos de enemigo**:
+
+            ```c
+            typedef enum {
+                ZOMBIE,
+                ALIEN,
+                ROBOT
+            } tTipoEnemigo;
+            ```
+
+            Ahora puedes guardar un tipo por enemigo:
+
+            ```c
+            tTipoEnemigo tipo = ALIEN;
+            ```
+
+            ---
+            ### Arrays de enumerados
+
+            Puedes crear un array con el tipo de cada enemigo:
+
+            ```c
+            #define MAX_ENEMIGOS 3
+
+            tTipoEnemigo enemigos[MAX_ENEMIGOS] = { ZOMBIE, ALIEN, ROBOT };
+            ```
+
+            ---
+            ### Cadenas con strncpy
+
+            Para guardar nombres de personajes se usa un array de `char`:
+
+            ```c
+            char nombre1[MAX_NOMBRE];
+            char nombre2[MAX_NOMBRE];
+            ```
+
+            Puedes copiar el nombre usando `strncpy`:
+
+            ```c
+            strncpy(nombre1, "Link", MAX_NOMBRE);
+            strncpy(nombre2, "Zelda", MAX_NOMBRE);
+            ```
+
+            ---
+            ### Arrays paralelos
+
+            Son arrays diferentes relacionados por posición.  
+            Por ejemplo, un array de nombres y otro de vidas:
+
+            ```c
+            char personaje[MAX_JUGADORES][MAX_NOMBRE] = { "Mario", "Luigi", "Peach" };
+            int vidas[MAX_JUGADORES] = { 3, 2, 5 };
+            ```
+
+            Cada índice representa un jugador:
+
+            - `personaje[0] = "Mario"` y `vidas[0] = 3`
+            - `personaje[1] = "Luigi"` y `vidas[1] = 2`
+            - `personaje[2] = "Peach"` y `vidas[2] = 5`
+
+            Así sabes que Mario tiene 3 vidas, Luigi tiene 2, etc.
+
+            ---
+            ### Booleanos y ternario
+
+            Puedes guardar si una misión está completada:
+
+            ```c
+            bool misionCompletada[MAX_MISIONES] = { true, false };
+            ```
+
+            Y mostrarlo con el operador ternario:
+
+            ```c
+            printf("%s\n", misionCompletada[0] ? "Completada" : "Pendiente");
+            ```
+
+            ---
+            ### Matriz booleana
+
+            Las matrices permiten representar una cuadrícula.  
+            Por ejemplo, casillas de un mapa exploradas o no:
+
+            ```c
+            bool mapa[2][3] = {
+                { true, false, true },
+                { false, true, false }
+            };
+            ```
+
+            Para mostrar cada casilla:
+
+            ```c
+            printf("Fila 0, Col 1: %d\n", mapa[0][1]);
+            ```
+
+            ---
+            ### Entrada con scanf
+
+            Puedes pedir al jugador que introduzca la salud de dos personajes:
+
+            ```c
+            int salud[2];
+            printf("Introduce la salud de Link: ");
+            scanf("%d", &salud[0]);
+            ```
+
+          Pseudocode: |-
+            ## Enumerados, cadenas y arrays paralelos (tema: videojuegos)
+
+            Representaremos información de videojuegos como tipos de enemigo, nombres de personajes, vidas y mapas.
+
+            ---
+            ### Enumerados
+
+            Se usan para indicar tipos como **enemigos**:
+
+            ```text
+            type
+              tTipoEnemigo = { ZOMBIE, ALIEN, ROBOT }
+            end type
+            ```
+
+            Luego puedes guardar enemigos así:
+
+            ```text
+            tipoEnemigo[1] := ZOMBIE;
+            ```
+
+            ---
+            ### Cadenas
+
+            Para guardar nombres como "Mario" o "Peach", se usa un vector de strings:
+
+            ```text
+            personaje[1] := "Mario";
+            personaje[2] := "Peach";
+            ```
+
+            ---
+            ### Arrays paralelos
+
+            Puedes guardar nombres y vidas por separado:
+
+            ```text
+            personaje[1] := "Mario";
+            vidas[1] := 3;
+
+            personaje[2] := "Luigi";
+            vidas[2] := 2;
+            ```
+
+            Cada índice representa un jugador:
+
+            - personaje[1] = "Mario", vidas[1] = 3
+            - personaje[2] = "Luigi", vidas[2] = 2
+
+            Así sabes que Mario tiene 3 vidas, y Luigi tiene 2.
+
+            ---
+            ### Booleanos
+
+            Puedes guardar si una misión está completada:
+
+            ```text
+            mision[1] := true;
+            mision[2] := false;
+            ```
+
+            ---
+            ### Matriz booleana
+
+            Sirve para representar un mapa con casillas descubiertas o no:
+
+            ```text
+            mapa[1][1] := true;
+            mapa[1][2] := false;
+            ```
+
+            Luego se imprime una casilla con:
+
+            ```text
+            writeBoolean(mapa[1][1]);
+            ```
+
+            ---
+            ### Lectura de datos
+
+            Puedes pedir al jugador que introduzca las vidas:
+
+            ```text
+            writeString("Introduce las vidas del jugador 1: ");
+            vidas[1] := readInteger();
+            ```
+        
+
         questions:
           - id: c-3-enum-declaracion
             language: C
@@ -1824,7 +3005,7 @@ weeks:
               
               Declara las constantes MAX_ANIMALES = 3 y MAX_NOMBRE = 15.
               
-              Dentro de main, declara un array de cadenas de caracteres con MAX_ANIMALES y MAX_NOMBRE y un array de enteros edad[MAX_ANIMALES].
+              Dentro de main, declara un array de cadenas de caracteres con MAX_ANIMALES y MAX_NOMBRE y un array de enteros edad con (MAX_ANIMALES).
               
               Inicializa los arrays usando llaves {}, con los nombres "Bobby", "Lili", "Rex" y las edades 2, 5, 3.
               
@@ -2040,8 +3221,236 @@ weeks:
             hint: Lee y guarda cada valor por separado. Los indices empiezan en 1.
 
       - number: 2
-        explanation: |
-          Teoria para solucionar nivel 2 de la semana 3
+        explanation:
+          C: |-
+            ## Condicionales: if, else, else if, strcmp, ternario y switch (tema: videojuegos)
+            
+            En este nivel aprenderás a tomar decisiones en tus programas usando estructuras condicionales.
+            
+            ---
+            ### if
+            
+            El `if` permite ejecutar una acción si una condición es verdadera.
+            
+            Por ejemplo, decidir si un Pokémon está en forma para la batalla:
+            
+            ```c
+            int salud;
+            printf("Introduce la salud del Pokémon: ");
+            scanf("%d", &salud);
+            
+            if(salud > 50) {
+                printf("Listo para luchar\n");
+            }
+            ```
+            
+            ---
+            ### if...else
+            
+            Con `else` puedes ejecutar una alternativa si la condición no se cumple.
+            
+            ```c
+            bool tienePocion;
+            printf("¿Tienes poción? (1 = sí, 0 = no): ");
+            scanf("%d", &tienePocion);
+            
+            if(tienePocion) {
+                printf("Usas la poción\n");
+            } else {
+                printf("No puedes curarte\n");
+            }
+            ```
+            
+            ---
+            ### if...else if...else
+            
+            Para múltiples condiciones, puedes usar `else if`.
+            
+            ```c
+            int nivel;
+            printf("Nivel del jugador: ");
+            scanf("%d", &nivel);
+            
+            if(nivel < 5) {
+                printf("Novato\n");
+            } else if(nivel <= 10) {
+                printf("Intermedio\n");
+            } else {
+                printf("Experto\n");
+            }
+            ```
+            
+            ---
+            ### strcmp
+            
+            `strcmp(cadena1, cadena2)` compara dos cadenas. Devuelve 0 si son iguales.
+            
+            ```c
+            char nombre1[10];
+            char nombre2[10];
+            strncpy(nombre1, "Link", 10);
+            strncpy(nombre2, "Zelda", 10);
+            
+            printf("%s\n", strcmp(nombre1, nombre2) == 0 ? "Mismos personajes" : "Distintos personajes");
+            ```
+            
+            ---
+            ### Operador ternario anidado para enums
+            
+            Puedes convertir un enum a texto usando ternarios:
+            
+            ```c
+            typedef enum { MAGE, WARRIOR, ROGUE } tClase;
+            tClase claseJugador = MAGE;
+            char claseStr[20];
+            
+            strncpy(claseStr,
+                (claseJugador == MAGE) ? "Mago" :
+                (claseJugador == WARRIOR) ? "Guerrero" : "Pícaro",
+                20);
+            ```
+            
+            ---
+            ### switch
+            
+            Cuando tienes varios casos posibles para un mismo valor, puedes usar `switch`.
+            
+            ```c
+            int opcion;
+            printf("Elige tu clase (1-Mago, 2-Guerrero, 3-Arquero): ");
+            scanf("%d", &opcion);
+            
+            switch(opcion) {
+                case 1:
+                    printf("Has elegido Mago\n");
+                    break;
+                case 2:
+                    printf("Has elegido Guerrero\n");
+                    break;
+                case 3:
+                    printf("Has elegido Arquero\n");
+                    break;
+                default:
+                    printf("Opción no válida\n");
+            }
+            ```
+
+          Pseudocode: |-
+            ## Condicionales: if, else, else if y switch (tema: videojuegos)
+            
+            Puedes tomar decisiones según condiciones usando `if`, `else` y `else if`.
+            
+            ---
+            ### if
+            
+            Ejecuta una acción si se cumple una condición:
+            
+            ```text
+            writeString("Introduce el nivel del personaje: ");
+            nivel := readInteger();
+            
+            if nivel > 10 then
+              writeString("Nivel alto");
+            end if
+            ```
+            
+            ---
+            ### if...else
+            
+            Ejecuta una alternativa si no se cumple la condición:
+            
+            ```text
+            writeString("¿Tienes espada? (true/false): ");
+            tieneEspada := readBoolean();
+            
+            if tieneEspada then
+              writeString("Puedes atacar");
+            else
+              writeString("Necesitas un arma");
+            end if
+            ```
+            
+            ---
+            ### if...else if...else
+            
+            Puedes verificar varias condiciones:
+            
+            ```text
+            writeString("Introduce el nivel del monstruo: ");
+            nivel := readInteger();
+            
+            if nivel < 5 then
+              writeString("Fácil");
+            else
+              if nivel <= 10 then
+                writeString("Normal");
+              else
+                writeString("Difícil");
+              end if
+            end if
+            ```
+            
+            ---
+            ### Comparar cadenas
+            
+            Puedes usar `=` para comparar strings:
+            
+            ```text
+            nombre[1] := "Mario";
+            nombre[2] := "Luigi";
+            
+            if nombre[1] = nombre[2] then
+              writeString("Iguales");
+            else
+              writeString("Distintos");
+            end if
+            ```
+            
+            ---
+            ### Convertir enums a texto con if anidado
+            
+            Puedes usar enums y traducirlos a string:
+            
+            ```text
+            tipo[1] := MAGO;
+            
+            if tipo[1] = MAGO then
+              tipoStr := "Mago";
+            else
+              if tipo[1] = GUERRERO then
+                tipoStr := "Guerrero";
+              else
+                tipoStr := "Arquero";
+              end if
+            end if
+            ```
+            
+            ---
+            ### switch
+            
+            Elige una acción según el número introducido por el usuario:
+            
+            ```text
+            writeString("Elige una clase (1-Mago, 2-Guerrero, 3-Arquero): ");
+            clase := readInteger();
+            
+            switch clase
+              case 1 then
+                writeString("Has elegido Mago");
+              end case
+              case 2 then
+                writeString("Has elegido Guerrero");
+              end case
+              case 3 then
+                writeString("Has elegido Arquero");
+              end case
+              case default then
+                writeString("Opción no válida");
+              end case
+            end switch
+            ```
+        
+
         questions:
 
           - id: c-3-if-simple
@@ -2462,8 +3871,307 @@ weeks:
               end switch
 
       - number: 3
-        explanation: |
-          Teoria para solucionar nivel 3 de la semana 3
+        explanation:
+          C: |-
+            ## Bucles y recorridos (tema: videojuegos)
+
+            Esta semana aprenderás a repetir instrucciones usando bucles `for`, `while` y `do while`, para recorrer arrays y matrices relacionados con videojuegos.
+
+            ---
+            ### Bucle `for` básico
+
+            El `for` sirve para repetir una acción un número fijo de veces.  
+            Ejemplo: mostrar los primeros 10 niveles de un personaje:
+
+            ```c
+            #define MAX_NIVELES 10
+
+            int i;
+            for(i = 0; i < MAX_NIVELES; i++) {
+                printf("%d\n", i);
+            }
+            ```
+
+            ---
+            ### Recorrer un array con `for`
+
+            Puedes recorrer un array de puntos de experiencia ganados en misiones:
+
+            ```c
+            #define MAX_MISIONES 4
+
+            int experiencia[MAX_MISIONES] = {150, 300, 200, 400};
+            int i;
+
+            for(i = 0; i < MAX_MISIONES; i++) {
+                printf("%d\n", experiencia[i]);
+            }
+            ```
+
+            ---
+            ### Leer datos en un array con `for`
+
+            Puedes usar `scanf` en un bucle para leer datos del usuario:  
+            Por ejemplo, tiempo que tardó en cada misión:
+
+            ```c
+            float tiempo[3];
+            int i;
+
+            for(i = 0; i < 3; i++) {
+                printf("Tiempo en misión %d: ", i + 1);
+                scanf("%f", &tiempo[i]);
+            }
+            ```
+
+            ---
+            ### `while` y `do while`
+
+            - `while` se ejecuta mientras se cumpla una condición.
+            - `do while` se ejecuta al menos una vez.
+
+            ```c
+            int i = 0;
+            while(i < 5) {
+                printf("%d\n", i);
+                i++;
+            }
+
+            i = 0;
+            do {
+                printf("%d\n", i);
+                i++;
+            } while(i < 5);
+            ```
+
+            ---
+            ### Suma de elementos en un array
+
+            Puedes sumar los puntos conseguidos en varios niveles:
+
+            ```c
+            int puntos[4] = {10, 20, 30, 40};
+            int suma = 0;
+            int i;
+
+            for(i = 0; i < 4; i++) {
+                suma += puntos[i];
+            }
+
+            printf("Total: %d\n", suma);
+            ```
+
+            ---
+            ### strncpy en bucle
+
+            Puedes copiar nombres de enemigos usando un bucle y `strncpy`:
+
+            ```c
+            #define MAX 3
+            #define MAX_NOMBRE 12
+
+            char enemigos[MAX][MAX_NOMBRE];
+            char nombresBase[MAX][MAX_NOMBRE] = {"Goblin", "Orco", "Troll"};
+            int i;
+
+            for(i = 0; i < MAX; i++) {
+                strncpy(enemigos[i], nombresBase[i], MAX_NOMBRE);
+            }
+            ```
+
+            ---
+            ### Recorrer matrices
+
+            Puedes recorrer mapas, inventarios o zonas con bucles anidados:
+
+            ```c
+            int mapa[2][3] = {
+                {1, 0, 1},
+                {0, 1, 0}
+            };
+            int i, j;
+
+            for(i = 0; i < 2; i++) {
+                for(j = 0; j < 3; j++) {
+                    printf("%d ", mapa[i][j]);
+                }
+                printf("\n");
+            }
+            ```
+
+            ---
+            ### Suma de una matriz
+
+            Para sumar el daño de cada ataque en un campo de batalla:
+
+            ```c
+            int daño[2][2] = {
+                {5, 3},
+                {7, 1}
+            };
+            int suma = 0;
+            int i, j;
+
+            for(i = 0; i < 2; i++) {
+                for(j = 0; j < 2; j++) {
+                    suma += daño[i][j];
+                }
+            }
+
+            printf("Daño total: %d\n", suma);
+            ```
+
+          Pseudocode: |-
+            ## Bucles y recorridos (tema: videojuegos)
+
+            Usaremos bucles `for`, `while` y `do while` para recorrer arrays y matrices que representan datos del juego, como niveles, experiencia, o daño.
+
+            ---
+            ### Bucle `for` básico
+
+            Puedes repetir una acción varias veces:  
+            Por ejemplo, mostrar niveles del 1 al 10:
+
+            ```text
+            for i := 1 to 10 do
+              writeInteger(i);
+            end for
+            ```
+
+            ---
+            ### Recorrer un array
+
+            Guardamos la experiencia ganada en cada misión:
+
+            ```text
+            experiencia[1] := 150;
+            experiencia[2] := 300;
+            experiencia[3] := 200;
+            experiencia[4] := 400;
+            ```
+
+            Luego la mostramos:
+
+            ```text
+            for i := 1 to 4 do
+              writeInteger(experiencia[i]);
+            end for
+            ```
+
+            ---
+            ### Leer un array con for
+
+            Tiempo que tardó el jugador en completar misiones:
+
+            ```text
+            for i := 1 to 3 do
+              writeString("Tiempo misión ");
+              writeInteger(i);
+              writeString(": ");
+              tiempo[i] := readReal();
+            end for
+            ```
+
+            ---
+            ### Bucles `while` y `do while`
+
+            Se usan para repetir mientras se cumpla una condición.
+
+            ```text
+            i := 1;
+            while i <= 5 do
+              writeInteger(i);
+              i := i + 1;
+            end while
+            ```
+
+            ```text
+            i := 1;
+            do
+              writeInteger(i);
+              i := i + 1;
+            while i <= 5;
+            ```
+
+            ---
+            ### Sumar los puntos obtenidos
+
+            ```text
+            puntos[1] := 10;
+            puntos[2] := 20;
+            puntos[3] := 30;
+            puntos[4] := 40;
+            suma := 0;
+
+            for i := 1 to 4 do
+              suma := suma + puntos[i];
+            end for
+
+            writeString("Total: ");
+            writeInteger(suma);
+            ```
+
+            ---
+            ### Imprimir nombres
+
+            Puedes recorrer un array de nombres como "Goblin", "Orco", "Troll":
+
+            ```text
+            enemigos[1] := "Goblin";
+            enemigos[2] := "Orco";
+            enemigos[3] := "Troll";
+
+            for i := 1 to 3 do
+              writeString(enemigos[i]);
+            end for
+            ```
+
+            ---
+            ### Matrices
+
+            Para representar casillas del mapa:
+
+            ```text
+            mapa[1][1] := 1;
+            mapa[1][2] := 0;
+            mapa[1][3] := 1;
+            mapa[2][1] := 0;
+            mapa[2][2] := 1;
+            mapa[2][3] := 0;
+            ```
+
+            Luego puedes imprimir con dos bucles:
+
+            ```text
+            for i := 1 to 2 do
+              for j := 1 to 3 do
+                writeInteger(mapa[i][j]);
+              end for
+            end for
+            ```
+
+            ---
+            ### Sumar los valores de una matriz
+
+            Por ejemplo, daño total recibido en zonas del mapa:
+
+            ```text
+            daño[1][1] := 5;
+            daño[1][2] := 3;
+            daño[2][1] := 7;
+            daño[2][2] := 1;
+            suma := 0;
+
+            for i := 1 to 2 do
+              for j := 1 to 2 do
+                suma := suma + daño[i][j];
+              end for
+            end for
+
+            writeString("Daño total: ");
+            writeInteger(suma);
+            ```
+
         questions:
           - id: c-3-for-indice-basico
             language: C
@@ -3249,8 +4957,130 @@ weeks:
       Explicación de semana 4
     levels:
       - number: 1
-        explanation: |
-          Teoria para solucionar nivel 1 de la semana 4
+        explanation:
+          C: |
+            En este nivel aprenderás a declarar y utilizar `structs` para representar datos complejos como una atracción de un parque, además de cómo declarar arrays de structs y acceder a sus campos.
+            
+            ### ¿Qué es un `struct`?
+            
+            Un `struct` permite agrupar múltiples variables relacionadas bajo un solo nombre. Es ideal para representar entidades de videojuegos como personajes, ítems o atracciones.
+            
+            ```c
+            typedef struct {
+                char nombre[30];
+                int duracionMinutos;
+                float alturaMinima;
+            } tAtraccion;
+            ```
+            
+            Esto define un nuevo tipo `tAtraccion` con 3 campos.
+            
+            ### Declarar una variable de tipo struct
+            
+            ```c
+            tAtraccion torreCaida;
+            ```
+            
+            ### Asignar valores a los campos
+            
+            Para campos `char[]`, usamos `strncpy`:
+            
+            ```c
+            strncpy(torreCaida.nombre, "Torre de Caída", 30);
+            torreCaida.duracionMinutos = 3;
+            torreCaida.alturaMinima = 1.40;
+            ```
+            
+            ### Array de structs
+            
+            Puedes declarar un array de structs para almacenar varias atracciones:
+            
+            ```c
+            #define MAX_ATRACCIONES 3
+            tAtraccion atracciones[MAX_ATRACCIONES];
+            ```
+            
+            Para acceder al nombre de la primera atracción:
+            
+            ```c
+            atracciones[0].nombre
+            ```
+            
+            ### Relación entre arrays paralelos
+            
+            Supón que tienes un array de `tAtraccion` y otro array con el número de visitantes. Si el índice es el mismo, representan datos del mismo objeto:
+            
+            ```c
+            strncpy(atracciones[1].nombre, "Looping", 30);
+            visitantes[1] = 1234;
+            ```
+            
+            Aquí el índice `1` se refiere a la misma atracción.
+
+          Pseudocode: |
+            En este nivel aprenderás a utilizar `record` para representar datos compuestos, como atracciones, y cómo trabajar con arrays de registros.
+            
+            ### ¿Qué es un `record`?
+            
+            Un `record` es como una caja que contiene distintos datos relacionados. Sirve para representar entidades como enemigos, jefes o atracciones de parque.
+            
+            ```pseudocode
+            type
+              tAtraccion = record
+                nombre: string;
+                duracionMinutos: integer;
+                alturaMinima: real;
+              end record
+            end type
+            ```
+            
+            ### Declarar una variable de tipo record
+            
+            ```pseudocode
+            var
+              torreCaida: tAtraccion;
+            end var
+            ```
+            
+            ### Asignar valores a los campos
+            
+            ```pseudocode
+            torreCaida.nombre := "Torre de Caída";
+            torreCaida.duracionMinutos := 3;
+            torreCaida.alturaMinima := 1.40;
+            ```
+            
+            ### Array de structs
+            
+            ```pseudocode
+            const
+              MAX_ATRACCIONES: integer = 3;
+            end const
+            
+            var
+              parque: vector[MAX_ATRACCIONES] of tAtraccion;
+            end var
+            ```
+            
+            Para acceder al campo de la primera atracción:
+            
+            ```pseudocode
+            parque[1].nombre
+            ```
+            
+            ### Relación entre arrays paralelos
+            
+            Si tienes un array `parque` y otro array llamado `visitantes`, puedes almacenar información relacionada en la misma posición:
+            
+            ```pseudocode
+            parque[2].nombre := "Tazas locas";
+            parque[2].duracionMinutos := 4;
+            parque[2].alturaMinima := 1.10;
+            
+            visitantes[2] := 300;
+            ```
+            
+            Aquí, el índice 2 representa los datos de la misma atracción.
         questions:
           - id: c-4-atraccion-basica
             language: C
@@ -3849,11 +5679,122 @@ weeks:
             hint: En pseudocódigo usa vector[NUM_PLATOS] of real para el campo precios.
 
 
-
-
       - number: 2
-        explanation: |
-          Teoria para solucionar nivel 2 de la semana 4
+        explanation:
+          C: |
+            En este nivel aprenderás a declarar, inicializar y acceder a estructuras (`struct`) en C, usando ejemplos relacionados con atracciones de parques.
+            
+            Una estructura (`struct`) te permite agrupar distintos datos bajo un mismo nombre. Por ejemplo, para representar una atracción con un nombre, tipo y duración, puedes crear una estructura como esta:
+            
+            ```c
+            typedef struct {
+                char nombre[30];
+                int tipo;
+                int duracion;
+            } tAtraccion;
+            ```
+            
+            Aquí se definen tres campos: una cadena de caracteres (`nombre`), un número entero (`tipo`) y otro entero (`duracion`).
+            
+            Para declarar una variable del tipo `tAtraccion` y asignarle valores puedes hacerlo de dos formas:
+            
+            **1. Declarar y asignar manualmente:**
+            
+            ```c
+            tAtraccion a;
+            
+            strncpy(a.nombre, "Montaña Rusa", 30);
+            a.tipo = 1;
+            a.duracion = 5;
+            ```
+            
+            **2. Declarar e inicializar con llaves:**
+            
+            ```c
+            tAtraccion a = { "Torre de Caída", 2, 3 };
+            ```
+            
+            Para acceder a un campo de una estructura se usa el operador punto (`.`). Por ejemplo:
+            
+            ```c
+            printf("Nombre: %s\n", a.nombre);
+            printf("Duración: %d minutos\n", a.duracion);
+            ```
+            
+            También puedes crear arrays de estructuras:
+            
+            ```c
+            tAtraccion parque[2];
+            
+            strncpy(parque[0].nombre, "Noria", 30);
+            parque[0].tipo = 3;
+            parque[0].duracion = 4;
+            
+            strncpy(parque[1].nombre, "Montaña Rusa", 30);
+            parque[1].tipo = 1;
+            parque[1].duracion = 5;
+            ```
+            
+            Para acceder a campos individuales del array se usa el índice seguido del punto:
+            
+            ```c
+            printf("Nombre primera atracción: %s\n", parque[0].nombre);
+            ```
+
+          Pseudocode: |
+            En pseudocódigo también puedes usar estructuras (`record`) para agrupar diferentes datos de una misma entidad. Por ejemplo, una atracción del parque puede tener un nombre, un tipo y una duración:
+            
+            ```pseudocode
+            type
+              tAtraccion = record
+                nombre: string;
+                tipo: integer;
+                duracion: integer;
+              end record
+            end type
+            ```
+            
+            Para declarar una variable de tipo `tAtraccion` y asignar sus valores:
+            
+            ```pseudocode
+            algorithm
+              var
+                a: tAtraccion;
+              end var
+            
+              a.nombre := "Montaña Rusa";
+              a.tipo := 1;
+              a.duracion := 5;
+            end algorithm
+            ```
+            
+            Para acceder a los campos de una estructura se usa el punto (`.`), igual que en C:
+            
+            ```pseudocode
+            writeString(a.nombre);
+            writeInteger(a.duracion);
+            ```
+            
+            También puedes declarar arrays de estructuras:
+            
+            ```pseudocode
+            algorithm
+              var
+                parque: vector[2] of tAtraccion;
+              end var
+            
+              parque[1].nombre := "Noria";
+              parque[1].tipo := 3;
+              parque[1].duracion := 4;
+            
+              parque[2].nombre := "Torre de Caída";
+              parque[2].tipo := 2;
+              parque[2].duracion := 3;
+            
+              writeString(parque[1].nombre);
+              writeInteger(parque[1].duracion);
+            end algorithm
+            ```
         questions:
           # Semana 4 — Nivel 2 (Structs: declarar + inicializar + acceder/manipular)
 
@@ -3989,7 +5930,7 @@ weeks:
                   }
                   return 0;
               }
-            hint: Hay 3 posibles casos en los que deberás imprimir el mensaje.
+            hint: Hay 3 posibles casos en los que deberás imprimir el mensaje usando if else if.
 
           - id: p-4-atraccion-con-enum
             language: Pseudocode
@@ -4296,7 +6237,7 @@ weeks:
                 puesto1.precios[2] := 4.0;
                 puesto1.precios[3] := 2.5;
 
-                promedio := (puesto1.precios[1] + puesto1.precios[2] + puesto1.precios[3]) / 3.0;
+                promedio := (puesto1.precios[1] + puesto1.precios[2] + puesto1.precios[3]) / 3;
 
                 writeString("Promedio: ");
                 writeReal(promedio);
@@ -4801,8 +6742,7 @@ weeks:
 
 
       - number: 3
-        explanation: |
-          Teoria para solucionar nivel 3 de la semana 4
+        explanation:
         questions:
           - id: c-4-l3-registro-basico-for
             language: C
@@ -4849,9 +6789,9 @@ weeks:
               
                   for(i = 0; i < MAX_ATRACCIONES; i++) {
                       printf("Nombre: ");
-                      scanf("%19s", atracciones[i].nombre);
+                      scanf("%s", atracciones[i].nombre);
                       printf("Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): ");
-                      scanf("%u", (unsigned int*)&atracciones[i].tipo);
+                      scanf("%u", &atracciones[i].tipo);
                       printf("Duración (min): ");
                       scanf("%d", &atracciones[i].duracionMinutos);
                   }
@@ -4912,24 +6852,10 @@ weeks:
                 for i := 1 to MAX_ATRACCIONES do
                   writeString("Nombre: ");
                   atracciones[i].nombre := readString();
+              
                   writeString("Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): ");
-                  auxTipo := readInteger();
-              
-                  switch auxTipo
-                    case 0 then
-                      atracciones[i].tipo := MONTANA_RUSA;
-                    end case
-                    case 1 then
-                      atracciones[i].tipo := CARRUSEL;
-                    end case
-                    case 2 then
-                      atracciones[i].tipo := SIMULADOR;
-                    end case
-                    case default then
-                      atracciones[i].tipo := MONTANA_RUSA;
-                    end case
-                  end switch
-              
+                  atracciones[i].tipo := readEnum();
+
                   writeString("Duración (min): ");
                   atracciones[i].duracionMinutos := readInteger();
                 end for
@@ -4937,7 +6863,7 @@ weeks:
                 writeString(atracciones[1].nombre);
               end algorithm
             hint: |
-              Un switch por cada valor auxiliar leído.
+              En pseudocodigo contamos con la funcion readEnum();
 
           - id: c-4-l3-suma-duraciones-while
             language: C
@@ -5060,11 +6986,20 @@ weeks:
                       scanf("%d", &opcion);
               
                       switch(opcion) {
-                          case 1: printf("Montaña rusa\n"); break;
-                          case 2: printf("Carrusel\n"); break;
-                          case 3: printf("Simulador\n"); break;
-                          case 0: printf("Saliendo...\n"); break;
-                          default: printf("Inválida\n");
+                          case 1: 
+                            printf("Montaña rusa\n"); 
+                            break;
+                          case 2: 
+                            printf("Carrusel\n"); 
+                            break;
+                          case 3: 
+                            printf("Simulador\n"); 
+                            break;
+                          case 0: 
+                            printf("Saliendo...\n"); 
+                            break;
+                          default: 
+                            printf("Inválida\n");
                       }
                   } while(opcion != 0);
                   return 0;
@@ -5123,7 +7058,7 @@ weeks:
               Define el tipo tAtraccion con:
               - nombre: texto con tamaño máximo MAX_NOMBRE.
               
-              En la función principal, declara dos variables a1 y a2 de tipo tAtraccion. Pide al usuario dos nombres:
+              En la función main, declara dos variables a1 y a2 de tipo tAtraccion. Pide al usuario dos nombres:
               - muestra "Nombre 1: " y guarda el texto en el nombre de a1,
               - muestra "Nombre 2: " y guarda el texto en el nombre de a2.
               
@@ -5142,9 +7077,9 @@ weeks:
                   tAtraccion a1, a2;
               
                   printf("Nombre 1: ");
-                  scanf("%24s", a1.nombre);
+                  scanf("%s", a1.nombre);
                   printf("Nombre 2: ");
-                  scanf("%24s", a2.nombre);
+                  scanf("%s", a2.nombre);
               
                   if(strcmp(a1.nombre, a2.nombre) == 0) {
                       printf("Iguales\n");
@@ -5239,17 +7174,17 @@ weeks:
                   int i;
                   for(i = 0; i < MAX_ATRACCIONES; i++) {
                       printf("Nombre: ");
-                      scanf("%19s", atracciones[i].nombre);
+                      scanf("%s", atracciones[i].nombre);
                       printf("Apertura: ");
-                      scanf("%5s", atracciones[i].horario.apertura);
+                      scanf("%s", atracciones[i].horario.apertura);
                       printf("Cierre: ");
-                      scanf("%5s", atracciones[i].horario.cierre);
+                      scanf("%s", atracciones[i].horario.cierre);
                   }
                   printf("%s\n", atracciones[1].horario.cierre);
                   return 0;
               }
             hint: |
-              %5s es adecuado para buffers de 6 (incluye el terminador).
+              Respeta el orden del enunciado para declarar los datos
 
           - id: p-4-l3-horarios-for
             language: Pseudocode
@@ -5346,7 +7281,7 @@ weeks:
               
                   for(i = 0; i < MAX_ATRACCIONES; i++) {
                       printf("Nombre: ");
-                      scanf("%19s", atracciones[i].nombre);
+                      scanf("%s", atracciones[i].nombre);
                       printf("¿En mantenimiento? (1 sí / 0 no): ");
                       scanf("%d", &temp);
                       atracciones[i].enMantenimiento = (temp != 0);
@@ -5405,8 +7340,7 @@ weeks:
                   writeString("Nombre: ");
                   atracciones[i].nombre := readString();
                   writeString("¿En mantenimiento? (true/false): ");
-                  temp := readBoolean();
-                  atracciones[i].enMantenimiento := temp;
+                  atracciones[i].enMantenimiento := readBoolean();
                 end for
               
                 contador := 0;
@@ -5433,8 +7367,8 @@ weeks:
               - nombre: texto con tamaño máximo MAX_NOMBRE.
               - tipo: de tipo tTipoAtraccion.
               
-              En la función principal, lee los datos de tres atracciones (nombre y tipo numérico 0..2).
-              Recorre el array con un bucle for y, para cada atracción, muestra exactamente una línea con el texto del tipo:
+              En la función principal, lee los datos de tres atracciones usando un bucle for (nombre y tipo numérico 0..2).
+              Después recorre el array con un bucle for y, para cada atracción, muestra exactamente una línea con el texto del tipo:
               "Montaña rusa", "Carrusel" o "Simulador". Usa un switch para decidir el texto.
             answer: |
               #include <stdio.h>
@@ -5456,22 +7390,28 @@ weeks:
               int main() {
                   tAtraccion atracciones[MAX_ATRACCIONES];
                   int i;
-                  unsigned int t;
               
                   for(i = 0; i < MAX_ATRACCIONES; i++) {
                       printf("Nombre: ");
-                      scanf("%17s", atracciones[i].nombre);
+                      scanf("%s", atracciones[i].nombre);
                       printf("Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): ");
-                      scanf("%u", &t);
-                      atracciones[i].tipo = (tTipoAtraccion)t;
+                      scanf("%u", &atracciones[i].tipo;
+                      
                   }
               
                   for(i = 0; i < MAX_ATRACCIONES; i++) {
                       switch(atracciones[i].tipo) {
-                          case MONTANA_RUSA: printf("Montaña rusa\n"); break;
-                          case CARRUSEL:     printf("Carrusel\n");     break;
-                          case SIMULADOR:    printf("Simulador\n");    break;
-                          default:           printf("Desconocido\n");
+                          case MONTANA_RUSA: 
+                              printf("Montaña rusa\n"); 
+                              break;
+                          case CARRUSEL:     
+                              printf("Carrusel\n");     
+                              break;
+                          case SIMULADOR:    
+                              printf("Simulador\n");    
+                              break;
+                          default:           
+                              printf("Desconocido\n");
                       }
                   }
                   return 0;
@@ -5490,7 +7430,7 @@ weeks:
               - nombre: texto.
               - tipo: de tipo tTipoAtraccion.
               
-              En el bloque principal, pide al usuario los datos de tres atracciones (nombre y un número 0..2 para el tipo; usa un switch para asignarlo).
+              En el bloque principal, pide al usuario los datos de tres atracciones con un bucle (nombre y un número 0..2 para el tipo; usa un switch para asignarlo).
               Recorre el array con un bucle for y, para cada atracción, muestra exactamente una línea con el texto del tipo:
               "Montaña rusa", "Carrusel" o "Simulador".
             answer: |
@@ -5513,29 +7453,13 @@ weeks:
                 var
                   atracciones: vector[MAX_ATRACCIONES] of tAtraccion;
                   i: integer;
-                  auxTipo: integer;
                 end var
               
                 for i := 1 to MAX_ATRACCIONES do
                   writeString("Nombre: ");
                   atracciones[i].nombre := readString();
                   writeString("Tipo (0=MONTANA_RUSA,1=CARRUSEL,2=SIMULADOR): ");
-                  auxTipo := readInteger();
-              
-                  switch auxTipo
-                    case 0 then
-                      atracciones[i].tipo := MONTANA_RUSA;
-                    end case
-                    case 1 then
-                      atracciones[i].tipo := CARRUSEL;
-                    end case
-                    case 2 then
-                      atracciones[i].tipo := SIMULADOR;
-                    end case
-                    case default then
-                      atracciones[i].tipo := MONTANA_RUSA;
-                    end case
-                  end switch
+                  atracciones[i].tipo := readEnum();
                 end for
               
                 for i := 1 to MAX_ATRACCIONES do
@@ -5569,10 +7493,10 @@ weeks:
               
               En la función principal, declara un array atracciones de tipo tAtraccion, un búfer temporal llamado tempNombre (texto de tamaño MAX_NOMBRE) y una variable entera i inicializada a 0.
               
-              Repite mientras haya espacio disponible:
+              Usa un bucle while y repite mientras haya espacio disponible ( i menor que MAX_ATRACCIONES):
               - pide un nombre mostrando "Nombre (FIN para terminar): " y guárdalo en el búfer temporal,
-              - si el usuario escribe la palabra FIN, detén la repetición,
-              - en caso contrario, copia el contenido del búfer temporal al campo de nombre del siguiente elemento y avanza al siguiente índice.
+              - si el usuario escribe la palabra FIN, detén la repetición (Usando break para detener el bucle),
+              - en caso contrario (No uses else), copia el contenido del búfer temporal al campo de nombre del siguiente elemento y avanza al siguiente índice.
               
               Al terminar, muestra en una línea "Guardados: x" con la cantidad de elementos almacenados.
             answer: |
@@ -5593,7 +7517,7 @@ weeks:
               
                   while(i < MAX_ATRACCIONES) {
                       printf("Nombre (FIN para terminar): ");
-                      scanf("%19s", tempNombre);
+                      scanf("%s", tempNombre);
                       if(strcmp(tempNombre, "FIN") == 0) {
                           break;
                       }
@@ -5643,7 +7567,7 @@ weeks:
               
                 i := 1;
                 tempNombre := "";
-                while (i <= MAX_ATRACCIONES) and (tempNombre <> "FIN") do
+                while (i <= MAX_ATRACCIONES and tempNombre <> "FIN") do
                   writeString("Nombre (FIN para terminar): ");
                   tempNombre := readString();
                   if tempNombre <> "FIN" then
@@ -5667,10 +7591,10 @@ weeks:
               Define el tipo tAtraccion con:
               - duracionMinutos: número entero.
               
-              En la función principal, declara un array atracciones de tipo tAtraccion, una variable entera i y otra llamada suma con valor inicial 0.
+              En la función principal, declara un array atracciones de tipo tAtraccion, una variable entera i , otra llamada suma con valor inicial 0 y un float promedio.
               Con un bucle for, pide al usuario tres duraciones mostrando "Duración (min): " y guarda cada valor en el campo de duración del elemento actual, acumulándolo en suma.
               
-              Calcula el promedio como un número decimal dividiendo la suma entre 3.0 y muestra:
+              Calcula el promedio como un número decimal dividiendo la suma entre 3 (Castea a float) y muestra:
               - en una línea: "Promedio: x.x" (con un decimal),
               - en la siguiente línea, usa un operador ternario para imprimir "Larga" si el promedio es mayor o igual que 120, o "Corta" en caso contrario.
             answer: |
@@ -5684,7 +7608,8 @@ weeks:
               
               int main() {
                   tAtraccion atracciones[MAX_ATRACCIONES];
-                  int i, suma = 0;
+                  int i;
+                  suma = 0;
                   float promedio;
               
                   for(i = 0; i < MAX_ATRACCIONES; i++) {
@@ -5693,13 +7618,13 @@ weeks:
                       suma += atracciones[i].duracionMinutos;
                   }
               
-                  promedio = suma / 3.0f;
+                  promedio = suma / (float)3;
                   printf("Promedio: %.1f\n", promedio);
-                  printf("%s\n", (promedio >= 120.0f) ? "Larga" : "Corta");
+                  printf("%s\n", (promedio >= 120.0) ? "Larga" : "Corta");
                   return 0;
               }
             hint: |
-              Divide entre 3.0f para obtener decimal.
+              Recuerda castear a (float) el numero 3 en la division
 
           - id: p-4-l3-promedio-simple
             language: Pseudocode
@@ -5713,7 +7638,7 @@ weeks:
               En el bloque principal, declara un array atracciones de tipo tAtraccion, una variable entera i, otra entera suma y otra real promedio.
               Con un bucle for, pide al usuario tres duraciones mostrando "Duración (min): " y guarda cada valor en el campo de duración del elemento actual, acumulándolo en suma.
               
-              Calcula el promedio como número real dividiendo suma entre 3.0 y muestra:
+              Calcula el promedio como número real dividiendo suma entre 3 (Casteando a real) y muestra:
               - en una línea: "Promedio: "
               - en la línea siguiente, el valor del promedio.
             answer: |
@@ -5742,7 +7667,7 @@ weeks:
                   suma := suma + atracciones[i].duracionMinutos;
                 end for
               
-                promedio := suma / 3.0;
+                promedio := suma / integerToReal(3);
                 writeString("Promedio: ");
                 writeReal(promedio);
               end algorithm

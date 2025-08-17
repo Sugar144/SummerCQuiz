@@ -1,4 +1,5 @@
 use eframe::egui;
+use egui_commonmark::CommonMarkViewer;
 use crate::app::QuizApp;
 use crate::model::AppState;
 use crate::ui::layout::two_button_row;
@@ -30,7 +31,11 @@ pub fn ui_level_theory(app: &mut QuizApp, ctx: &egui::Context) {
 
         // Evita doble borrow y copias innecesarias gigantes
         let week_num  = app.quiz.weeks[wi].number;
-        let theory    = app.quiz.weeks[wi].levels[li].explanation.clone();
+        let theory = app.quiz.weeks[wi].levels[li]
+            .explanation
+            .get(&app.selected_language.unwrap())
+            .cloned()
+            .unwrap_or_else(|| "No hay teoría para este lenguaje".into());
 
         egui::Frame::default()
             .fill(ui.visuals().window_fill())
@@ -51,29 +56,44 @@ pub fn ui_level_theory(app: &mut QuizApp, ctx: &egui::Context) {
                         .max_height(text_h)
                         .auto_shrink([false, false])
                         .show(ui, |ui| {
-                            ui.label(theory);
+                            CommonMarkViewer::new()
+                                .show(ui, &mut app.cm_cache, &theory);
                         });
 
                     ui.add_space(8.0);
                     ui.separator();
                     ui.add_space(8.0);
 
-                    // Botones centrados en una sola fila
-                    let (volver, comenzar) = two_button_row(
-                        ui,
-                        panel_width,
-                        "⬅ Volver a niveles",
-                        "Comenzar preguntas ▶"
-                    );
+                    let back_label = match app.theory_return_state {
+                        AppState::Quiz => "⬅ Volver al quiz",
+                        _ => "⬅ Volver a niveles",
+                    };
 
-                    if volver {
-                        app.state = AppState::LevelMenu;
-                        app.message.clear();
-                    }
-                    if comenzar {
-                        app.state = AppState::Quiz;
-                        app.update_input_prefill();
-                        app.message.clear();
+                    // Si vienes del quiz => solo un botón (volver)
+                    if matches!(app.theory_return_state, AppState::Quiz) {
+                        // Botón único a ancho completo
+                        if ui.add_sized([panel_width / 2.0, 36.0], egui::Button::new(back_label)).clicked() {
+                            app.state = AppState::Quiz;
+                            app.message.clear();
+                        }
+                    } else {
+                        // Origen: menú de niveles => dos botones (volver | comenzar)
+                        let (volver, comenzar) = two_button_row(
+                            ui,
+                            panel_width,
+                            back_label,
+                            "Comenzar preguntas ▶"
+                        );
+
+                        if volver {
+                            app.state = AppState::LevelMenu;
+                            app.message.clear();
+                        }
+                        if comenzar {
+                            app.state = AppState::Quiz;
+                            app.update_input_prefill();
+                            app.message.clear();
+                        }
                     }
                 });
         });
