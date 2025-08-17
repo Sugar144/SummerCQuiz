@@ -1,4 +1,5 @@
 use egui::{Align, Button, CentralPanel, Context};
+use crate::app::LevelEntry;
 use crate::QuizApp;
 use crate::view_models::LevelInfo;
 use crate::ui::helpers::split_button_with_restart;
@@ -36,11 +37,12 @@ pub fn ui_level_menu(app: &mut QuizApp, ctx: &Context) {
                                 split_button_with_restart(ui, &label, content_width, button_h, info.completed);
 
                             if clicked_main && info.unlocked {
-                                app.select_level(week_idx, info.idx);
+                                app.select_level_with_origin(week_idx, info.idx, LevelEntry::Menu);
+                                return;
                             }
                             if clicked_restart && info.completed {
                                 app.reiniciar_nivel(week_idx, info.idx);
-                                app.select_level(week_idx, info.idx);
+                                app.select_level_with_origin(week_idx, info.idx, LevelEntry::Restart);
                                 return;
                             }
                             ui.add_space(8.0);

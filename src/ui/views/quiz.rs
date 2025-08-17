@@ -70,11 +70,12 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                             egui::Layout::top_down(Align::Min),
                             |ui| {
                                 ui.set_width(panel_width);
-
                                 ScrollArea::vertical()
                                     .max_height(prompt_max_h)
+                                    .min_scrolled_height(prompt_min_h)
                                     .show(ui, |ui| {
                                         ui.set_width(ui.available_width());
+                                        
                                         ui.label(prompt_text); });
 
                                         ui.separator();
@@ -159,7 +160,7 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                         // Volver / ver progreso
                         let (volver, progreso) = two_button_row(ui, panel_width, "Volver", "Ver progreso");
                         if progreso { app.ver_progreso(); }
-                        if volver { app.guardar_y_salir(); }
+                        if volver { app.volver_niveles(); }
 
                         ui.add_space(8.0);
                         if !app.message.is_empty() {

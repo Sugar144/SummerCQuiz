@@ -158,9 +158,9 @@ impl QuizApp {
         self.sync_is_done();
     }
 
-    pub fn guardar_y_salir(&mut self) {
+    pub fn volver_niveles(&mut self) {
         self.has_saved_progress = true;
-        self.state = AppState::Welcome;
+        self.state = AppState::LevelMenu;
         self.message.clear();
     }
 

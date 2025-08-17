@@ -88,7 +88,7 @@ pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
                             ui.label("¡Bien hecho! Has acabado el quiz.");
                             ui.add_space(10.0);
                             if ui.add_sized([button_width, button_height], Button::new("Volver")).clicked() {
-                                app.guardar_y_salir();
+                                app.volver_niveles();
                             }
                         } else {
                             if ui.add_sized([button_width, button_height], Button::new("Atrás")).clicked() {

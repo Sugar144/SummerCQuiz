@@ -1,4 +1,5 @@
 use egui::{Button, CentralPanel, Context, Grid, ScrollArea};
+use crate::app::LevelEntry;
 use crate::model::{AppState, Language};
 use crate::QuizApp;
 
@@ -102,7 +103,7 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
                                 .add_sized([button_width, button_height], Button::new("Siguiente Nivel"))
                                 .clicked()
                             {
-                                app.select_level(wi, li + 1);
+                                app.select_level_with_origin(wi, li + 1, LevelEntry::Flow);
 
                                 //app.avanzar_a_siguiente_nivel();
                             }

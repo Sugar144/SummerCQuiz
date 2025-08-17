@@ -18,6 +18,13 @@ pub mod view_models;
 // Re-export de view models
 pub use crate::view_models::{WeekInfo, LevelInfo, QuestionRow};
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LevelEntry {
+    Flow,    // flujo normal (continuar/avanzar)
+    Menu,    // click en el menú de niveles
+    Restart, // reinicio explícito del nivel
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct QuizProgress {
     pub completed_ids: HashSet<String>,
@@ -33,6 +40,7 @@ pub struct QuizProgress {
     pub round: usize,
     pub shown_this_round: Vec<(usize, usize)>,   // Ahora es mejor guardar pares (nivel, pregunta)
     pub show_solution: bool,
+    pub seen_level_theory: HashSet<(usize, usize)>,
 }
 
 impl Default for QuizProgress {
@@ -56,6 +64,7 @@ impl Default for QuizProgress {
             round: 1,
             shown_this_round: vec![],
             show_solution: false,
+            seen_level_theory: HashSet::new(),
         }
     }
 }

@@ -57,23 +57,19 @@ impl QuizApp {
         self.select_level(week_idx, select_level);
     }
 
-    /// Selecciona un nivel dentro de una semana y posiciona en la primera pregunta pendiente
-    pub fn select_level(&mut self, week_idx: usize, level_idx: usize) {
+    /// Selecciona nivel y decide si mostrar teoría según el origen.
+    pub fn select_level_with_origin(&mut self, week_idx: usize, level_idx: usize, entry: LevelEntry) {
         let language = self.selected_language.unwrap_or(Language::C);
-        let quiz = &self.quiz;
 
-        // Verifica que la semana y el nivel existan
-        let week = match quiz.weeks.get(week_idx) {
-            Some(w) => w,
-            None => return,
-        };
-        let level = match week.levels.get(level_idx) {
-            Some(l) => l,
-            None => return,
-        };
+        // 0) Validaciones
+        if week_idx >= self.quiz.weeks.len() { return; }
+        if level_idx >= self.quiz.weeks[week_idx].levels.len() { return; }
 
-        // Busca la primera pregunta pendiente en ese nivel
-        let mut first_pending_question = None;
+        let week  = &self.quiz.weeks[week_idx];
+        let level = &week.levels[level_idx];
+
+        // 1) Buscar primera pregunta pendiente de ESTE lenguaje
+        let mut first_pending_question: Option<usize> = None;
         for (q_idx, q) in level.questions.iter().enumerate() {
             if q.language == language {
                 if let Some(id) = &q.id {
@@ -84,19 +80,61 @@ impl QuizApp {
                 }
             }
         }
-        // Si no encuentra pendiente, va a la primera pregunta
-        let select_question = first_pending_question.unwrap_or(0);
 
-        // Actualiza el progreso
-        let progress = self.progress_mut();
-        progress.current_week = Some(week_idx);
-        progress.current_level = Some(level_idx);
-        progress.current_in_level = Some(select_question);
-        progress.round = 1;
-        progress.shown_this_round.clear();
+        // 2) Si vienes del menú y ya estabas en este (week, level), conserva la pregunta actual;
+        //    si no, usa la primera pendiente (o 0 si no hay pendientes).
+        let keep_existing_qi =
+            entry == LevelEntry::Menu
+                && self.progress().current_week  == Some(week_idx)
+                && self.progress().current_level == Some(level_idx);
 
-        // 🔸 Mostrar teoría antes de empezar
-        self.open_level_theory(AppState::LevelMenu);
+        let select_question = if keep_existing_qi {
+            self.progress()
+                .current_in_level
+                .unwrap_or_else(|| first_pending_question.unwrap_or(0))
+        } else {
+            first_pending_question.unwrap_or(0)
+        };
+
+        // 3) Actualizar progreso (sin resetear ronda si vienes del menú)
+        {
+            let prog = self.progress_mut();
+            prog.current_week = Some(week_idx);
+            prog.current_level = Some(level_idx);
+            prog.current_in_level = Some(select_question);
+
+            if entry != LevelEntry::Menu {
+                prog.round = 1;
+                prog.shown_this_round.clear();
+            }
+        }
+
+        // 4) ¿Mostrar teoría?
+        //    - Flow: mostrar si aún no se ha visto (week, level)
+        //    - Restart: forzar mostrar
+        //    - Menu: nunca mostrar (entra directo al quiz)
+        let should_show_theory = match entry {
+            LevelEntry::Flow    => !self.progress().seen_level_theory.contains(&(week_idx, level_idx)),
+            LevelEntry::Restart => true,
+            LevelEntry::Menu    => false,
+        };
+
+        if should_show_theory {
+            // Tu diseño actual: al cerrar teoría vuelves a LevelSummary (para que salga “Comenzar preguntas”)
+            self.open_level_theory(AppState::LevelSummary);
+        } else {
+            // Entrar directo al quiz y refrescar el editor con el prefill correcto
+            self.state = AppState::Quiz;
+            self.update_input_prefill();
+        }
+
+        self.message.clear();
+    }
+
+
+    /// Wrapper para mantener compatibilidad: por defecto trata como Flow.
+    pub fn select_level(&mut self, week_idx: usize, level_idx: usize) {
+        self.select_level_with_origin(week_idx, level_idx, LevelEntry::Flow);
     }
 
     /// 1) Continuar (o iniciar) el quiz: selecciona la primera pregunta pendiente si hace falta.
@@ -171,28 +209,62 @@ impl QuizApp {
             None => return,
         };
 
-        // 2) Asegurar que exista un entry en max_unlocked_level
+        // 2) Asegurar estructuras auxiliares
         {
             let prog = self.progress_mut();
             prog.max_unlocked_level.entry(week_idx).or_insert(0);
-        } // <- aquí suelta `prog`
+        }
 
-        // 3) Recalcular niveles desbloqueados (usa un nuevo borrow mutable internamente)
+        // 3) Recalcular niveles desbloqueados (usa borrow mutable interno)
         self.recalculate_unlocked_levels(week_idx);
 
-        // 4) Fijar el primer nivel desbloqueado como nivel actual
-        {
-            let prog = self.progress_mut();
-            // Ya existe unlocked_levels para week_idx gracias al paso anterior
-            let first_lvl = prog.unlocked_levels[&week_idx][0];
-            prog.current_level = Some(first_lvl);
-            prog.current_in_level = None;
-        } // <- fin del borrow
+        // 4) Preservar posición si es válida; si no, fijar primer nivel desbloqueado
+        let (must_init_level, new_level_opt) = {
+            let prog = self.progress();
+            let levels_len = self.quiz.weeks[week_idx].levels.len();
 
+            // ¿tenemos un current_level válido para esta semana y desbloqueado?
+            let keep_current = prog.current_week == Some(week_idx)
+                && prog.current_level
+                .map(|li| {
+                    li < levels_len &&
+                        prog.unlocked_levels
+                            .get(&week_idx)
+                            .map(|v| v.contains(&li))
+                            .unwrap_or(false)
+                })
+                .unwrap_or(false);
+
+            if keep_current {
+                (false, None) // no tocar ni level ni in_level
+            } else {
+                // elegir el primer nivel desbloqueado (o 0 si no hay info)
+                let first_lvl = prog
+                    .unlocked_levels
+                    .get(&week_idx)
+                    .and_then(|v| v.first().copied())
+                    .unwrap_or(0);
+                (true, Some(first_lvl))
+            }
+        };
+
+        if must_init_level {
+            let prev_li = self.progress().current_level;
+            let new_li = new_level_opt.unwrap_or(0);
+            let prog = self.progress_mut();
+            prog.current_level = Some(new_li);
+
+            // Si cambiamos de nivel, sí conviene limpiar la pregunta seleccionada;
+            // si no cambiamos, NO la toquemos para no perder el puntero.
+            if prev_li != Some(new_li) {
+                prog.current_in_level = None;
+            }
+        }
         // 5) Cambiar estado y limpiar mensaje
         self.state = AppState::LevelMenu;
         self.message.clear();
     }
+
 
     pub fn open_level_theory(&mut self, return_to: AppState) {
         self.theory_return_state = return_to;

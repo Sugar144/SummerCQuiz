@@ -73,6 +73,7 @@ pub fn ui_level_theory(app: &mut QuizApp, ctx: &egui::Context) {
                     if matches!(app.theory_return_state, AppState::Quiz) {
                         // Botón único a ancho completo
                         if ui.add_sized([panel_width / 2.0, 36.0], egui::Button::new(back_label)).clicked() {
+
                             app.state = AppState::Quiz;
                             app.message.clear();
                         }
@@ -90,9 +91,13 @@ pub fn ui_level_theory(app: &mut QuizApp, ctx: &egui::Context) {
                             app.message.clear();
                         }
                         if comenzar {
-                            app.state = AppState::Quiz;
+                            if let (Some(w), Some(l)) = (app.progress().current_week, app.progress().current_level) {
+                                app.progress_mut().seen_level_theory.insert((w, l));
+                            }
+                            app.state = AppState::Quiz;   // ← NO llames continuar_quiz aquí
                             app.update_input_prefill();
                             app.message.clear();
+
                         }
                     }
                 });
