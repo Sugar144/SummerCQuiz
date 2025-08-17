@@ -3331,7 +3331,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "summer_quiz"
-version = "0.1.4"
+version = "0.2.0"
 dependencies = [
  "eframe",
  "egui",
@@ -3340,6 +3340,7 @@ dependencies = [
  "log",
  "reqwest",
  "self_update",
+ "semver",
  "serde",
  "serde_yaml",
  "wasm-bindgen-futures",

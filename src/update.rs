@@ -6,28 +6,43 @@ use reqwest::header::USER_AGENT;
 use self_update::backends::github::ReleaseList;
 #[cfg(not(target_arch = "wasm32"))]
 use std::fs::File;
-
-
-
+#[cfg(not(target_arch = "wasm32"))]
+use semver::Version;
 
 
 #[cfg(not(target_arch = "wasm32"))]
 pub fn check_latest_release() -> Result<Option<String>, Box<dyn std::error::Error>> {
+
     let releases = ReleaseList::configure()
         .repo_owner("Sugar144")
         .repo_name("SummerCQuiz")
         .build()?
         .fetch()?;
 
-    if let Some(release) = releases.first() {
-        let latest_version = release.version.clone();
-        let current_version = env!("CARGO_PKG_VERSION").to_string();
-        if latest_version != current_version {
-            return Ok(Some(latest_version));
+    // versión actual del binario
+    let current = Version::parse(env!("CARGO_PKG_VERSION"))
+        .map_err(|e| format!("parse current version: {e}"))?;
+
+    // Elegimos la mayor versión válida por semver (ignorando tags no parseables)
+    let latest = releases
+        .into_iter()
+        // si tienes flags como draft/prerelease, filtra aquí:
+        // .filter(|r| !r.draft && !r.prerelease)
+        .filter_map(|r| {
+            let s = r.version.trim_start_matches('v'); // soporta tags 'v0.2.0'
+            Version::parse(s).ok().map(|v| (v, s.to_string()))
+        })
+        .max_by(|(a, _), (b, _)| a.cmp(b)); // mayor versión
+
+    if let Some((latest_ver, latest_str)) = latest {
+        if latest_ver > current {
+            return Ok(Some(latest_str)); // hay actualización
         }
     }
-    Ok(None)
+
+    Ok(None) // ya estás en la última o no hay releases parseables
 }
+
 
 #[cfg(not(target_arch = "wasm32"))]
 
