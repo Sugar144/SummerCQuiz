@@ -29,6 +29,7 @@ pub fn ui_week_menu(app: &mut QuizApp, ctx: &Context) {
 
                         for info in &infos {
                             let label = info.label();
+
                             let (clicked_main, clicked_restart) =
                                 split_button_with_restart(ui, &label, content_width, button_h, info.completed);
 
@@ -36,17 +37,18 @@ pub fn ui_week_menu(app: &mut QuizApp, ctx: &Context) {
                                 app.progress_mut().current_week = Some(info.idx);
                                 app.open_level_menu();
                             }
-                            if clicked_restart && info.completed {
+                            if clicked_restart && info.completed{
                                 app.reiniciar_semana(info.idx);
                                 app.progress_mut().current_week = Some(info.idx);
                                 app.open_level_menu();
                                 return;
                             }
+
                             ui.add_space(8.0);
                         }
 
                         ui.add_space(16.0);
-                        if big_list_button(ui, "Volver al menú principal", content_width, button_h, true) {
+                        if big_list_button(ui, "Volver al menú principal".to_string(), content_width, button_h, true) {
                             app.volver_al_menu_principal();
                         }
                     });

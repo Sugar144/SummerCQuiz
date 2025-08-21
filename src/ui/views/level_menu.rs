@@ -37,6 +37,7 @@ pub fn ui_level_menu(app: &mut QuizApp, ctx: &Context) {
                                 split_button_with_restart(ui, &label, content_width, button_h, info.completed);
 
                             if clicked_main && info.unlocked {
+                                app.progress_mut().current_level = Some(info.idx);
                                 app.select_level_with_origin(week_idx, info.idx, LevelEntry::Menu);
                                 return;
                             }
