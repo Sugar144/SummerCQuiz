@@ -36,7 +36,11 @@ pub fn ui_language_select(app: &mut QuizApp, ctx: &Context) {
                     ui.vertical_centered(|ui| {
                         // Botones de lenguaje
                         let btn_c        = ui.add_sized([button_width, 40.0], Button::new("Lenguaje C"));
+                        ui.add_space(5.0);
+
                         let btn_pseudocode = ui.add_sized([button_width, 40.0], Button::new("Pseudocódigo"));
+                        ui.add_space(5.0);
+                        
                         #[cfg(not(target_arch = "wasm32"))]
                         let btn_exit     = ui.add_sized([button_width, 40.0], Button::new("Salir"));
 

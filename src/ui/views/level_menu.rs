@@ -8,7 +8,7 @@ pub fn ui_level_menu(app: &mut QuizApp, ctx: &Context) {
     CentralPanel::default().show(ctx, |ui| {
         let max_width = 400.0;
         let content_width = ui.available_width().min(max_width);
-        let button_h = 36.0;
+        let button_h = 40.0;
 
         let week_idx = match app.progress().current_week { Some(w) => w, None => return };
 
@@ -46,10 +46,10 @@ pub fn ui_level_menu(app: &mut QuizApp, ctx: &Context) {
                                 app.select_level_with_origin(week_idx, info.idx, LevelEntry::Restart);
                                 return;
                             }
-                            ui.add_space(8.0);
+                            ui.add_space(5.0);
                         }
 
-                        ui.add_space(16.0);
+                        ui.add_space(10.0);
                         if ui.add_sized([content_width, button_h], Button::new("Volver a semanas")).clicked() {
                             app.open_week_menu();
                         }
