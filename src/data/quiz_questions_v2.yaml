@@ -3189,7 +3189,6 @@ weeks:
               end algorithm
             hint: Recuerda, cada readInteger debe ir en línea.
 
-
   - number: 3
     explanation: |
       Explicación de semana 3
@@ -9524,16 +9523,6 @@ weeks:
             hint: |
               Una sentencia por línea; no hay operador ternario en pseudocódigo.
 
-
-
-
-
-
-
-
-
-
-
   - number: 5
     explanation: |
       Explicacion semana 5
@@ -11132,4 +11121,1159 @@ weeks:
                 writeInteger(enemigo.hp);
               end algorithm
             hint: Usa in para dmg y inout para el struct.
+
+  - number: 7
+    explanation:
+    levels:
+      - number: 1
+        explanation:
+          C: | 
+            Explicacion C
+          Pseudocode: |
+            Explicacion Pseudocode
+        questions:
+          - id: c-5-l1-table-enemy
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_ENEMIES = 50.
+              Declara una estructura tEnemy con los campos:
+              - name: texto (usa MAX_NAME = 30)
+              - health: entero
+              Declara una tabla tEnemyTable con:
+              - data: array de MAX_ENEMIES de tEnemy
+              - count: entero con el número de enemigos almacenados.
+            answer: |
+              #define MAX_NAME 30
+              #define MAX_ENEMIES 50
+
+              typedef struct {
+                  char name[MAX_NAME];
+                  int health;
+              } tEnemy;
+
+              typedef struct {
+                  tEnemy data[MAX_ENEMIES];
+                  int count;
+              } tEnemyTable;
+            hint: Recuerda que una tabla combina el array y un contador.
+
+          - id: p-5-l1-table-enemy
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_ENEMIES = 50.
+              Declara un tipo tEnemy con los campos:
+              - name: string
+              - health: integer
+              Declara un tipo tEnemyTable con:
+              - data: vector[MAX_ENEMIES] de tEnemy
+              - count: integer
+            answer: |
+              const
+                MAX_ENEMIES: integer = 50;
+              end const
+
+              type
+                tEnemy = record
+                  name: string;
+                  health: integer;
+                end record
+              end type
+
+              type
+                tEnemyTable = record
+                  data: vector[MAX_ENEMIES] of tEnemy;
+                  count: integer;
+                end record
+              end type
+            hint: La tabla es un record con el array y el contador.
+
+          - id: c-5-l1-init-enemytable
+            language: C
+            week: 5
+            prompt: |
+              Declara el prototipo e implementación de una función initEnemyTable que reciba
+              un puntero a tEnemyTable y lo inicialice con count = 0.
+            answer: |
+              void initEnemyTable(tEnemyTable* table);
+
+              void initEnemyTable(tEnemyTable* table) {
+                  table->count = 0;
+              }
+            hint: Usa -> para acceder a count porque es un puntero.
+
+          - id: p-5-l1-init-enemytable
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Escribe el encabezado e implementación de una acción initEnemyTable
+              que reciba un parámetro de tipo inout tEnemyTable y lo inicialice con count = 0.
+            answer: |
+              action initEnemyTable(inout table: tEnemyTable)
+                table.count := 0;
+              end action
+            hint: Una acción en pseudocódigo no devuelve valor.
+
+          - id: c-5-l1-table-item
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_ITEMS = 100.
+              Declara una estructura tItem con los campos:
+              - name: texto (usa MAX_NAME = 30)
+              - value: entero
+              Declara un tipo tInventory con:
+              - data: array de MAX_ITEMS de tItem
+              - count: entero
+            answer: |
+              #define MAX_NAME 30
+              #define MAX_ITEMS 100
+
+              typedef struct {
+                  char name[MAX_NAME];
+                  int value;
+              } tItem;
+
+              typedef struct {
+                  tItem data[MAX_ITEMS];
+                  int count;
+              } tInventory;
+            hint: El inventario es otra tabla similar a los enemigos.
+
+          - id: p-5-l1-table-item
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_ITEMS = 100.
+              Declara un tipo tItem con los campos:
+              - name: string
+              - value: integer
+              Declara un tipo tInventory con:
+              - data: vector[MAX_ITEMS] de tItem
+              - count: integer
+            answer: |
+              const
+                MAX_ITEMS: integer = 100;
+              end const
+
+              type
+                tItem = record
+                  name: string;
+                  value: integer;
+                end record
+              end type
+
+              type
+                tInventory = record
+                  data: vector[MAX_ITEMS] of tItem;
+                  count: integer;
+                end record
+              end type
+            hint: Las tablas siempre combinan vector y contador.
+
+          - id: c-5-l1-main-init-inventory
+            language: C
+            week: 5
+            prompt: |
+              Declara el prototipo e implementación de una función initInventory que ponga count=0.
+              En main declara una variable inv de tipo tInventory, inicialízala con initInventory
+              y devuelve 0.
+            answer: |
+              void initInventory(tInventory* inv);
+
+              void initInventory(tInventory* inv) {
+                  inv->count = 0;
+              }
+
+              int main() {
+                  tInventory inv;
+                  initInventory(&inv);
+                  return 0;
+              }
+            hint: Pasa la dirección de inv al llamar a initInventory.
+
+          - id: p-5-l1-main-init-inventory
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Escribe la acción initInventory que ponga count=0 en un tInventory.
+              En el bloque principal declara una variable inv de tipo tInventory
+              e inicialízala llamando a initInventory.
+            answer: |
+              action initInventory(inout inv: tInventory)
+                inv.count := 0;
+              end action
+
+              algorithm
+                var
+                  inv: tInventory;
+                end var
+
+                initInventory(inv);
+              end algorithm
+            hint: Pasa inv como inout para que se inicialice.
+
+          - id: c-5-l1-table-player
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_PLAYERS = 20.
+              Declara una estructura tPlayer con:
+              - username: texto (usa MAX_NAME = 30)
+              - level: entero
+              Declara una tabla tPlayerTable con:
+              - data: array de MAX_PLAYERS de tPlayer
+              - count: entero
+              En main declara un tPlayerTable players y pon count=0.
+            answer: |
+              #define MAX_NAME 30
+              #define MAX_PLAYERS 20
+
+              typedef struct {
+                  char username[MAX_NAME];
+                  int level;
+              } tPlayer;
+
+              typedef struct {
+                  tPlayer data[MAX_PLAYERS];
+                  int count;
+              } tPlayerTable;
+
+              int main() {
+                  tPlayerTable players;
+                  players.count = 0;
+                  return 0;
+              }
+            hint: La inicialización directa se hace con .count = 0.
+
+          - id: p-5-l1-table-player
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_PLAYERS = 20.
+              Declara un tipo tPlayer con:
+              - username: string
+              - level: integer
+              Declara un tipo tPlayerTable con:
+              - data: vector[MAX_PLAYERS] de tPlayer
+              - count: integer
+              En el bloque principal declara un tPlayerTable players y pon count=0.
+            answer: |
+              const
+                MAX_PLAYERS: integer = 20;
+              end const
+
+              type
+                tPlayer = record
+                  username: string;
+                  level: integer;
+                end record
+              end type
+
+              type
+                tPlayerTable = record
+                  data: vector[MAX_PLAYERS] of tPlayer;
+                  count: integer;
+                end record
+              end type
+
+              algorithm
+                var
+                  players: tPlayerTable;
+                end var
+
+                players.count := 0;
+              end algorithm
+            hint: Se inicializa el contador a 0 en el bloque principal.
+
+          - id: c-5-l1-table-weapon
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_WEAPONS = 40.
+              Declara un enum tWeaponType con los valores SWORD, BOW y STAFF.
+              Declara un struct tWeapon con:
+              - name: texto (usa MAX_NAME = 30)
+              - type: tWeaponType
+              Declara una tabla tWeaponTable con data[MAX_WEAPONS] y count.
+            answer: |
+              #define MAX_NAME 30
+              #define MAX_WEAPONS 40
+
+              typedef enum { SWORD, BOW, STAFF } tWeaponType;
+
+              typedef struct {
+                  char name[MAX_NAME];
+                  tWeaponType type;
+              } tWeapon;
+
+              typedef struct {
+                  tWeapon data[MAX_WEAPONS];
+                  int count;
+              } tWeaponTable;
+            hint: Un enum se define antes de usarlo dentro del struct.
+
+          - id: p-5-l1-table-weapon
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_WEAPONS = 40.
+              Declara un tipo enumerado tWeaponType con valores SWORD, BOW y STAFF.
+              Declara un tipo tWeapon con:
+              - name: string
+              - type: tWeaponType
+              Declara un tipo tWeaponTable con:
+              - data: vector[MAX_WEAPONS] de tWeapon
+              - count: integer
+            answer: |
+              const
+                MAX_WEAPONS: integer = 40;
+              end const
+
+              type
+                tWeaponType = { SWORD, BOW, STAFF };
+              end type
+
+              type
+                tWeapon = record
+                  name: string;
+                  type: tWeaponType;
+                end record
+              end type
+
+              type
+                tWeaponTable = record
+                  data: vector[MAX_WEAPONS] of tWeapon;
+                  count: integer;
+                end record
+              end type
+            hint: Recuerda cerrar cada tipo con end type.
+
+          - id: c-5-l1-init-weapon-main
+            language: C
+            week: 5
+            prompt: |
+              Declara la función initWeaponTable que inicialice count=0 en un tWeaponTable.
+              En main declara una variable armas de tipo tWeaponTable e inicialízala con initWeaponTable.
+            answer: |
+              void initWeaponTable(tWeaponTable* table);
+
+              void initWeaponTable(tWeaponTable* table) {
+                  table->count = 0;
+              }
+
+              int main() {
+                  tWeaponTable armas;
+                  initWeaponTable(&armas);
+                  return 0;
+              }
+            hint: Se pasa la dirección de la tabla con &.
+
+          - id: p-5-l1-init-weapon-main
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara la acción initWeaponTable que inicialice count=0 en un tWeaponTable.
+              En el bloque principal declara una variable armas de tipo tWeaponTable e inicialízala con initWeaponTable.
+            answer: |
+              action initWeaponTable(inout table: tWeaponTable)
+                table.count := 0;
+              end action
+
+              algorithm
+                var
+                  armas: tWeaponTable;
+                end var
+
+                initWeaponTable(armas);
+              end algorithm
+            hint: En pseudocódigo las acciones se llaman igual que en C.
+
+          - id: c-5-l1-table-npc
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_NPCS = 60.
+              Declara una estructura tNPC con:
+              - name: texto (usa MAX_NAME = 30)
+              - dialogue: texto (usa MAX_MSG = 100)
+              Declara una tabla tNPCTable con:
+              - data: array[MAX_NPCS] de tNPC
+              - count: entero
+            answer: |
+              #define MAX_NAME 30
+              #define MAX_MSG 100
+              #define MAX_NPCS 60
+
+              typedef struct {
+                  char name[MAX_NAME];
+                  char dialogue[MAX_MSG];
+              } tNPC;
+
+              typedef struct {
+                  tNPC data[MAX_NPCS];
+                  int count;
+              } tNPCTable;
+            hint: Cada NPC tiene nombre y diálogo como strings.
+
+          - id: p-5-l1-table-npc
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_NPCS = 60.
+              Declara un tipo tNPC con:
+              - name: string
+              - dialogue: string
+              Declara un tipo tNPCTable con:
+              - data: vector[MAX_NPCS] de tNPC
+              - count: integer
+            answer: |
+              const
+                MAX_NPCS: integer = 60;
+              end const
+
+              type
+                tNPC = record
+                  name: string;
+                  dialogue: string;
+                end record
+              end type
+
+              type
+                tNPCTable = record
+                  data: vector[MAX_NPCS] of tNPC;
+                  count: integer;
+                end record
+              end type
+            hint: Un NPC tiene cadenas de texto como atributos.
+          - id: c-5-l1-table-quest
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_QUESTS = 25.
+              Declara una estructura tQuest con:
+              - title: texto (usa MAX_NAME = 30)
+              - reward: entero
+              Declara una tabla tQuestTable con:
+              - data: array[MAX_QUESTS] de tQuest
+              - count: entero
+              En main declara una variable quests de tipo tQuestTable e inicialízala poniendo count=0.
+            answer: |
+              #define MAX_NAME 30
+              #define MAX_QUESTS 25
+
+              typedef struct {
+                  char title[MAX_NAME];
+                  int reward;
+              } tQuest;
+
+              typedef struct {
+                  tQuest data[MAX_QUESTS];
+                  int count;
+              } tQuestTable;
+
+              int main() {
+                  tQuestTable quests;
+                  quests.count = 0;
+                  return 0;
+              }
+            hint: La inicialización directa de count se hace en main.
+
+          - id: p-5-l1-table-quest
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_QUESTS = 25.
+              Declara un tipo tQuest con:
+              - title: string
+              - reward: integer
+              Declara un tipo tQuestTable con:
+              - data: vector[MAX_QUESTS] de tQuest
+              - count: integer
+              En el bloque principal declara una variable quests de tipo tQuestTable e inicialízala poniendo count=0.
+            answer: |
+              const
+                MAX_QUESTS: integer = 25;
+              end const
+
+              type
+                tQuest = record
+                  title: string;
+                  reward: integer;
+                end record
+              end type
+
+              type
+                tQuestTable = record
+                  data: vector[MAX_QUESTS] of tQuest;
+                  count: integer;
+                end record
+              end type
+
+              algorithm
+                var
+                  quests: tQuestTable;
+                end var
+
+                quests.count := 0;
+              end algorithm
+            hint: El contador siempre comienza en 0 al declarar la tabla.
+
+          - id: c-5-l1-table-boss
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_BOSSES = 10.
+              Declara una estructura tBoss con:
+              - name: texto (usa MAX_NAME = 30)
+              - hp: real
+              - stage: entero
+              Declara una tabla tBossTable con:
+              - data: array[MAX_BOSSES] de tBoss
+              - count: entero
+              Declara e implementa una función initBossTable que reciba un puntero a tBossTable
+              e inicialice count=0.
+            answer: |
+              #define MAX_NAME 30
+              #define MAX_BOSSES 10
+
+              typedef struct {
+                  char name[MAX_NAME];
+                  float hp;
+                  int stage;
+              } tBoss;
+
+              typedef struct {
+                  tBoss data[MAX_BOSSES];
+                  int count;
+              } tBossTable;
+
+              void initBossTable(tBossTable* table);
+
+              void initBossTable(tBossTable* table) {
+                  table->count = 0;
+              }
+            hint: Usa float para hp porque es un valor decimal.
+
+          - id: p-5-l1-table-boss
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_BOSSES = 10.
+              Declara un tipo tBoss con:
+              - name: string
+              - hp: real
+              - stage: integer
+              Declara un tipo tBossTable con:
+              - data: vector[MAX_BOSSES] de tBoss
+              - count: integer
+              Declara e implementa una acción initBossTable que reciba un inout tBossTable
+              e inicialice count=0.
+            answer: |
+              const
+                MAX_BOSSES: integer = 10;
+              end const
+
+              type
+                tBoss = record
+                  name: string;
+                  hp: real;
+                  stage: integer;
+                end record
+              end type
+
+              type
+                tBossTable = record
+                  data: vector[MAX_BOSSES] of tBoss;
+                  count: integer;
+                end record
+              end type
+
+              action initBossTable(inout table: tBossTable)
+                table.count := 0;
+              end action
+            hint: La acción no devuelve nada, solo modifica la tabla.
+
+      - number: 2
+        explanation:
+          C:
+          Pseudocode:
+        questions:
+          # =====================================================
+          # BLOQUE 1: INSERCIÓN (3 pares)
+          # =====================================================
+
+          - id: c-5-l2-insert-skill
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_SKILLS = 30 y MAX_NAME = 30.
+              Declara una estructura tSkill con:
+              - name: texto
+              - level: entero
+              Declara una tabla tSkillTable con:
+              - data: array[MAX_SKILLS] de tSkill
+              - count: entero
+              Implementa la función addSkill que reciba un puntero a tSkillTable (table)
+              y un tSkill (s), lo inserte al final de la tabla y aumente count.
+            answer: |
+              #include <string.h>
+              #define MAX_NAME 30
+              #define MAX_SKILLS 30
+
+              typedef struct {
+                  char name[MAX_NAME];
+                  int level;
+              } tSkill;
+
+              typedef struct {
+                  tSkill data[MAX_SKILLS];
+                  int count;
+              } tSkillTable;
+
+              void addSkill(tSkillTable* table, tSkill s) {
+                  table->data[table->count] = s;
+                  table->count++;
+              }
+            hint: Inserta al final usando table->count como índice.
+
+          - id: p-5-l2-insert-skill
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_SKILLS = 30.
+              Declara un tipo tSkill con:
+              - name: string
+              - level: integer
+              Declara un tipo tSkillTable con:
+              - data: vector[MAX_SKILLS] de tSkill
+              - count: integer
+              Implementa una acción addSkill que reciba un inout tSkillTable (table)
+              y un tSkill (s), lo inserte al final de la tabla y aumente count.
+            answer: |
+              const
+                MAX_SKILLS: integer = 30;
+              end const
+
+              type
+                tSkill = record
+                  name: string;
+                  level: integer;
+                end record
+              end type
+
+              type
+                tSkillTable = record
+                  data: vector[MAX_SKILLS] of tSkill;
+                  count: integer;
+                end record
+              end type
+
+              action addSkill(inout table: tSkillTable, in s: tSkill)
+                table.data[table.count + 1] := s;
+                table.count := table.count + 1;
+              end action
+            hint: En pseudocódigo los índices empiezan en 1.
+
+          - id: c-5-l2-insert-potion
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_POTIONS = 50 y MAX_NAME = 30.
+              Declara un struct tPotion con:
+              - name: texto
+              - power: real
+              Declara una tabla tPotionTable con data[MAX_POTIONS] y count.
+              Implementa la función addPotion que reciba un puntero a tPotionTable (table)
+              y un tPotion (p), lo inserte al final y aumente count.
+            answer: |
+              #define MAX_NAME 30
+              #define MAX_POTIONS 50
+
+              typedef struct {
+                  char name[MAX_NAME];
+                  float power;
+              } tPotion;
+
+              typedef struct {
+                  tPotion data[MAX_POTIONS];
+                  int count;
+              } tPotionTable;
+
+              void addPotion(tPotionTable* table, tPotion p) {
+                  table->data[table->count] = p;
+                  table->count++;
+              }
+            hint: Usa float para power.
+
+          - id: p-5-l2-insert-potion
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_POTIONS = 50.
+              Declara un tipo tPotion con:
+              - name: string
+              - power: real
+              Declara un tipo tPotionTable con data[MAX_POTIONS] y count.
+              Implementa una acción addPotion que reciba un inout tPotionTable (table)
+              y un tPotion (p), lo inserte al final y aumente count.
+            answer: |
+              const
+                MAX_POTIONS: integer = 50;
+              end const
+
+              type
+                tPotion = record
+                  name: string;
+                  power: real;
+                end record
+              end type
+
+              type
+                tPotionTable = record
+                  data: vector[MAX_POTIONS] of tPotion;
+                  count: integer;
+                end record
+              end type
+
+              action addPotion(inout table: tPotionTable, in p: tPotion)
+                table.data[table.count + 1] := p;
+                table.count := table.count + 1;
+              end action
+            hint: Recuerda aumentar count tras insertar.
+
+          - id: c-5-l2-insert-achievement
+            language: C
+            week: 5
+            prompt: |
+              Declara una constante MAX_ACHIEVEMENTS = 40 y MAX_NAME = 30.
+              Declara un struct tAchievement con:
+              - title: texto
+              - points: entero
+              Declara un tAchievementTable con data[MAX_ACHIEVEMENTS] y count.
+              Implementa la función addAchievement que reciba un puntero a tAchievementTable (table)
+              y un tAchievement (a), lo inserte al final y aumente count.
+            answer: |
+              #define MAX_NAME 30
+              #define MAX_ACHIEVEMENTS 40
+
+              typedef struct {
+                  char title[MAX_NAME];
+                  int points;
+              } tAchievement;
+
+              typedef struct {
+                  tAchievement data[MAX_ACHIEVEMENTS];
+                  int count;
+              } tAchievementTable;
+
+              void addAchievement(tAchievementTable* table, tAchievement a) {
+                  table->data[table->count] = a;
+                  table->count++;
+              }
+            hint: Similar a insertar skills o potions.
+
+          - id: p-5-l2-insert-achievement
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Declara una constante MAX_ACHIEVEMENTS = 40.
+              Declara un tipo tAchievement con:
+              - title: string
+              - points: integer
+              Declara un tipo tAchievementTable con data[MAX_ACHIEVEMENTS] y count.
+              Implementa una acción addAchievement que reciba un inout tAchievementTable (table)
+              y un tAchievement (a), lo inserte al final y aumente count.
+            answer: |
+              const
+                MAX_ACHIEVEMENTS: integer = 40;
+              end const
+
+              type
+                tAchievement = record
+                  title: string;
+                  points: integer;
+                end record
+              end type
+
+              type
+                tAchievementTable = record
+                  data: vector[MAX_ACHIEVEMENTS] of tAchievement;
+                  count: integer;
+                end record
+              end type
+
+              action addAchievement(inout table: tAchievementTable, in a: tAchievement)
+                table.data[table.count + 1] := a;
+                table.count := table.count + 1;
+              end action
+            hint: No olvides incrementar el contador.
+
+          # =====================================================
+          # BLOQUE 2: BÚSQUEDA LINEAL (3 pares)
+          # =====================================================
+
+          - id: c-5-l2-search-skill
+            language: C
+            week: 5
+            prompt: |
+              Implementa la función searchSkill que reciba un tSkillTable (table) y un nombre (name),
+              y devuelva la posición en el array (o -1 si no existe).
+              Usa un while con booleano found, inicializa pos=-1, i=0.
+            answer: |
+              #include <stdbool.h>
+              #include <string.h>
+
+              int searchSkill(tSkillTable table, const char* name) {
+                  int i = 0;
+                  int pos = -1;
+                  bool found = false;
+                  while(i < table.count && !found) {
+                      if(strcmp(table.data[i].name, name) == 0) {
+                          pos = i;
+                          found = true;
+                      } else {
+                          i++;
+                      }
+                  }
+                  return pos;
+              }
+            hint: Sigue el esquema de búsqueda lineal de la teoría.
+
+          - id: p-5-l2-search-skill
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Implementa una función searchSkill que reciba un tSkillTable (table) y un string (name),
+              y devuelva un integer con la posición encontrada o -1 si no existe.
+              Usa un while con variable booleana found, inicializa pos=-1, i=1.
+            answer: |
+              function searchSkill(table: tSkillTable, name: string): integer
+                var
+                  i: integer;
+                  pos: integer;
+                  found: boolean;
+                end var
+
+                i := 1;
+                pos := -1;
+                found := false;
+
+                while i ≤ table.count and not found do
+                  if table.data[i].name = name then
+                    pos := i;
+                    found := true;
+                  else
+                    i := i + 1;
+                  end if
+                end while
+
+                return pos;
+              end function
+            hint: Recuerda que los índices en pseudocódigo comienzan en 1.
+
+          - id: c-5-l2-search-potion
+            language: C
+            week: 5
+            prompt: |
+              Implementa la función searchPotion que reciba un tPotionTable (table) y un real power,
+              y devuelva la posición encontrada o -1 si no existe.
+              Usa while con booleano found.
+            answer: |
+              #include <stdbool.h>
+
+              int searchPotion(tPotionTable table, float power) {
+                  int i = 0;
+                  int pos = -1;
+                  bool found = false;
+                  while(i < table.count && !found) {
+                      if(table.data[i].power == power) {
+                          pos = i;
+                          found = true;
+                      } else {
+                          i++;
+                      }
+                  }
+                  return pos;
+              }
+            hint: Inicializa pos en -1 como valor por defecto.
+
+          - id: p-5-l2-search-potion
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Implementa una función searchPotion que reciba un tPotionTable (table) y un real (power),
+              y devuelva un integer con la posición encontrada o -1 si no existe.
+              Usa el esquema de búsqueda lineal con while y booleano found.
+            answer: |
+              function searchPotion(table: tPotionTable, power: real): integer
+                var
+                  i: integer;
+                  pos: integer;
+                  found: boolean;
+                end var
+
+                i := 1;
+                pos := -1;
+                found := false;
+
+                while i ≤ table.count and not found do
+                  if table.data[i].power = power then
+                    pos := i;
+                    found := true;
+                  else
+                    i := i + 1;
+                  end if
+                end while
+
+                return pos;
+              end function
+            hint: Usa pos=-1 como valor inicial de no encontrado.
+
+          - id: c-5-l2-search-achievement
+            language: C
+            week: 5
+            prompt: |
+              Implementa la función searchAchievement que reciba un tAchievementTable (table) y un integer points,
+              y devuelva la posición de un logro con esos puntos o -1 si no existe.
+              Usa while con booleano found.
+            answer: |
+              #include <stdbool.h>
+
+              int searchAchievement(tAchievementTable table, int points) {
+                  int i = 0;
+                  int pos = -1;
+                  bool found = false;
+                  while(i < table.count && !found) {
+                      if(table.data[i].points == points) {
+                          pos = i;
+                          found = true;
+                      } else {
+                          i++;
+                      }
+                  }
+                  return pos;
+              }
+            hint: Devuelve -1 si no encuentra el valor buscado.
+
+          - id: p-5-l2-search-achievement
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Implementa una función searchAchievement que reciba un tAchievementTable (table) y un integer (points),
+              y devuelva un integer con la posición encontrada o -1 si no existe.
+              Usa while con booleano found.
+            answer: |
+              function searchAchievement(table: tAchievementTable, points: integer): integer
+                var
+                  i: integer;
+                  pos: integer;
+                  found: boolean;
+                end var
+
+                i := 1;
+                pos := -1;
+                found := false;
+
+                while i ≤ table.count and not found do
+                  if table.data[i].points = points then
+                    pos := i;
+                    found := true;
+                  else
+                    i := i + 1;
+                  end if
+                end while
+
+                return pos;
+              end function
+            hint: Usa el esquema de búsqueda lineal de la teoría.
+
+          # =====================================================
+          # BLOQUE 3: ELIMINACIÓN (3 pares)
+          # =====================================================
+
+          - id: c-5-l2-delete-skill
+            language: C
+            week: 5
+            prompt: |
+              Implementa la función deleteSkill que reciba un puntero a tSkillTable (table) y un string (name).
+              Primero busca el nombre con searchSkill. Si se encuentra, desplaza los elementos a la izquierda
+              y disminuye count en 1.
+            answer: |
+              void deleteSkill(tSkillTable* table, const char* name) {
+                  int pos = searchSkill(*table, name);
+                  if(pos != -1) {
+                      for(int i = pos; i < table->count - 1; i++) {
+                          table->data[i] = table->data[i+1];
+                      }
+                      table->count--;
+                  }
+              }
+            hint: Desplaza todos los elementos posteriores una posición a la izquierda.
+
+          - id: p-5-l2-delete-skill
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Implementa una acción deleteSkill que reciba un inout tSkillTable (table) y un string (name).
+              Primero busca con searchSkill. Si se encuentra, desplaza todos los elementos a la izquierda
+              y reduce count en 1.
+            answer: |
+              action deleteSkill(inout table: tSkillTable, in name: string)
+                var
+                  pos: integer;
+                  i: integer;
+                end var
+
+                pos := searchSkill(table, name);
+
+                if pos ≠ -1 then
+                  for i := pos to table.count - 1 do
+                    table.data[i] := table.data[i+1];
+                  end for
+                  table.count := table.count - 1;
+                end if
+              end action
+            hint: Sigue el patrón de la teoría para eliminación.
+
+          - id: c-5-l2-delete-potion
+            language: C
+            week: 5
+            prompt: |
+              Implementa la función deletePotion que reciba un puntero a tPotionTable (table) y un real (power).
+              Usa searchPotion. Si encuentra el elemento, desplaza hacia la izquierda
+              y reduce count en 1.
+            answer: |
+              void deletePotion(tPotionTable* table, float power) {
+                  int pos = searchPotion(*table, power);
+                  if(pos != -1) {
+                      for(int i = pos; i < table->count - 1; i++) {
+                          table->data[i] = table->data[i+1];
+                      }
+                      table->count--;
+                  }
+              }
+            hint: Usa la búsqueda antes de eliminar.
+
+          - id: p-5-l2-delete-potion
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Implementa una acción deletePotion que reciba un inout tPotionTable (table) y un real (power).
+              Usa searchPotion. Si existe, mueve todos los elementos a la izquierda desde pos
+              y reduce count en 1.
+            answer: |
+              action deletePotion(inout table: tPotionTable, in power: real)
+                var
+                  pos: integer;
+                  i: integer;
+                end var
+
+                pos := searchPotion(table, power);
+
+                if pos ≠ -1 then
+                  for i := pos to table.count - 1 do
+                    table.data[i] := table.data[i+1];
+                  end for
+                  table.count := table.count - 1;
+                end if
+              end action
+            hint: Elimina compactando la tabla.
+
+          - id: c-5-l2-delete-achievement
+            language: C
+            week: 5
+            prompt: |
+              Implementa la función deleteAchievement que reciba un puntero a tAchievementTable (table) y un integer (points).
+              Usa searchAchievement. Si se encuentra, desplaza hacia la izquierda
+              y reduce count en 1.
+            answer: |
+              void deleteAchievement(tAchievementTable* table, int points) {
+                  int pos = searchAchievement(*table, points);
+                  if(pos != -1) {
+                      for(int i = pos; i < table->count - 1; i++) {
+                          table->data[i] = table->data[i+1];
+                      }
+                      table->count--;
+                  }
+              }
+            hint: Desplaza desde la posición encontrada hasta el final.
+
+          - id: p-5-l2-delete-achievement
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Implementa una acción deleteAchievement que reciba un inout tAchievementTable (table) y un integer (points).
+              Usa searchAchievement. Si existe, desplaza a la izquierda los elementos posteriores
+              y reduce count en 1.
+            answer: |
+              action deleteAchievement(inout table: tAchievementTable, in points: integer)
+                var
+                  pos: integer;
+                  i: integer;
+                end var
+
+                pos := searchAchievement(table, points);
+
+                if pos ≠ -1 then
+                  for i := pos to table.count - 1 do
+                    table.data[i] := table.data[i+1];
+                  end for
+                  table.count := table.count - 1;
+                end if
+              end action
+            hint: El contador se decrementa al final.
+
+          # =====================================================
+          # BLOQUE 4: RECORRIDO (1 par)
+          # =====================================================
+
+          - id: c-5-l2-traverse-skill-sum
+            language: C
+            week: 5
+            prompt: |
+              Implementa la función sumSkillLevels que reciba un tSkillTable (table)
+              y devuelva la suma de todos los niveles de las habilidades.
+              Usa un for desde 0 hasta count-1.
+            answer: |
+              int sumSkillLevels(tSkillTable table) {
+                  int i;
+                  int total = 0;
+                  for(i = 0; i < table.count; i++) {
+                      total = total + table.data[i].level;
+                  }
+                  return total;
+              }
+            hint: El esquema de recorrido es con for porque sabemos count.
+
+          - id: p-5-l2-traverse-skill-sum
+            language: Pseudocode
+            week: 5
+            prompt: |
+              Implementa una función sumSkillLevels que reciba un tSkillTable (table)
+              y devuelva un integer con la suma de todos los niveles.
+              Usa un for de 1 hasta count.
+            answer: |
+              function sumSkillLevels(table: tSkillTable): integer
+                var
+                  i: integer;
+                  total: integer;
+                end var
+
+                total := 0;
+
+                for i := 1 to table.count do
+                  total := total + table.data[i].level;
+                end for
+
+                return total;
+              end function
+            hint: En pseudocódigo el recorrido va de 1 a count.
+
+
+
+
+
+
 
