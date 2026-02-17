@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>SummerQuiz</title>
+    <!-- Solo compila el binario principal para WASM -->
+    
+<script type="module">
+import init, * as bindings from '/SummerCQuiz/summer_quiz_bin-4dac8127dc7b331d.js';
+const wasm = await init({ module_or_path: '/SummerCQuiz/summer_quiz_bin-4dac8127dc7b331d_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background: #181c1f;
+        }
+        body, canvas {
+            width: 100vw;
+            height: 100vh;
+            min-height: 100vh;
+            min-width: 100vw;
+            display: block;
+            position: relative;
+        }
+        #loading_text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #eee;
+            font-size: 1.3rem;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+<link rel="modulepreload" href="/SummerCQuiz/summer_quiz_bin-4dac8127dc7b331d.js" crossorigin="anonymous" integrity="sha384-unh3ZkLyl+JPxi/jQfV/8xy7J4fAu0yQ+ZA67Dw3Bbp3RY8+78T14jWwTMkZYT+1"><link rel="preload" href="/SummerCQuiz/summer_quiz_bin-4dac8127dc7b331d_bg.wasm" crossorigin="anonymous" integrity="sha384-RLhiAMv9qac0oI3YjbWIBnwo8C/SAJXHIgheGtdAEUbs0kmPpcTxa5pGCBVbXCm7" as="fetch" type="application/wasm"></head>
+<body>
+<!-- Canvas para la app -->
+<canvas id="the_canvas_id"></canvas>
+<div id="loading_text">
+    Cargando SummerQuiz...
+    <br><br>
+    <svg width="60" height="60" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#4af" stroke-width="10" stroke-dasharray="200" stroke-dashoffset="0">
+            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1.2s" repeatCount="indefinite"/>
+        </circle>
+    </svg>
+</div>
+</body>
+</html>

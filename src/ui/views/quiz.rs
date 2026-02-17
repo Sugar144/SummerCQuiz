@@ -134,17 +134,17 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
 
                         /*************** TEST *****************/
 
-                        // Botón de test: marcar semana completa
-                        if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
-                            app.complete_all_week();
-                        }
-
-                        ui.add_space(5.0);
-
-                        // Botón de test: marcar semana completa
-                        if ui.button("⚡ Marcar nivel como completado (TEST)").clicked() {
-                            app.complete_all_level();
-                        }
+                        // // Botón de test: marcar semana completa
+                        // if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
+                        //     app.complete_all_week();
+                        // }
+                        //
+                        // ui.add_space(5.0);
+                        //
+                        // // Botón de test: marcar semana completa
+                        // if ui.button("⚡ Marcar nivel como completado (TEST)").clicked() {
+                        //     app.complete_all_level();
+                        // }
 
 
                         // Botones enviar/saltar
