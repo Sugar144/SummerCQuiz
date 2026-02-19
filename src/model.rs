@@ -10,6 +10,7 @@ pub enum Language {
 #[serde(rename_all = "snake_case")]
 pub enum GradingMode {
     Normalize,
+    #[serde(alias = "judge_c_compile")]
     JudgeC,
 }
 
