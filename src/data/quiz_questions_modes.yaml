@@ -84,7 +84,7 @@ weeks:
       answer: |
         #include <stdio.h>
 
-        int main(void) {
+        int main() {
           int a, b;
           scanf("%d %d", &a, &b);
           printf("%d\n", a + b);
@@ -113,7 +113,7 @@ weeks:
       answer: |
         #include <stdio.h>
 
-        int main(void) {
+        int main() {
           int n;
           scanf("%d", &n);
           if (n % 2 == 0) {
