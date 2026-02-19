@@ -46,6 +46,13 @@ mod native {
     const TIMEOUT_MS: u64 = 2_000;
     const POLL_MS: u64 = 10;
 
+    #[derive(Clone)]
+    enum SubmissionSource {
+        Raw,
+        WrappedBody,
+        CustomHarness,
+    }
+
     pub fn grade_c_question(question: &Question, user_code: &str) -> JudgeResult {
         if question.tests.is_empty() {
             return JudgeResult::InfrastructureError {
@@ -58,7 +65,6 @@ mod native {
             Err(msg) => return JudgeResult::InfrastructureError { message: msg },
         };
 
-        let source = apply_harness(user_code, question.judge_harness.as_deref());
         let cache_dir = match cache_dir() {
             Ok(dir) => dir,
             Err(err) => {
@@ -67,15 +73,69 @@ mod native {
                 };
             }
         };
-        let binary_path = build_cached_binary(&cache_dir, &compiler, &source);
 
-        if !binary_path.exists() {
-            if let Err(stderr) = compile_source(&compiler, &source, &binary_path) {
-                return JudgeResult::CompileError { stderr };
+        let candidates = build_source_candidates(question, user_code);
+        let mut first_compile_error = None;
+
+        for (source, source_kind) in candidates {
+            let binary_path = build_cached_binary(&cache_dir, &compiler, &source, &source_kind);
+            if !binary_path.exists() {
+                if let Err(stderr) = compile_source(&compiler, &source, &binary_path) {
+                    if first_compile_error.is_none() {
+                        first_compile_error = Some(stderr);
+                    }
+                    continue;
+                }
             }
+
+            return run_tests(&binary_path, &question.tests);
         }
 
-        run_tests(&binary_path, &question.tests)
+        JudgeResult::CompileError {
+            stderr: first_compile_error
+                .unwrap_or_else(|| "Error de compilación desconocido.".into()),
+        }
+    }
+
+    fn build_source_candidates(
+        question: &Question,
+        user_code: &str,
+    ) -> Vec<(String, SubmissionSource)> {
+        let mut candidates = Vec::new();
+
+        if let Some(harness) = question.judge_harness.as_deref() {
+            candidates.push((
+                apply_harness(user_code, Some(harness)),
+                SubmissionSource::CustomHarness,
+            ));
+            return candidates;
+        }
+
+        candidates.push((user_code.to_string(), SubmissionSource::Raw));
+
+        if !contains_main(user_code) {
+            candidates.push((wrap_as_main_body(user_code), SubmissionSource::WrappedBody));
+        }
+
+        candidates
+    }
+
+    fn contains_main(code: &str) -> bool {
+        let normalized = code.replace(char::is_whitespace, "");
+        normalized.contains("main(")
+    }
+
+    fn wrap_as_main_body(code: &str) -> String {
+        format!(
+            "#include <stdio.h>
+#include <stdbool.h>
+
+int main(void) {{
+{code}
+return 0;
+}}
+"
+        )
     }
 
     fn run_tests(binary_path: &Path, tests: &[JudgeTestCase]) -> JudgeResult {
@@ -281,11 +341,17 @@ Windows: instala MSYS2/MinGW y agrega gcc/clang a PATH."
         Ok(dir)
     }
 
-    fn build_cached_binary(cache_dir: &Path, compiler: &Path, source: &str) -> PathBuf {
+    fn build_cached_binary(
+        cache_dir: &Path,
+        compiler: &Path,
+        source: &str,
+        source_kind: &SubmissionSource,
+    ) -> PathBuf {
         let mut hasher = DefaultHasher::new();
         compiler.to_string_lossy().hash(&mut hasher);
         "-std=c11 -O2".hash(&mut hasher);
         source.hash(&mut hasher);
+        std::mem::discriminant(source_kind).hash(&mut hasher);
         let key = format!("{:016x}", hasher.finish());
         let ext = if cfg!(target_os = "windows") {
             "exe"

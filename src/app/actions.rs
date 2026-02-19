@@ -1,6 +1,6 @@
 use super::*;
 use crate::code_utils::normalize_code;
-use crate::judge_c::{JudgeResult, format_judge_message, grade_c_question, should_use_judge};
+use crate::judge_c::{format_judge_message, grade_c_question, should_use_judge, JudgeResult};
 
 impl QuizApp {
     pub fn procesar_respuesta(&mut self, respuesta: &str) {
@@ -77,8 +77,6 @@ impl QuizApp {
                 prog.input.clear();
                 mark_pending = true;
                 curr_week = prog.current_week;
-            } else {
-                prog.input.clear();
             }
         }
 
