@@ -128,13 +128,13 @@ mod native {
     fn wrap_as_main_body(code: &str) -> String {
         format!(
             "#include <stdio.h>
-#include <stdbool.h>
+            #include <stdbool.h>
 
-int main(void) {{
-{code}
-return 0;
-}}
-"
+            int main(void) {{
+                {code}
+                return 0;
+            }}
+            "
         )
     }
 
