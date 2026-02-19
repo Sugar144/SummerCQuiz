@@ -1,6 +1,6 @@
 use super::*;
 use crate::code_utils::normalize_code;
-use crate::judge_c::{format_judge_message, grade_c_question, should_use_judge, JudgeResult};
+use crate::judge_c::{JudgeResult, format_judge_message, grade_c_question, should_use_judge};
 
 impl QuizApp {
     pub fn procesar_respuesta(&mut self, respuesta: &str) {

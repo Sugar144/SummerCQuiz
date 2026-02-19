@@ -47,7 +47,8 @@ pub fn c_syntax() -> Syntax {
             "double", "auto", "extern", "register",
         ])
         .with_types([
-            "int", "char", "float", "double", "void", "size_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t",
+            "int", "char", "float", "double", "void", "size_t", "uint8_t", "uint16_t", "uint32_t",
+            "uint64_t",
         ])
 }
 
@@ -56,10 +57,25 @@ pub fn pseudo_syntax() -> Syntax {
         .with_comment("//")
         .with_comment_multiline(["/*", "*/"])
         .with_keywords([
-            "end", "const", "var", "type", "record", "for", "to", "while", "if", "then","else",
-            "switch", "case", "default", "function", "action", "algorithm", "vector", "of"
+            "end",
+            "const",
+            "var",
+            "type",
+            "record",
+            "for",
+            "to",
+            "while",
+            "if",
+            "then",
+            "else",
+            "switch",
+            "case",
+            "default",
+            "function",
+            "action",
+            "algorithm",
+            "vector",
+            "of",
         ])
-        .with_types([
-            "integer", "character", "real", "string", "boolean"
-        ])
+        .with_types(["integer", "character", "real", "string", "boolean"])
 }

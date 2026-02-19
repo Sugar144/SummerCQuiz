@@ -1,7 +1,7 @@
-use egui::{Align, Button, CentralPanel, Context, RichText};
-use crate::model::{AppState, Language};
 use crate::QuizApp;
+use crate::model::{AppState, Language};
 use crate::update::check_latest_release;
+use egui::{Align, Button, CentralPanel, Context, RichText};
 
 pub fn ui_language_select(app: &mut QuizApp, ctx: &Context) {
     // Limpiamos cualquier mensaje previo
@@ -35,14 +35,15 @@ pub fn ui_language_select(app: &mut QuizApp, ctx: &Context) {
 
                     ui.vertical_centered(|ui| {
                         // Botones de lenguaje
-                        let btn_c        = ui.add_sized([button_width, 40.0], Button::new("Lenguaje C"));
+                        let btn_c = ui.add_sized([button_width, 40.0], Button::new("Lenguaje C"));
                         ui.add_space(5.0);
 
-                        let btn_pseudocode = ui.add_sized([button_width, 40.0], Button::new("Pseudocódigo"));
+                        let btn_pseudocode =
+                            ui.add_sized([button_width, 40.0], Button::new("Pseudocódigo"));
                         ui.add_space(5.0);
-                        
+
                         #[cfg(not(target_arch = "wasm32"))]
-                        let btn_exit     = ui.add_sized([button_width, 40.0], Button::new("Salir"));
+                        let btn_exit = ui.add_sized([button_width, 40.0], Button::new("Salir"));
 
                         // Al hacer click, actualizamos estado en QuizApp
                         if btn_c.clicked() {
@@ -63,12 +64,15 @@ pub fn ui_language_select(app: &mut QuizApp, ctx: &Context) {
                     if app.has_update.is_none() {
                         app.has_update = match check_latest_release() {
                             Ok(Some(new_ver)) => Some(new_ver),
-                            _                 => Some(String::new()),
+                            _ => Some(String::new()),
                         };
                     }
                     if let Some(ver) = &app.has_update {
                         if !ver.is_empty() {
-                            let update_btn = ui.add_sized([button_width, 40.0], Button::new(format!("⬇ Actualizar a {ver}")));
+                            let update_btn = ui.add_sized(
+                                [button_width, 40.0],
+                                Button::new(format!("⬇ Actualizar a {ver}")),
+                            );
                             if update_btn.clicked() {
                                 app.message = "Iniciando actualización…".to_string();
                                 app.state = AppState::PendingUpdate;

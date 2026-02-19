@@ -5,14 +5,12 @@ use reqwest::header::USER_AGENT;
 #[cfg(not(target_arch = "wasm32"))]
 use self_update::backends::github::ReleaseList;
 #[cfg(not(target_arch = "wasm32"))]
-use std::fs::File;
-#[cfg(not(target_arch = "wasm32"))]
 use semver::Version;
-
+#[cfg(not(target_arch = "wasm32"))]
+use std::fs::File;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub fn check_latest_release() -> Result<Option<String>, Box<dyn std::error::Error>> {
-
     let releases = ReleaseList::configure()
         .repo_owner("Sugar144")
         .repo_name("SummerCQuiz")
@@ -43,11 +41,9 @@ pub fn check_latest_release() -> Result<Option<String>, Box<dyn std::error::Erro
     Ok(None) // ya estás en la última o no hay releases parseables
 }
 
-
 #[cfg(not(target_arch = "wasm32"))]
 
 pub fn descargar_binario_nuevo() -> Result<(), Box<dyn std::error::Error>> {
-
     let releases = ReleaseList::configure()
         .repo_owner("Sugar144")
         .repo_name("SummerCQuiz")
