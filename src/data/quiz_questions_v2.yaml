@@ -230,6 +230,52 @@ weeks:
             Este algoritmo simula la inicialización de un jugador al comenzar una partida.
 
         questions:
+          - id: c-1-judge-suma
+            language: C
+            week: 1
+            mode: judge_c
+            prompt: Escribe un programa completo que lea dos enteros y muestre su suma seguida de un salto de línea.
+            answer: |
+              #include <stdio.h>
+
+              int main(void) {
+                int a, b;
+                scanf("%d %d", &a, &b);
+                printf("%d\n", a + b);
+                return 0;
+              }
+            tests:
+              - input: "2 3\n"
+                output: "5\n"
+              - input: "10 -4\n"
+                output: "6\n"
+            hint: Usa scanf para leer ambos enteros y printf para escribir la suma exacta.
+
+          - id: c-1-judge-paridad
+            language: C
+            week: 1
+            mode: judge_c
+            prompt: Escribe un programa completo que lea un entero. Si es par imprime PAR\n, en caso contrario imprime IMPAR\n.
+            answer: |
+              #include <stdio.h>
+
+              int main(void) {
+                int n;
+                scanf("%d", &n);
+                if (n % 2 == 0) {
+                  printf("PAR\n");
+                } else {
+                  printf("IMPAR\n");
+                }
+                return 0;
+              }
+            tests:
+              - input: "8\n"
+                output: "PAR\n"
+              - input: "7\n"
+                output: "IMPAR\n"
+            hint: Puedes usar el operador módulo (%).
+
           - id: c-1-max_nombre
             language: C
             week: 1
@@ -238,7 +284,7 @@ weeks:
             hint:
 
           - id: c-1-max_drones
-            language: Pseudocode
+            language: C
             week: 1
             prompt: Declara una constante para el máximo de drones "MAX_DRONES" con el valor entero 5.
             answer: '#define MAX_DRONES 5'
@@ -281,13 +327,13 @@ weeks:
             prompt: Declara una constante local de tipo entera para el puntaje inicial INITIAL_SCORE, asignale el valor 0.
             answer: |
               int main(){
-                const int INITIAL_SCORE = 0;
+                  const int INITIAL_SCORE = 0;
                 return 0;
               }
             hint: Las constantes locales comienzan por const.
 
           - id: p-1-const_entera
-            language: C
+            language: Pseudocode
             week: 1
             prompt: Declara una constante local de tipo entera para el puntaje inicial INITIAL_SCORE, asignale el valor 0.
             answer: |
@@ -477,51 +523,6 @@ weeks:
               end algorithm
             hint: Recuerda, primero declara y luego inicializa. Los caracteres se inicializan entre ''.
 
-          - id: c-1-judge-suma
-            language: C
-            week: 1
-            mode: judge_c
-            prompt: Escribe un programa completo que lea dos enteros y muestre su suma seguida de un salto de línea.
-            answer: |
-              #include <stdio.h>
-
-              int main(void) {
-                int a, b;
-                scanf("%d %d", &a, &b);
-                printf("%d\n", a + b);
-                return 0;
-              }
-            tests:
-              - input: "2 3\n"
-                output: "5\n"
-              - input: "10 -4\n"
-                output: "6\n"
-            hint: Usa scanf para leer ambos enteros y printf para escribir la suma exacta.
-
-          - id: c-1-judge-paridad
-            language: C
-            week: 1
-            mode: judge_c
-            prompt: Escribe un programa completo que lea un entero. Si es par imprime PAR\n, en caso contrario imprime IMPAR\n.
-            answer: |
-              #include <stdio.h>
-
-              int main(void) {
-                int n;
-                scanf("%d", &n);
-                if (n % 2 == 0) {
-                  printf("PAR\n");
-                } else {
-                  printf("IMPAR\n");
-                }
-                return 0;
-              }
-            tests:
-              - input: "8\n"
-                output: "PAR\n"
-              - input: "7\n"
-                output: "IMPAR\n"
-            hint: Puedes usar el operador módulo (%).
 
       # Entrada y salida
       - number: 2
