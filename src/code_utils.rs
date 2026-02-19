@@ -53,9 +53,8 @@ pub fn c_syntax() -> Syntax {
 }
 
 pub fn pseudo_syntax() -> Syntax {
-    Syntax::new("c")
-        .with_comment("//")
-        .with_comment_multiline(["/*", "*/"])
+    Syntax::new("pseudocode")
+        .with_comment_multiline(["{", "}"])
         .with_keywords([
             "end",
             "const",
@@ -64,6 +63,7 @@ pub fn pseudo_syntax() -> Syntax {
             "record",
             "for",
             "to",
+            "do",
             "while",
             "if",
             "then",
@@ -77,5 +77,5 @@ pub fn pseudo_syntax() -> Syntax {
             "vector",
             "of",
         ])
-        .with_types(["integer", "character", "real", "string", "boolean"])
+        .with_types(["integer", "character", "real", "string", "boolean", "FILE"])
 }
