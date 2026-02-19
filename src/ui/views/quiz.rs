@@ -192,9 +192,12 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                         ui.add_space(8.0);
                         if !app.message.is_empty() {
                             ScrollArea::vertical()
-                                .max_height(140.0)
-                                .auto_shrink([false, false])
+                                .id_salt("quiz_message_scroll")
+                                .max_height(prompt_max_h)
+                                .min_scrolled_height(prompt_min_h)
                                 .show(ui, |ui| {
+                                    ui.set_width(ui.available_width());
+
                                     ui.label(&app.message);
                                 });
                         }
