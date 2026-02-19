@@ -84,7 +84,7 @@ weeks:
       answer: |
         #include <stdio.h>
 
-        int main(void) {
+        int main() {
           int a, b;
           scanf("%d %d", &a, &b);
           printf("%d\n", a + b);
@@ -113,7 +113,7 @@ weeks:
       answer: |
         #include <stdio.h>
 
-        int main(void) {
+        int main() {
           int n;
           scanf("%d", &n);
           if (n % 2 == 0) {
@@ -566,10 +566,7 @@ weeks:
           return 0;
         }
       hint: 'Ejemplo de ejecución: "Dron: dron001, ID: 1"'
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
     - id: p-1-writestring_nombre_id
       language: Pseudocode
       week: 1
@@ -592,10 +589,7 @@ weeks:
         }
       hint: Para imprimir cierto numero de decimales utiliza %.xf, siendo x el numero
         de decimales.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
     - id: p-1-writestring_bateria
       language: Pseudocode
       week: 1
@@ -619,10 +613,7 @@ weeks:
           return 0;
         }
       hint:
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
     - id: p-1-writestring_categoria
       language: Pseudocode
       week: 1
@@ -806,10 +797,7 @@ weeks:
           return 0;
         }
       hint: 'Ejemplo de ejecución: "Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): 1"'
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
     - id: p-1-writestring_estado_num
       language: Pseudocode
       week: 1
@@ -912,10 +900,7 @@ weeks:
       hint: 'recuerda que printf acepta como argumento cualquier expresión que devuelva
         un valor, por eso podemos usar el operador ternario. Ejemplo: printf("%s",
         variable o condición ? "output1"" : ""output2"");"'
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
     - id: c-1-ternario_apto
       language: C
       week: 1
@@ -927,10 +912,7 @@ weeks:
           return 0;
         }
       hint:
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
     - id: c-1-cast_bateriaentera
       language: C
       week: 1
@@ -1789,12 +1771,7 @@ weeks:
             return 0;
         }
       hint: "Ejemplo de ejecución: \n  pH: 7.1\n"
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'pH: 7.1
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -2044,12 +2021,7 @@ weeks:
         }
       hint: Usa printf, recuerda el especificador de string y el salto de linea. También
         recuerda las bibliotecas necesarias.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Margarita
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -2150,12 +2122,7 @@ weeks:
             return 0;
         }
       hint: "Ejemplo de ejecución: \nTemp: 22.1\nFijate que solo hay un decimal.\n"
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Temp: 22.1
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -2229,12 +2196,7 @@ weeks:
         Ejemplo de ejecución:
           Loto
           1.2
-      mode: judge_c
-      tests:
-      - input: ''
-        output: |
-          Loto
-          1.2
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -2304,10 +2266,7 @@ weeks:
         }
       hint: "Recuerda la biblioteca y el salto de linea en el print.\n\nEjemplo de
         ejecución: \n\nNombre: Jacinto\n"
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -2362,10 +2321,7 @@ weeks:
         }
       hint: "El usuario debe escribir 3 números. \n\nEjemplo entrada: 7 8 10\n\nEjemplo
         salida: 8\n"
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -2650,12 +2606,7 @@ weeks:
         }
       hint: 'Recuerda la sintaxis del operador ternario: condicion ? valor_si_true
         : valor_si_false'
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Vacunado
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -2690,13 +2641,7 @@ weeks:
         }
       hint: Cada printf debe estar en una línea diferente y no olvides el salto de
         linea.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: |
-          Nombre: Bobby, Edad: 2
-          Nombre: Lili, Edad: 5
-          Nombre: Rex, Edad: 3
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -2793,16 +2738,7 @@ weeks:
             return 0;
         }
       hint: Imprime todos los valores de la matriz, un dato por línea.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: |
-          Fila 0, Col 0: 1
-          Fila 0, Col 1: 0
-          Fila 0, Col 2: 1
-          Fila 1, Col 0: 0
-          Fila 1, Col 1: 1
-          Fila 1, Col 2: 0
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -2870,10 +2806,7 @@ weeks:
             return 0;
         }
       hint: recuerda el especificador de formato de los enteros para leer el dato.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3052,10 +2985,7 @@ weeks:
         }
       hint: Usa if y no olvides el salto de linea. Recuerda que para leer cualquier
         dato que no sea un string necesitamos el operador &.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3116,10 +3046,7 @@ weeks:
             return 0;
         }
       hint: El valor 0 es false, 1 es true.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3187,12 +3114,7 @@ weeks:
         }
       hint: strcmp devuelve 0 si las cadenas son iguales. No olvides los saltos de
         linea.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Nombres diferentes
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3266,10 +3188,7 @@ weeks:
             return 0;
         }
       hint: Usa ifs encadenados. No olvides los saltos de linea.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3446,10 +3365,7 @@ weeks:
             return 0;
         }
       hint: Usa switch...case...break. Y recuerda los saltos de linea.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3644,20 +3560,7 @@ weeks:
             return 0;
         }
       hint: 'El for clásico en C es: for(inicio; condicion; incremento)'
-      mode: judge_c
-      tests:
-      - input: ''
-        output: |
-          0
-          1
-          2
-          3
-          4
-          5
-          6
-          7
-          8
-          9
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3730,14 +3633,7 @@ weeks:
             return 0;
         }
       hint: Recuerda que los arrays en C empiezan en 0.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: |
-          7
-          2
-          5
-          8
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3828,10 +3724,7 @@ weeks:
         }
       hint: Usa dos bucles for, uno para leer y otro para imprimir. Imprime los valores
         con 1 solo decimal.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3917,20 +3810,7 @@ weeks:
         }
       hint: Recuerda inicializar i antes del while e incrementarla antes de finalizar
         cada iteración para no crear un bucle infinito.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: |
-          0
-          1
-          2
-          3
-          4
-          5
-          6
-          7
-          8
-          9
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -3998,20 +3878,7 @@ weeks:
         }
       hint: El cuerpo de do while siempre se ejecuta al menos una vez. No olvides
         el salto de linea en el print.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: |
-          0
-          1
-          2
-          3
-          4
-          5
-          6
-          7
-          8
-          9
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -4089,12 +3956,7 @@ weeks:
         }
       hint: Acumula la suma con suma += . Imprime el resultado fuera del bucle y no
         olvides el salto de linea.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Suma: 10
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -4183,10 +4045,7 @@ weeks:
             return 0;
         }
       hint: Usa strncpy(destino, origen, tamaño).
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -4264,10 +4123,7 @@ weeks:
         = 0; j < COLUMNAS; j++) {\n            printf(\"%d \", tabla[i][j]);\n        }\n
         \       printf(\"\\n\");\n    }\n    return 0;\n}\n"
       hint: Inicializa cada elemento manualmente.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: "2 4 6 \n1 3 5 \n"
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -4344,14 +4200,7 @@ weeks:
             return 0;
         }
       hint: Usa inicialización con llaves y no olvides el salto de linea.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: |
-          22.1
-          18.3
-          19.5
-          20.0
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -4451,12 +4300,7 @@ weeks:
             return 0;
         }
       hint: Suma con suma += tabla[i][j].
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Suma: 11
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -5413,12 +5257,7 @@ weeks:
             return 0;
         }
       hint: Usa strncpy para copiar al campo nombre y printf en líneas separadas.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: |
-          Nombre: Cometa
-          Altura mínima: 1.20
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -5519,12 +5358,7 @@ weeks:
         }
       hint: Hay 3 posibles casos en los que deberás imprimir el mensaje usando if
         else if.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Tipo: Rueda
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -5625,12 +5459,7 @@ weeks:
             return 0;
         }
       hint: Usa strncpy con el tamaño adecuado para cada campo.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Cierra a: 19:30
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -5722,12 +5551,7 @@ weeks:
             return 0;
         }
       hint: Suma campos enteros y muestra el resultado.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Total: 20
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -5817,12 +5641,7 @@ weeks:
         }
       hint: El promedio se calcula con la suma de todos los precios dividido entre
         3. Utiliza paréntesis en la suma.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Promedio: 3.3
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -5918,12 +5737,7 @@ weeks:
             return 0;
         }
       hint: Este ejercicio usa ternario.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Estado: Aprobada
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -5998,12 +5812,7 @@ weeks:
         { \n      ocupadas++; \n    }\n\n    printf(\"Ocupadas: %d\\n\", ocupadas);\n
         \   return 0;\n}\n"
       hint: Usa if y acumulación con ++; no uses operador ternario.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Ocupadas: 3
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -6117,12 +5926,7 @@ weeks:
             return 0;
         }
       hint: Usa if/else para seleccionar la cadena y strncpy para copiarla.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Dif: Alta
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -6210,12 +6014,7 @@ weeks:
         = puesto1.precios[2]; \n    }\n\n    printf(\"Mayor: %.1f\\n\", mayor);\n
         \   return 0;\n}\n"
       hint: Actualiza mayor si encuentras un valor superior.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Mayor: 3.0
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -6319,12 +6118,7 @@ weeks:
             return 0;
         }
       hint: Recuerda usar strncpy para los nombres.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Primera: Fantasmagoría (7 min)
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -6573,10 +6367,7 @@ weeks:
       hint: 'Limita la lectura del nombre con %19s (si MAX_NOMBRE es 20).
 
         '
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -6695,12 +6486,7 @@ weeks:
       hint: 'Inicializa i en 0 antes del while.
 
         '
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Total: 45
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -6786,10 +6572,7 @@ weeks:
       hint: 'do-while ejecuta el cuerpo al menos una vez.
 
         '
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -6886,10 +6669,7 @@ weeks:
       hint: 'strcmp devuelve 0 si las cadenas son iguales.
 
         '
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -6995,10 +6775,7 @@ weeks:
       hint: 'Respeta el orden del enunciado para declarar los datos
 
         '
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -7123,10 +6900,7 @@ weeks:
       hint: 'Lee 0/1 y asigna al bool con una comparación.
 
         '
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -7225,10 +6999,7 @@ weeks:
       hint: 'Un switch por cada elemento del array.
 
         '
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -7352,10 +7123,7 @@ weeks:
       hint: 'Usa strcmp para comparar con "FIN" y strncpy para copiar.
 
         '
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -7462,10 +7230,7 @@ weeks:
       hint: 'Recuerda castear a (float) el numero 3 en la division
 
         '
-      mode: judge_c
-      tests:
-      - input: ''
-        output: ''
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8145,10 +7910,7 @@ weeks:
             return 0;
         }
       hint: printf muestra el contenido con %d.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '250'
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8171,10 +7933,7 @@ weeks:
             return 0;
         }
       hint: Usa %p para imprimir direcciones.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '0x7fff474b854c'
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8251,10 +8010,7 @@ weeks:
             return 0;
         }
       hint: Usa -> para acceder a campos desde un puntero a struct.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '100'
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8305,10 +8061,7 @@ weeks:
             return 0;
         }
       hint: Los arrays se comportan como punteros al primer elemento.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '20'
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8431,12 +8184,7 @@ weeks:
             printf("Bienvenido al RPG\n");
         }
       hint: Una acción en C se define con void, no devuelve valores.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Bienvenido al RPG
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8486,12 +8234,7 @@ weeks:
             printf("Puntuacion: %d\n", score);
         }
       hint: Los parámetros de entrada en C se pasan como variables normales.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Puntuacion: 300
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8549,12 +8292,7 @@ weeks:
             *health = 100;
         }
       hint: Los parámetros de salida en C se pasan como punteros.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '100
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8612,12 +8350,7 @@ weeks:
             *hp += 50;
         }
       hint: Usa inout cuando el valor inicial se modifica.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '170
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8686,12 +8419,7 @@ weeks:
             p->hp = 100;
         }
       hint: Con punteros a structs se usa -> para asignar.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 'Nombre: Heroe Hp: 100
-
-          '
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8765,10 +8493,7 @@ weeks:
             }
         }
       hint: Los arrays en C se pasan como punteros.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: 0 0 0
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8840,10 +8565,7 @@ weeks:
             printf("%d", total);
         }
       hint: Puedes pasar más de un parámetro in a la acción.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '30'
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8909,10 +8631,7 @@ weeks:
             *xp = base * 10;
         }
       hint: Combina parámetros in y out.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '50'
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -8973,10 +8692,7 @@ weeks:
             *atk = *atk + bonus;
         }
       hint: Combina un parámetro in y uno inout.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '55'
+      mode: normalize
       input_prefill: |
         int main(){
 
@@ -9044,10 +8760,7 @@ weeks:
             e->hp = e->hp - dmg;
         }
       hint: Usa -> para modificar un struct desde un puntero.
-      mode: judge_c
-      tests:
-      - input: ''
-        output: '170'
+      mode: normalize
       input_prefill: |
         int main(){
 
