@@ -6,17 +6,37 @@ pub enum Language {
     Pseudocode,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum GradingMode {
+    Normalize,
+    #[serde(alias = "judge_c_compile")]
+    JudgeC,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub struct JudgeTestCase {
+    pub input: String,
+    pub output: String,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Question {
     pub language: Language,
     pub week: usize,
-    pub prompt: String,   // Pregunta
-    pub answer: String,   // Respuesta
+    pub prompt: String, // Pregunta
+    pub answer: String, // Respuesta
     pub hint: Option<String>,
     #[serde(skip)]
     pub number: usize,
     #[serde(default)]
     pub input_prefill: Option<String>,
+    #[serde(default)]
+    pub mode: Option<GradingMode>,
+    #[serde(default)]
+    pub tests: Vec<JudgeTestCase>,
+    #[serde(default)]
+    pub judge_harness: Option<String>,
     #[serde(default)]
     pub is_done: bool,
     #[serde(default)]
@@ -53,7 +73,6 @@ pub struct Quiz {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum AppState {
-
     PendingUpdate,
     LanguageSelect,
     Welcome,
@@ -63,7 +82,6 @@ pub enum AppState {
     Quiz,
     LevelSummary,
     Summary,
-
 }
 
 // ¡Implementa Default!
@@ -74,6 +92,11 @@ impl Default for AppState {
 }
 
 impl Question {
+    pub fn uses_judge_c(&self) -> bool {
+        matches!(self.mode, Some(GradingMode::JudgeC))
+            || (self.language == Language::C && !self.tests.is_empty())
+    }
+
     /// Reinicia los contadores y flags de esta pregunta.
     pub fn reset_stats(&mut self) {
         self.is_done = false;
