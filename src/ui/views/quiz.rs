@@ -1,7 +1,7 @@
+use crate::QuizApp;
 use crate::code_utils::{c_syntax, pseudo_syntax};
 use crate::model::{AppState, Language};
 use crate::ui::layout::{code_editor_input, code_editor_solution, two_button_row};
-use crate::QuizApp;
 use egui::{Align, CentralPanel, Context, ScrollArea};
 
 pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {

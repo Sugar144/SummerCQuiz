@@ -1,4 +1,3 @@
-
 use summer_quiz::app::QuizApp;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -57,13 +56,10 @@ fn main() -> eframe::Result<()> {
                 app
             };
 
-
-
             Ok(Box::new(app))
         }),
     )
 }
-
 
 // ======== SOLO PARA WEB/WASM ========
 #[cfg(target_arch = "wasm32")]

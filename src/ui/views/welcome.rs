@@ -1,6 +1,6 @@
-use egui::{Align, Button, CentralPanel, Context, RichText};
-use crate::model::Language;
 use crate::QuizApp;
+use crate::model::Language;
+use egui::{Align, Button, CentralPanel, Context, RichText};
 
 pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
     CentralPanel::default().show(ctx, |ui| {

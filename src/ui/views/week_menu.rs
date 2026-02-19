@@ -1,7 +1,7 @@
-use egui::{Align, CentralPanel, Context};
 use crate::QuizApp;
 use crate::ui::helpers::{big_list_button, split_button_with_restart};
 use crate::view_models::WeekInfo;
+use egui::{Align, CentralPanel, Context};
 
 pub fn ui_week_menu(app: &mut QuizApp, ctx: &Context) {
     CentralPanel::default().show(ctx, |ui| {
@@ -30,14 +30,19 @@ pub fn ui_week_menu(app: &mut QuizApp, ctx: &Context) {
                         for info in &infos {
                             let label = info.label();
 
-                            let (clicked_main, clicked_restart) =
-                                split_button_with_restart(ui, &label, content_width, button_h, info.completed);
+                            let (clicked_main, clicked_restart) = split_button_with_restart(
+                                ui,
+                                &label,
+                                content_width,
+                                button_h,
+                                info.completed,
+                            );
 
                             if clicked_main && info.unlocked {
                                 app.progress_mut().current_week = Some(info.idx);
                                 app.open_level_menu();
                             }
-                            if clicked_restart && info.completed{
+                            if clicked_restart && info.completed {
                                 app.reiniciar_semana(info.idx);
                                 app.progress_mut().current_week = Some(info.idx);
                                 app.open_level_menu();
@@ -48,7 +53,13 @@ pub fn ui_week_menu(app: &mut QuizApp, ctx: &Context) {
                         }
 
                         ui.add_space(10.0);
-                        if big_list_button(ui, "Volver al menú principal".to_string(), content_width, button_h, true) {
+                        if big_list_button(
+                            ui,
+                            "Volver al menú principal".to_string(),
+                            content_width,
+                            button_h,
+                            true,
+                        ) {
                             app.volver_al_menu_principal();
                         }
                     });

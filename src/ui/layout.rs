@@ -1,7 +1,6 @@
-
-use egui::{CentralPanel, Context, Ui, Visuals, Frame, Button, ScrollArea};
-use egui_code_editor::{CodeEditor, ColorTheme, Syntax};
 use crate::QuizApp;
+use egui::{Button, CentralPanel, Context, Frame, ScrollArea, Ui, Visuals};
+use egui_code_editor::{CodeEditor, ColorTheme, Syntax};
 
 pub fn top_panel(app: &mut QuizApp, ctx: &Context, borrar: bool) {
     egui::TopBottomPanel::top("menu_panel").show(ctx, |ui| {
@@ -17,8 +16,6 @@ pub fn top_panel(app: &mut QuizApp, ctx: &Context, borrar: bool) {
                 app.cambiar_lenguaje();
                 ctx.request_repaint();
             }
-
-
         });
     });
 }
@@ -26,29 +23,20 @@ pub fn top_panel(app: &mut QuizApp, ctx: &Context, borrar: bool) {
 pub fn bottom_panel(ctx: &Context) {
     egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
         // ----------- BOTONES DE TEMA -----------
-        ui.with_layout(
-            egui::Layout::right_to_left(egui::Align::Center),
-            |ui| {
-                if ui.button("🌙 Modo oscuro").clicked() {
-                    ctx.set_visuals(Visuals::dark());
-                }
-                if ui.button("☀Modo claro").clicked() {
-                    ctx.set_visuals(Visuals::light());
-                }
+        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+            if ui.button("🌙 Modo oscuro").clicked() {
+                ctx.set_visuals(Visuals::dark());
             }
-        );
-
+            if ui.button("☀Modo claro").clicked() {
+                ctx.set_visuals(Visuals::light());
+            }
+        });
     });
 }
 
 /// Panel centrado tanto vertical como horizontalmente,
 /// con un tamaño de contenido máximo y un bloque interior `inner`.
-pub fn centered_panel(
-    ctx: &Context,
-    est_height: f32,
-    max_width: f32,
-    inner: impl FnOnce(&mut Ui),
-) {
+pub fn centered_panel(ctx: &Context, est_height: f32, max_width: f32, inner: impl FnOnce(&mut Ui)) {
     CentralPanel::default().show(ctx, |ui| {
         // Espacio vertical para centrar
         let extra = ((ui.available_height() - est_height) / 2.0).max(0.0);
@@ -66,7 +54,6 @@ pub fn centered_panel(
         ui.add_space(extra);
     });
 }
-
 
 pub fn simple_panel(
     ctx: &Context,
@@ -166,5 +153,3 @@ pub fn two_button_row(
     });
     (clicked_left, clicked_right)
 }
-
-

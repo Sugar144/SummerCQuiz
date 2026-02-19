@@ -1,11 +1,11 @@
-pub mod views;
-pub mod layout;
 mod helpers;
+pub mod layout;
+pub mod views;
 
 use crate::app::QuizApp;
-use eframe::{Frame, App, APP_KEY, set_value};
-use egui::Context;
 use crate::model::AppState;
+use eframe::{APP_KEY, App, Frame, set_value};
+use egui::Context;
 use layout::{bottom_panel, top_panel};
 
 impl App for QuizApp {
@@ -15,7 +15,10 @@ impl App for QuizApp {
             top_panel(self, ctx, true);
 
             // BOTÓN SUPERIOR CAMBIAR LENGUAJE (solo visible durante el quiz, resumen y welcome)
-        }else if matches!(self.state, AppState::Quiz | AppState::Summary | AppState::Welcome) {
+        } else if matches!(
+            self.state,
+            AppState::Quiz | AppState::Summary | AppState::Welcome
+        ) {
             top_panel(self, ctx, false);
         }
 
@@ -24,15 +27,15 @@ impl App for QuizApp {
 
         // Dispatch por estado a las funciones en views.rs
         match self.state {
-            AppState::PendingUpdate  => views::pending::ui_pending_update(self, ctx),
+            AppState::PendingUpdate => views::pending::ui_pending_update(self, ctx),
             AppState::LanguageSelect => views::language::ui_language_select(self, ctx),
-            AppState::Welcome        => views::welcome::ui_welcome(self, ctx),
-            AppState::WeekMenu       => views::week_menu::ui_week_menu(self, ctx),
-            AppState::LevelMenu     => views::level_menu::ui_level_menu(self, ctx),
-            AppState::Quiz           => views::quiz::ui_quiz(self, ctx),
-            AppState::Summary        => views::summary::ui_summary_view(self, ctx),
-            AppState::LevelSummary   => views::level_summary::ui_level_summary(self, ctx),
-            AppState::LevelTheory    => views::level_theory::ui_level_theory(self, ctx),
+            AppState::Welcome => views::welcome::ui_welcome(self, ctx),
+            AppState::WeekMenu => views::week_menu::ui_week_menu(self, ctx),
+            AppState::LevelMenu => views::level_menu::ui_level_menu(self, ctx),
+            AppState::Quiz => views::quiz::ui_quiz(self, ctx),
+            AppState::Summary => views::summary::ui_summary_view(self, ctx),
+            AppState::LevelSummary => views::level_summary::ui_level_summary(self, ctx),
+            AppState::LevelTheory => views::level_theory::ui_level_theory(self, ctx),
         }
 
         if self.confirm_reset {

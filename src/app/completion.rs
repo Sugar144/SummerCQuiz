@@ -15,7 +15,7 @@ impl QuizApp {
                         .iter()
                         .flat_map(|l| &l.questions)
                         .any(|q| q.language == language)
-                 })
+                })
                 .unwrap_or(false);
 
             if has_questions {
@@ -37,7 +37,10 @@ impl QuizApp {
             let next_level = level_idx + 1;
 
             // ¿Existe el siguiente nivel y tiene preguntas de este idioma?
-            let has_questions = self.quiz.weeks.get(week_idx)
+            let has_questions = self
+                .quiz
+                .weeks
+                .get(week_idx)
                 .and_then(|w| w.levels.get(next_level))
                 .map(|lvl| lvl.questions.iter().any(|q| q.language == language))
                 .unwrap_or(false);
@@ -45,7 +48,10 @@ impl QuizApp {
             if has_questions {
                 // Desbloquea el siguiente nivel
                 let progress = self.progress_mut();
-                let levels = progress.unlocked_levels.entry(week_idx).or_insert_with(|| vec![0]);
+                let levels = progress
+                    .unlocked_levels
+                    .entry(week_idx)
+                    .or_insert_with(|| vec![0]);
                 if !levels.contains(&next_level) {
                     levels.push(next_level);
                     levels.sort_unstable();
@@ -69,7 +75,8 @@ impl QuizApp {
     }
 
     pub fn is_level_unlocked(&self, week: usize, level: usize) -> bool {
-        self.progress().unlocked_levels
+        self.progress()
+            .unlocked_levels
             .get(&week)
             .map(|lvls| lvls.contains(&level))
             .unwrap_or(false)
@@ -82,7 +89,9 @@ impl QuizApp {
         // Busca la semana
         if let Some(week) = self.quiz.weeks.get(week_idx) {
             // Busca todas las preguntas del lenguaje en esa semana
-            let all_completed = week.levels.iter()
+            let all_completed = week
+                .levels
+                .iter()
                 .flat_map(|level| &level.questions)
                 .filter(|q| q.language == language)
                 .all(|q| {
@@ -101,12 +110,20 @@ impl QuizApp {
     pub fn is_level_completed(&self, week_idx: usize, level_idx: usize) -> bool {
         let language = self.selected_language.unwrap_or(Language::C);
 
-        self.quiz.weeks.get(week_idx)
+        self.quiz
+            .weeks
+            .get(week_idx)
             .and_then(|week| week.levels.get(level_idx))
             .map(|level| {
-                level.questions.iter()
+                level
+                    .questions
+                    .iter()
                     .filter(|q| q.language == language)
-                    .all(|q| q.id.as_ref().map(|id| self.progress().completed_ids.contains(id)).unwrap_or(false))
+                    .all(|q| {
+                        q.id.as_ref()
+                            .map(|id| self.progress().completed_ids.contains(id))
+                            .unwrap_or(false)
+                    })
             })
             .unwrap_or(false)
     }
@@ -132,7 +149,8 @@ impl QuizApp {
 
     pub fn nuevas_preguntas_en_semana(&self, week_idx: usize, language: Language) -> usize {
         let completed = &self.progress().completed_ids;
-        self.quiz.weeks
+        self.quiz
+            .weeks
             .get(week_idx)
             .map(|week| {
                 week.levels
@@ -140,8 +158,7 @@ impl QuizApp {
                     .flat_map(|lvl| &lvl.questions)
                     .filter(|q| q.language == language)
                     .filter(|q| {
-                        q.id
-                            .as_ref()
+                        q.id.as_ref()
                             .map(|id| !completed.contains(id))
                             .unwrap_or(false)
                     })
@@ -168,7 +185,10 @@ impl QuizApp {
         let current_week = self.progress().current_week.unwrap_or(0);
         // Construir lista de semanas válidas para el lenguaje
         let valid_weeks = self.valid_weeks();
-        let pos = valid_weeks.iter().position(|&i| i == current_week).unwrap_or(0);
+        let pos = valid_weeks
+            .iter()
+            .position(|&i| i == current_week)
+            .unwrap_or(0);
         pos + 1 < valid_weeks.len()
     }
 
@@ -181,9 +201,11 @@ impl QuizApp {
             .iter()
             .enumerate()
             .filter_map(|(i, wk)| {
-                if wk.levels.iter().any(|lvl| {
-                    lvl.questions.iter().any(|q| q.language == lang)
-                }) {
+                if wk
+                    .levels
+                    .iter()
+                    .any(|lvl| lvl.questions.iter().any(|q| q.language == lang))
+                {
                     Some(i)
                 } else {
                     None
@@ -211,4 +233,3 @@ impl QuizApp {
         }
     }
 }
-

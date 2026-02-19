@@ -17,16 +17,20 @@ impl QuizApp {
 
     /// Devuelve *mut* si necesitas modificar
     pub fn questions_for_mut(&mut self, week: usize, level: usize) -> Option<&mut Vec<Question>> {
-        self.quiz.weeks.iter_mut()
+        self.quiz
+            .weeks
+            .iter_mut()
             .find(|w| w.number == week)?
-            .levels.iter_mut()
+            .levels
+            .iter_mut()
             .find(|l| l.number == level)
             .map(|l| &mut l.questions)
     }
 
     // Si quieres aplanar todas las preguntas (muy útil para stats globales)
     pub fn all_questions(&self) -> Vec<&Question> {
-        self.quiz.weeks
+        self.quiz
+            .weeks
             .iter()
             .flat_map(|w| w.levels.iter())
             .flat_map(|l| l.questions.iter())
@@ -43,4 +47,3 @@ impl QuizApp {
             .collect()
     }
 }
-

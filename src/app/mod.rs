@@ -1,22 +1,22 @@
-use std::collections::{HashMap, HashSet};
-use serde::{Deserialize, Serialize};
-use eframe::egui;
-use egui_commonmark::CommonMarkCache;
 use crate::data::read_questions_embedded;
 use crate::model::{AppState, Language, Level, Question, Quiz, Week};
+use eframe::egui;
+use egui_commonmark::CommonMarkCache;
+use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 
 // Submódulos
-pub mod progress;
-pub mod navigation;
-pub mod completion;
 pub mod actions;
+pub mod completion;
+pub mod navigation;
+pub mod progress;
+pub mod queries;
 pub mod resets;
 pub mod updates;
-pub mod queries;
 pub mod view_models;
 
 // Re-export de view models
-pub use crate::view_models::{WeekInfo, LevelInfo, QuestionRow};
+pub use crate::view_models::{LevelInfo, QuestionRow, WeekInfo};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum LevelEntry {
@@ -28,9 +28,9 @@ pub enum LevelEntry {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct QuizProgress {
     pub completed_ids: HashSet<String>,
-    pub current_week: Option<usize>,             // Índice de la semana (en el vector de weeks)
-    pub current_level: Option<usize>,            // Índice del nivel dentro de la semana seleccionada
-    pub current_in_level: Option<usize>,         // Índice de la pregunta dentro del nivel actual
+    pub current_week: Option<usize>, // Índice de la semana (en el vector de weeks)
+    pub current_level: Option<usize>, // Índice del nivel dentro de la semana seleccionada
+    pub current_in_level: Option<usize>, // Índice de la pregunta dentro del nivel actual
     pub unlocked_weeks: Vec<usize>,
     pub unlocked_levels: HashMap<usize, Vec<usize>>, // semana -> [niveles desbloqueados]
     pub max_unlocked_week: usize,
@@ -38,7 +38,7 @@ pub struct QuizProgress {
     pub input: String,
     pub finished: bool,
     pub round: usize,
-    pub shown_this_round: Vec<(usize, usize)>,   // Ahora es mejor guardar pares (nivel, pregunta)
+    pub shown_this_round: Vec<(usize, usize)>, // Ahora es mejor guardar pares (nivel, pregunta)
     pub show_solution: bool,
     pub seen_level_theory: HashSet<(usize, usize)>,
 }
@@ -80,7 +80,7 @@ pub struct QuizApp {
     #[serde(skip)]
     pub theory_return_state: AppState,
     #[serde(skip)]
-    pub cm_cache : CommonMarkCache,
+    pub cm_cache: CommonMarkCache,
     #[serde(skip)]
     pub has_update: Option<String>,
     #[serde(skip)]
@@ -107,7 +107,7 @@ impl QuizApp {
             message: String::new(),
             state: AppState::LanguageSelect,
             theory_return_state: AppState::LevelMenu,
-            cm_cache : CommonMarkCache::default(),
+            cm_cache: CommonMarkCache::default(),
             has_update: None,
             confirm_reset: false,
             update_thread_launched: false,
@@ -154,7 +154,9 @@ impl QuizApp {
         self.selected_language = Some(lang);
 
         // 1) Asegura que exista progreso para este lenguaje
-        self.progresses.entry(lang).or_insert_with(QuizProgress::default);
+        self.progresses
+            .entry(lang)
+            .or_insert_with(QuizProgress::default);
 
         // 2) Clona los IDs completados para reusar en el filtrado
         let prev_completed = self.progress().completed_ids.clone();
@@ -172,10 +174,11 @@ impl QuizApp {
                     .filter(|q| q.language == lang)
                     .enumerate()
                     .map(|(i, mut q)| {
-                        q.number  = i + 1;  // numeramos de 1 a N dentro de este nivel
-                        q.is_done = q.id.as_ref()
-                            .map(|id| prev_completed.contains(id))
-                            .unwrap_or(false);
+                        q.number = i + 1; // numeramos de 1 a N dentro de este nivel
+                        q.is_done =
+                            q.id.as_ref()
+                                .map(|id| prev_completed.contains(id))
+                                .unwrap_or(false);
                         q
                     })
                     .collect();
@@ -185,14 +188,16 @@ impl QuizApp {
                 }
             }
             if !lvls.is_empty() {
-                weeks_filtered.push( Week {
+                weeks_filtered.push(Week {
                     number: w.number,
                     explanation: w.explanation,
                     levels: lvls,
                 });
             }
         }
-        self.quiz = Quiz { weeks: weeks_filtered };
+        self.quiz = Quiz {
+            weeks: weeks_filtered,
+        };
 
         // 4) IDs válidos tras filtrado
         let valid_ids: HashSet<String> = self.all_question_ids();
@@ -200,7 +205,8 @@ impl QuizApp {
         // 5) Calcula max_week_number (basado en Week.number)
         let mut max_week_number = 0;
         for week in &self.quiz.weeks {
-            if week.levels
+            if week
+                .levels
                 .iter()
                 .flat_map(|l| &l.questions)
                 .all(|q| q.is_done)
@@ -212,7 +218,9 @@ impl QuizApp {
         max_week_number += 1;
 
         // 6) Construye unlocked_idxs = índices 0-based de weeks cuyo `.number` <= max_week_number
-        let unlocked_idxs: Vec<usize> = self.quiz.weeks
+        let unlocked_idxs: Vec<usize> = self
+            .quiz
+            .weeks
             .iter()
             .enumerate()
             .filter_map(|(idx, week)| {
@@ -268,12 +276,12 @@ impl QuizApp {
             prog.completed_ids.retain(|id| valid_ids.contains(id));
 
             // b) desbloquea semanas por índice
-            prog.unlocked_weeks    = unlocked_idxs.clone();
+            prog.unlocked_weeks = unlocked_idxs.clone();
             prog.max_unlocked_week = *unlocked_idxs.iter().max().unwrap_or(&0);
 
             // c) posición de reanudación
-            prog.current_week     = rest_w;
-            prog.current_level    = rest_l;
+            prog.current_week = rest_w;
+            prog.current_level = rest_l;
             prog.current_in_level = rest_q;
 
             // d) reset de UI/input/rondas
@@ -290,4 +298,3 @@ impl QuizApp {
         self.has_saved_progress = true;
     }
 }
-
