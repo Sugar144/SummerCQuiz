@@ -70,6 +70,67 @@ weeks:
 
           '
       hint: Puedes usar el operador módulo (%).
+    - id: p-1-judge-suma
+      language: Pseudocode
+      week: 1
+      mode: judge_pseudo
+      prompt: Escribe un algoritmo que lea dos enteros y muestre su suma seguida de un salto de línea.
+      answer: |-
+        algorithm Suma
+          var
+            a: integer;
+            b: integer;
+          end var
+
+          a := readInteger();
+          b := readInteger();
+          writeInteger(a + b);
+        end algorithm
+      tests:
+      - input: '2 3
+
+          '
+        output: '5
+
+          '
+      - input: '10 -4
+
+          '
+        output: '6
+
+          '
+      hint: Usa readInteger y writeInteger con salida exacta.
+    - id: p-1-judge-cuenta-atras
+      language: Pseudocode
+      week: 1
+      mode: judge_pseudo
+      prompt: Escribe un algoritmo que lea un entero n e imprima n, n-1, ..., 1 usando for con step -1.
+      answer: |-
+        algorithm CuentaAtras
+          var
+            n: integer;
+            i: integer;
+          end var
+
+          n := readInteger();
+          for i := n to 1 step -1 do
+            writeInteger(i);
+          end for
+        end algorithm
+      tests:
+      - input: '3
+
+          '
+        output: '321
+
+          '
+      - input: '1
+
+          '
+        output: '1
+
+          '
+      hint: Recuerda que en pseudocódigo no existe downto; usa step -1.
     - id: c-1-max_nombre
       language: C
       week: 1

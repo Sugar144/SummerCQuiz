@@ -1,6 +1,7 @@
 use super::*;
 use crate::code_utils::normalize_code;
 use crate::judge_c::{JudgeResult, format_judge_message, grade_c_question, should_use_judge};
+use crate::judge_pseudo::{CJudge, PseudoConfig, run_pseudo_tests};
 
 impl QuizApp {
     pub fn procesar_respuesta(&mut self, respuesta: &str) {
@@ -24,7 +25,9 @@ impl QuizApp {
         // 2) Calcular resultado (normalize o judge_c)
         let grading_result = {
             let q = &self.quiz.weeks[cw].levels[cl].questions[ci];
-            if should_use_judge(q) {
+            if q.uses_judge_pseudo() {
+                run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge)
+            } else if should_use_judge(q) {
                 grade_c_question(q, respuesta)
             } else {
                 let user_code = normalize_code(respuesta);

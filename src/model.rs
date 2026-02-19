@@ -12,6 +12,7 @@ pub enum GradingMode {
     Normalize,
     #[serde(alias = "judge_c_compile")]
     JudgeC,
+    JudgePseudo,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -95,6 +96,10 @@ impl Question {
     pub fn uses_judge_c(&self) -> bool {
         matches!(self.mode, Some(GradingMode::JudgeC))
             || (self.language == Language::C && !self.tests.is_empty())
+    }
+
+    pub fn uses_judge_pseudo(&self) -> bool {
+        matches!(self.mode, Some(GradingMode::JudgePseudo)) && !self.tests.is_empty()
     }
 
     /// Reinicia los contadores y flags de esta pregunta.
