@@ -1,5 +1,6 @@
 use super::*;
 use crate::code_utils::normalize_code;
+use crate::judge_c::{format_judge_message, grade_c_question, should_use_judge, JudgeResult};
 
 impl QuizApp {
     pub fn procesar_respuesta(&mut self, respuesta: &str) {
@@ -20,24 +21,39 @@ impl QuizApp {
             }
         };
 
-        // 2) Normalizar código para comparar
-        let user_code = normalize_code(respuesta);
-        let answer_code = {
+        // 2) Calcular resultado (normalize o judge_c)
+        let grading_result = {
             let q = &self.quiz.weeks[cw].levels[cl].questions[ci];
-            normalize_code(&q.answer)
+            if should_use_judge(q) {
+                grade_c_question(q, respuesta)
+            } else {
+                let user_code = normalize_code(respuesta);
+                let answer_code = normalize_code(&q.answer);
+                if user_code == answer_code {
+                    JudgeResult::Accepted
+                } else {
+                    JudgeResult::WrongAnswer {
+                        test_index: 0,
+                        input: String::new(),
+                        expected: String::new(),
+                        received: String::new(),
+                        diff: String::new(),
+                    }
+                }
+            }
         };
+        let correcta = matches!(grading_result, JudgeResult::Accepted);
 
         // 3) Mutar la pregunta: intentos y fails / is_done
         {
             let q = &mut self.quiz.weeks[cw].levels[cl].questions[ci];
             q.attempts += 1;
-            if user_code == answer_code {
+            if correcta {
                 q.is_done = true;
             } else {
                 q.fails += 1;
             }
         }
-        let correcta = user_code == answer_code;
 
         // 4) Preparar clonados antes de mutar progress
         let question_id = self.quiz.weeks[cw].levels[cl].questions[ci].id.clone();
@@ -61,8 +77,6 @@ impl QuizApp {
                 prog.input.clear();
                 mark_pending = true;
                 curr_week = prog.current_week;
-            } else {
-                prog.input.clear();
             }
         }
 
@@ -101,7 +115,12 @@ impl QuizApp {
         self.message = if correcta {
             "✅ ¡Correcto!".into()
         } else {
-            "❌ Incorrecto. Intenta de nuevo.".into()
+            match &grading_result {
+                JudgeResult::WrongAnswer { test_index, .. } if *test_index == 0 => {
+                    "❌ Incorrecto. Intenta de nuevo.".into()
+                }
+                _ => format_judge_message(&grading_result),
+            }
         };
     }
 
@@ -109,7 +128,7 @@ impl QuizApp {
         // 1) Extraer índices actuales (o salir si no hay pregunta)
         let (cw, cl, ci) = match self.current_position() {
             Some(pos) => pos,
-            None      => return,
+            None => return,
         };
 
         // 2) Registrar estadísticas en la pregunta actual
@@ -152,7 +171,7 @@ impl QuizApp {
         // 1) Extraer índices actuales
         let (cw, cl, ci) = match self.current_position() {
             Some(pos) => pos,
-            None      => return,
+            None => return,
         };
 
         // 2) Marcar que vio la solución
@@ -179,7 +198,10 @@ impl QuizApp {
 
     // TEST helpers
     pub fn complete_all_week(&mut self) {
-        let wi = match self.progress().current_week { Some(w) => w, None => return };
+        let wi = match self.progress().current_week {
+            Some(w) => w,
+            None => return,
+        };
         let lang = self.selected_language.unwrap_or(Language::C);
 
         // 1) Marcar cada pregunta y acumular sus IDs
@@ -214,8 +236,14 @@ impl QuizApp {
 
     /// Marca *todas* las preguntas del nivel actual como completadas y va al resumen de nivel o al resumen semanal si era el último nivel.
     pub fn complete_all_level(&mut self) {
-        let wi = match self.progress().current_week  { Some(w) => w, None => return };
-        let li = match self.progress().current_level { Some(l) => l, None => return };
+        let wi = match self.progress().current_week {
+            Some(w) => w,
+            None => return,
+        };
+        let li = match self.progress().current_level {
+            Some(l) => l,
+            None => return,
+        };
         let lang = self.selected_language.unwrap_or(Language::C);
 
         // 1) Marcar cada pregunta del nivel y acumular IDs
@@ -303,7 +331,10 @@ impl QuizApp {
         // Si todas ya fueron mostradas en esta ronda pero aún hay pendientes, arranca ronda nueva
         let hay_pendientes = level.questions.iter().enumerate().any(|(_q_idx, q)| {
             q.language == language
-                && q.id.as_ref().map(|id| !self.progress().completed_ids.contains(id)).unwrap_or(false)
+                && q.id
+                    .as_ref()
+                    .map(|id| !self.progress().completed_ids.contains(id))
+                    .unwrap_or(false)
         });
 
         if hay_pendientes {
@@ -329,4 +360,3 @@ impl QuizApp {
         None
     }
 }
-
