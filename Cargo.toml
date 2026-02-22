@@ -32,3 +32,6 @@ crate-type = ["cdylib", "rlib"]  # <- Añadido para compilar a WASM
 [[bin]]
 name = "summer_quiz_bin"
 path = "src/main.rs"
+[[bin]]
+name = "summer_quiz_judge_server"
+path = "src/bin/summer_quiz_judge_server.rs"

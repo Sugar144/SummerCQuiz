@@ -1,7 +1,7 @@
 pub mod app;
 pub mod code_utils;
 pub mod data;
-mod judge;
+pub mod judge;
 pub mod model;
 pub mod ui;
 pub mod update;
