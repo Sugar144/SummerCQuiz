@@ -1,4 +1,4 @@
-use crate::judge_c::JudgeResult;
+use crate::judge::judge_c::JudgeResult;
 use crate::model::{GradingMode, JudgeTestCase, Language, Question};
 
 #[derive(Debug, Clone)]
@@ -41,7 +41,7 @@ pub struct CJudge;
 
 impl CJudge {
     pub fn grade(&self, question: &Question, code: &str) -> JudgeResult {
-        crate::judge_c::grade_c_question(question, code)
+        crate::judge::judge_c::grade_c_question(question, code)
     }
 }
 
@@ -104,13 +104,13 @@ fn format_pseudo_error(err: &PseudoError) -> String {
     match err {
         PseudoError::LexError { message, line, col } => {
             format!("LexError [{line}:{col}]: {message}")
-        }
+        },
         PseudoError::ParseError { message, line, col } => {
             format!("ParseError [{line}:{col}]: {message}")
-        }
+        },
         PseudoError::UnsupportedFeature { feature, line, col } => {
             format!("UnsupportedFeature [{line}:{col}]: {feature}")
-        }
+        },
         PseudoError::TranspileError { message } => format!("TranspileError: {message}"),
     }
 }
@@ -1434,18 +1434,18 @@ mod tests {
     #[test]
     fn parser_accepts_end_if_and_for_step_minus_one() {
         let code = r#"
-algorithm Demo
-var
-  i: integer;
-end var
-for i := 3 to 1 step -1 do
-  writeInteger(i);
-end for
-if i = 0 then
-  writeInteger(0);
-end if
-end algorithm
-"#;
+            algorithm Demo
+                var
+                  i: integer;
+                end var
+                for i := 3 to 1 step -1 do
+                  writeInteger(i);
+                end for
+                if i = 0 then
+                  writeInteger(0);
+                end if
+            end algorithm
+            "#;
         let c = pseudo_to_c(code).expect("parse/transpile ok");
         assert!(c.contains("for (i = 3;"));
         assert!(c.contains("i += (-1)"));

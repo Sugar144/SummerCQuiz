@@ -1,7 +1,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 mod native_kotlin {
-    use crate::judge_c::JudgeResult;
-    use crate::judge_utils::{line_diff, matches_expected_output};
+    use crate::judge::judge_c::JudgeResult;
+    use crate::judge::judge_utils::{line_diff, matches_expected_output};
     use crate::model::{JudgeTestCase, Question};
     use std::collections::hash_map::DefaultHasher;
     use std::env;

@@ -32,7 +32,7 @@ pub enum JudgeResult {
 #[cfg(not(target_arch = "wasm32"))]
 mod native {
     use super::JudgeResult;
-    use crate::judge_utils::{line_diff, matches_expected_output, normalize_newlines};
+    use crate::judge::judge_utils::{line_diff, matches_expected_output, normalize_newlines};
     use crate::model::{JudgeTestCase, Question};
     use std::collections::hash_map::DefaultHasher;
     use std::env;
