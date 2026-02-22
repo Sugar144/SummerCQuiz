@@ -10,6 +10,11 @@ use layout::{bottom_panel, top_panel};
 
 impl App for QuizApp {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        self.poll_remote_judge_result();
+        if self.is_remote_judge_pending() {
+            ctx.request_repaint_after(std::time::Duration::from_millis(120));
+        }
+
         // BOTÓN SUPERIOR DE REINICIAR y CAMBIAR LENGUAJE (solo visible durante el quiz y resumen)
         if matches!(self.state, AppState::Quiz | AppState::Summary) {
             top_panel(self, ctx, true);

@@ -1,6 +1,7 @@
 use crate::model::Question;
 
 #[derive(Debug, Clone)]
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
 pub enum JudgeResult {
     Accepted,
     CompileError {

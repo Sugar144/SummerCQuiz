@@ -1,4 +1,5 @@
 use crate::data::read_questions_for_language;
+use crate::judge::judge_c::JudgeResult;
 use crate::model::{AppState, Language, Level, Module, Question, Quiz};
 use eframe::egui;
 use egui_commonmark::CommonMarkCache;
@@ -69,6 +70,13 @@ impl Default for QuizProgress {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct PendingRemoteJudge {
+    pub cw: usize,
+    pub cl: usize,
+    pub ci: usize,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct QuizApp {
     pub progresses: HashMap<Language, QuizProgress>,
@@ -89,6 +97,10 @@ pub struct QuizApp {
     pub update_thread_launched: bool,
     #[serde(skip)]
     pub has_saved_progress: bool,
+    #[serde(skip)]
+    pub remote_judge_pending: Option<PendingRemoteJudge>,
+    #[serde(skip)]
+    pub remote_judge_rx: Option<std::sync::mpsc::Receiver<JudgeResult>>,
 }
 
 impl QuizApp {
@@ -116,6 +128,8 @@ impl QuizApp {
             confirm_reset: false,
             update_thread_launched: false,
             has_saved_progress: false,
+            remote_judge_pending: None,
+            remote_judge_rx: None,
         };
 
         // --- Esto es igual que antes ---
@@ -149,6 +163,8 @@ impl QuizApp {
             confirm_reset: false,
             update_thread_launched: false,
             has_saved_progress: false,
+            remote_judge_pending: None,
+            remote_judge_rx: None,
         }
     }
 
