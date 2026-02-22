@@ -268,11 +268,8 @@ mod native_rust {
 pub use native_rust::grade_rust_question;
 
 #[cfg(target_arch = "wasm32")]
-pub fn grade_rust_question(
-    _question: &crate::model::Question,
-    _user_code: &str,
-) -> JudgeResult {
-     JudgeResult::InfrastructureError {
+pub fn grade_rust_question(_question: &crate::model::Question, _user_code: &str) -> JudgeResult {
+    JudgeResult::InfrastructureError {
         message: "El juez Rust no está disponible en WASM.".into(),
     }
 }
