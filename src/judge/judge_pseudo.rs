@@ -2,6 +2,7 @@ use crate::judge::judge_c::JudgeResult;
 use crate::model::{GradingMode, JudgeTestCase, Language, Question};
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub enum PseudoError {
     LexError {
         message: String,
@@ -77,6 +78,7 @@ pub fn run_pseudo_tests(
         mode: Some(GradingMode::JudgeC),
         tests: tests.to_vec(),
         judge_harness: None,
+        judge_endpoint: None,
         is_done: false,
         saw_solution: false,
         attempts: 0,
@@ -88,6 +90,7 @@ pub fn run_pseudo_tests(
     c_judge.grade(&question, &question.answer)
 }
 
+#[allow(dead_code)]
 pub fn pseudo_to_c(code: &str) -> Result<String, PseudoError> {
     pseudo_to_c_with_config(code, &PseudoConfig::default())
 }
