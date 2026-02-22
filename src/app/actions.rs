@@ -6,6 +6,7 @@ use crate::judge::judge_c::{
 use crate::judge::judge_java::grade_java_question;
 use crate::judge::judge_kt::grade_kotlin_question;
 use crate::judge::judge_pseudo::{CJudge, PseudoConfig, run_pseudo_tests};
+use crate::judge::judge_remote::grade_remote_question;
 use crate::judge::judge_python::grade_python_question;
 use crate::judge::judge_rust::grade_rust_question;
 use crate::model::GradingMode;
@@ -46,6 +47,8 @@ impl QuizApp {
                 grade_rust_question(q, respuesta)
             } else if matches!(q.mode, Some(GradingMode::JudgePython)) {
                 grade_python_question(q, respuesta)
+            } else if matches!(q.mode, Some(GradingMode::JudgeRemote)) {
+                grade_remote_question(q, respuesta)
             } else if should_use_judge(q) {
                 grade_c_question(q, respuesta)
             } else {

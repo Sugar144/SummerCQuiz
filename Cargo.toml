@@ -19,7 +19,7 @@ semver = "1.0.26"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 self_update = "0.42.0"
-reqwest = { version = "0.12", features = ["blocking"] }
+reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"] }
 
 
 [lib]

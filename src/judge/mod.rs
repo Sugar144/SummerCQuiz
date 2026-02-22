@@ -8,4 +8,6 @@ pub mod judge_python;
 
 pub mod judge_rust;
 
+pub mod judge_remote;
+
 pub mod judge_utils;
