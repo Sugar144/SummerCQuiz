@@ -1,3 +1,5 @@
+#[cfg(target_arch = "wasm32")]
+use crate::judge::judge_c::JudgeResult;
 #[cfg(not(target_arch = "wasm32"))]
 mod native_kotlin {
     use crate::judge::judge_c::JudgeResult;
@@ -223,8 +225,8 @@ pub use native_kotlin::grade_kotlin_question;
 pub fn grade_kotlin_question(
     _question: &crate::model::Question,
     _user_code: &str,
-) -> crate::judge_c::JudgeResult {
-    crate::judge_c::JudgeResult::InfrastructureError {
+) -> JudgeResult {
+     JudgeResult::InfrastructureError {
         message: "El juez Kotlin no está disponible en WASM.".into(),
     }
 }

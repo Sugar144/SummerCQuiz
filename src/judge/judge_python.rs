@@ -1,3 +1,5 @@
+#[cfg(target_arch = "wasm32")]
+use crate::judge::judge_c::JudgeResult;
 #[cfg(not(target_arch = "wasm32"))]
 mod native_python {
     use crate::judge::judge_c::JudgeResult;
@@ -220,8 +222,8 @@ pub use native_python::grade_python_question;
 pub fn grade_python_question(
     _question: &crate::model::Question,
     _user_code: &str,
-) -> crate::judge_c::JudgeResult {
-    crate::judge_c::JudgeResult::InfrastructureError {
+) -> JudgeResult {
+     JudgeResult::InfrastructureError {
         message: "El juez Python no está disponible en WASM.".into(),
     }
 }
