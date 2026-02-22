@@ -1,0 +1,58 @@
+- id: kt-1-print-hola
+  language: Kotlin
+  week: 1
+  prompt: |
+    Imprime exactamente:
+    Hola Kotlin
+  answer: |
+    fun main() {
+        print("Hola Kotlin")
+    }
+  hint: "Usa print(...) sin salto de línea."
+  mode: judge_kotlin
+  tests:
+    - input: ''
+      output: 'Hola Kotlin'
+  input_prefill: |
+    fun main() {
+
+    }
+
+- id: kt-1-par-impar
+  language: Kotlin
+  week: 1
+  prompt: |
+    Lee un entero n y escribe "PAR" si es par, o "IMPAR" si es impar.
+    Debe terminar con salto de línea.
+  answer: |
+    fun main() {
+        val n = readLine()!!.trim().toInt()
+        if (n % 2 == 0) {
+            println("PAR")
+        } else {
+            println("IMPAR")
+        }
+    }
+  hint: "n % 2 == 0 indica que es par."
+  mode: judge_kotlin
+  tests:
+    - input: "8\n"
+      output: "PAR\n"
+    - input: "7\n"
+      output: "IMPAR\n"
+  input_prefill: |
+    fun main() {
+
+    }
+
+- id: kt-1-normalize-const-val
+  language: Kotlin
+  week: 1
+  prompt: |
+    Declara una constante MAX_NOMBRE con valor 20 usando.
+  answer: |
+    const val MAX_NOMBRE = 20
+  hint: "En Kotlin se usa const val para constantes en top-level o dentro de object."
+  mode: normalize
+  input_prefill: |
+    const val MAX_NOMBRE = 0

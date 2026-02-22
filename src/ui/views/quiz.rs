@@ -1,5 +1,5 @@
 use crate::QuizApp;
-use crate::code_utils::{c_syntax, pseudo_syntax};
+use crate::code_utils::{c_syntax, kotlin_syntax, pseudo_syntax};
 use crate::model::{AppState, Language};
 use crate::ui::layout::{code_editor_input, code_editor_solution, two_button_row};
 use egui::{Align, CentralPanel, Context, ScrollArea};
@@ -97,6 +97,8 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                         let syntax = match language {
                             Language::C => c_syntax(),
                             Language::Pseudocode => pseudo_syntax(),
+                            _ => kotlin_syntax(),
+
                         };
                         let max_input_h = 245.0;
                         let min_lines = 15;
@@ -164,10 +166,10 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                         //
                         // ui.add_space(5.0);
                         //
-                        // // Botón de test: marcar semana completa
-                        // if ui.button("⚡ Marcar nivel como completado (TEST)").clicked() {
-                        //     app.complete_all_level();
-                        // }
+                        // Botón de test: marcar semana completa
+                        if ui.button("⚡ Marcar nivel como completado (TEST)").clicked() {
+                            app.complete_all_level();
+                        }
 
                         // Botones enviar/saltar
                         let (enviar, saltar) =

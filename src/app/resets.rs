@@ -11,6 +11,7 @@ impl QuizApp {
             let other = match language {
                 Language::C => Language::Pseudocode,
                 Language::Pseudocode => Language::C,
+                _ => Language::C,
             };
             self.progresses.insert(other, QuizProgress::default());
 
@@ -160,6 +161,7 @@ impl QuizApp {
                 q.reset_stats();
             }
         }
+
 
         // 5) Volver a sincronizar el estado global de is_done
         self.sync_is_done();

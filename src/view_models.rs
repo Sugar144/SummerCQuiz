@@ -32,15 +32,15 @@ pub struct QuestionRow {
 impl WeekInfo {
     pub fn label(&self) -> String {
         if self.completed && self.new_count == 0 {
-            format!("Semana {} ✅", self.number)
+            format!("Modulo {} ✅", self.number)
         } else if self.unlocked {
             if self.new_count > 0 {
-                format!("Semana {} 🔓 ({} nuevas)", self.number, self.new_count)
+                format!("Modulo {} 🔓 ({} nuevas)", self.number, self.new_count)
             } else {
-                format!("Semana {} 🔓", self.number)
+                format!("Modulo {} 🔓", self.number)
             }
         } else {
-            format!("Semana {} 🔒", self.number)
+            format!("Modulo {} 🔒", self.number)
         }
     }
 }

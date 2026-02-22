@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 pub enum Language {
     C,
     Pseudocode,
+    Kotlin,
+    GitGithub
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -13,6 +15,7 @@ pub enum GradingMode {
     #[serde(alias = "judge_c_compile")]
     JudgeC,
     JudgePseudo,
+    JudgeKotlin,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -77,7 +80,7 @@ pub enum AppState {
     PendingUpdate,
     LanguageSelect,
     Welcome,
-    WeekMenu,
+    ModuleMenu,
     LevelMenu,
     LevelTheory,
     Quiz,

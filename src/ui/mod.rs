@@ -30,7 +30,7 @@ impl App for QuizApp {
             AppState::PendingUpdate => views::pending::ui_pending_update(self, ctx),
             AppState::LanguageSelect => views::language::ui_language_select(self, ctx),
             AppState::Welcome => views::welcome::ui_welcome(self, ctx),
-            AppState::WeekMenu => views::week_menu::ui_week_menu(self, ctx),
+            AppState::ModuleMenu => views::week_menu::ui_week_menu(self, ctx),
             AppState::LevelMenu => views::level_menu::ui_level_menu(self, ctx),
             AppState::Quiz => views::quiz::ui_quiz(self, ctx),
             AppState::Summary => views::summary::ui_summary_view(self, ctx),

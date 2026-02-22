@@ -135,7 +135,7 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
                                 .add_sized([button_width, button_height], Button::new("Volver"))
                                 .clicked()
                             {
-                                app.state = AppState::WeekMenu;
+                                app.state = AppState::ModuleMenu;
                             }
                         } else {
                             if ui

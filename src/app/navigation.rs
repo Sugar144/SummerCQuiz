@@ -198,14 +198,14 @@ impl QuizApp {
     pub fn abrir_menu_semanal(&mut self) {
         self.sync_is_done();
         self.recalculate_unlocked_weeks();
-        self.state = AppState::WeekMenu;
+        self.state = AppState::ModuleMenu;
     }
 
     pub fn open_week_menu(&mut self) {
         // Asegura que los estados estén actualizados
         self.sync_is_done();
         self.recalculate_unlocked_weeks();
-        self.state = AppState::WeekMenu;
+        self.state = AppState::ModuleMenu;
         self.message.clear();
     }
 
@@ -311,9 +311,9 @@ impl QuizApp {
         if let Some(&next_wi) = valid_week_idxs.get(pos + 1) {
             if self.is_week_completed(next_wi) {
                 // siguiente semana ya completada: volvemos al menú
-                self.state = AppState::WeekMenu;
+                self.state = AppState::ModuleMenu;
                 self.message =
-                    "La siguiente semana ya está completada. ¡Escoge otra desde el menú!"
+                    "El siguiente modulo ya está completado. ¡Escoge otro desde el menú!"
                         .to_owned();
             } else {
                 // entramos en la siguiente semana
@@ -375,7 +375,7 @@ impl QuizApp {
         if let Some(&next_li) = valid_level_idxs.get(pos + 1) {
             if self.is_level_completed(wi, next_li) {
                 // siguiente nivel ya completado: volvemos al menú de semanas
-                self.state = AppState::WeekMenu;
+                self.state = AppState::ModuleMenu;
                 self.message =
                     "El siguiente nivel ya está completado. ¡Escoge otro desde el menú!".to_owned();
             } else {

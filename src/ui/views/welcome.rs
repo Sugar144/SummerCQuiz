@@ -43,7 +43,7 @@ pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
                         ui.add_space(5.0);
                         let btn_start = ui.add_sized([btn_w, btn_h], Button::new("🔄 Empezar de 0"));
                         ui.add_space(5.0);
-                        let btn_menu  = ui.add_sized([btn_w, btn_h], Button::new("📅 Seleccionar Semana"));
+                        let btn_menu  = ui.add_sized([btn_w, btn_h], Button::new("📅 Seleccionar Modulo"));
                         ui.add_space(5.0);
                         let btn_exit  = ui.add_sized([btn_w, btn_h], Button::new("🔙 Volver"));
 

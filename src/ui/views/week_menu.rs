@@ -24,7 +24,7 @@ pub fn ui_week_menu(app: &mut QuizApp, ctx: &Context) {
                 .show(ui, |ui| {
                     ui.with_layout(egui::Layout::top_down(Align::Center), |ui| {
                         ui.set_width(content_width);
-                        ui.heading("Selecciona una semana");
+                        ui.heading("Selecciona un modulo");
                         ui.add_space(20.0);
 
                         for info in &infos {
