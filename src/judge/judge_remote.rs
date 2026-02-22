@@ -169,9 +169,9 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
     };
 
     let mut opts = RequestInit::new();
-    opts.method("POST");
-    opts.mode(RequestMode::Cors);
-    opts.body(Some(&JsValue::from_str(&payload_json)));
+    opts.set_method("POST");
+    opts.set_mode(RequestMode::Cors);
+    opts.set_body(&JsValue::from_str(&payload_json));
 
     let request = match Request::new_with_str_and_init(&endpoint, &opts) {
         Ok(r) => r,

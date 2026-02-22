@@ -47,7 +47,13 @@ impl QuizApp {
             return;
         }
 
-        let grading_result = if q.uses_judge_pseudo() {
+        let grading_result = self.grade_question_sync(q, respuesta);
+        self.apply_grading_result(cw, cl, ci, grading_result);
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    fn grade_question_sync(&self, q: &crate::model::Question, respuesta: &str) -> JudgeResult {
+        if q.uses_judge_pseudo() {
             run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge)
         } else if matches!(q.mode, Some(GradingMode::JudgeKotlin)) {
             grade_kotlin_question(q, respuesta)
@@ -75,9 +81,38 @@ impl QuizApp {
                     diff: String::new(),
                 }
             }
-        };
+        }
+    }
 
-        self.apply_grading_result(cw, cl, ci, grading_result);
+    #[cfg(target_arch = "wasm32")]
+    fn grade_question_sync(&self, q: &crate::model::Question, respuesta: &str) -> JudgeResult {
+        if q.uses_judge_pseudo() {
+            run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge)
+        } else if matches!(q.mode, Some(GradingMode::JudgeKotlin)) {
+            grade_kotlin_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeJava)) {
+            grade_java_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeRust)) {
+            grade_rust_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgePython)) {
+            grade_python_question(q, respuesta)
+        } else if should_use_judge(q) {
+            grade_c_question(q, respuesta)
+        } else {
+            let user_code = normalize_code(respuesta);
+            let answer_code = normalize_code(&q.answer);
+            if user_code == answer_code {
+                JudgeResult::Accepted
+            } else {
+                JudgeResult::WrongAnswer {
+                    test_index: 0,
+                    input: String::new(),
+                    expected: String::new(),
+                    received: String::new(),
+                    diff: String::new(),
+                }
+            }
+        }
     }
 
     fn apply_grading_result(
