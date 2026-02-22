@@ -32,6 +32,7 @@ pub enum JudgeResult {
 #[cfg(not(target_arch = "wasm32"))]
 mod native {
     use super::JudgeResult;
+    use crate::judge_utils::{line_diff, matches_expected_output, normalize_newlines};
     use crate::model::{JudgeTestCase, Question};
     use std::collections::hash_map::DefaultHasher;
     use std::env;
@@ -42,7 +43,6 @@ mod native {
     use std::process::{Command, Stdio};
     use std::thread;
     use std::time::{Duration, Instant};
-    use crate::judge_utils::{line_diff, matches_expected_output, normalize_newlines};
 
     const TIMEOUT_MS: u64 = 2_000;
     const POLL_MS: u64 = 10;
@@ -250,8 +250,6 @@ mod native {
 
         JudgeResult::Accepted
     }
-
-
 
     fn apply_harness(user_code: &str, harness: Option<&str>) -> String {
         if let Some(harness) = harness {

@@ -2,6 +2,19 @@ pub fn normalize_newlines(value: &str) -> String {
     value.replace("\r\n", "\n")
 }
 
+pub fn normalize_source_simple(value: &str) -> String {
+    normalize_newlines(value)
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+pub fn simple_source_eq(received: &str, expected: &str) -> bool {
+    normalize_source_simple(received) == normalize_source_simple(expected)
+}
+
 pub fn matches_expected_output(received: &str, expected: &str) -> bool {
     if received == expected {
         return true;

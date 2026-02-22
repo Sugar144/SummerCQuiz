@@ -41,6 +41,14 @@ pub fn ui_language_select(app: &mut QuizApp, ctx: &Context) {
                         let btn_pseudocode =
                             ui.add_sized([button_width, 40.0], Button::new("Pseudocódigo"));
                         ui.add_space(5.0);
+                        let btn_kotlin = ui.add_sized([button_width, 40.0], Button::new("Kotlin"));
+                        ui.add_space(5.0);
+                        let btn_java = ui.add_sized([button_width, 40.0], Button::new("Java"));
+                        ui.add_space(5.0);
+                        let btn_rust = ui.add_sized([button_width, 40.0], Button::new("Rust"));
+                        ui.add_space(5.0);
+                        let btn_python = ui.add_sized([button_width, 40.0], Button::new("Python"));
+                        ui.add_space(5.0);
 
                         #[cfg(not(target_arch = "wasm32"))]
                         let btn_exit = ui.add_sized([button_width, 40.0], Button::new("Salir"));
@@ -51,6 +59,18 @@ pub fn ui_language_select(app: &mut QuizApp, ctx: &Context) {
                         }
                         if btn_pseudocode.clicked() {
                             app.seleccionar_lenguaje(Language::Pseudocode);
+                        }
+                        if btn_kotlin.clicked() {
+                            app.seleccionar_lenguaje(Language::Kotlin);
+                        }
+                        if btn_java.clicked() {
+                            app.seleccionar_lenguaje(Language::Java);
+                        }
+                        if btn_rust.clicked() {
+                            app.seleccionar_lenguaje(Language::Rust);
+                        }
+                        if btn_python.clicked() {
+                            app.seleccionar_lenguaje(Language::Python);
                         }
                         #[cfg(not(target_arch = "wasm32"))]
                         if btn_exit.clicked() {

@@ -1,5 +1,5 @@
 ---
-weeks:
+modules:
 - number: 1
   explanation: 'Explicación de semana 1
 
@@ -12,7 +12,7 @@ weeks:
     questions:
     - id: c-1-judge-suma
       language: C
-      week: 1
+      module: 1
       mode: judge_c
       prompt: Escribe un programa completo que lea dos enteros y muestre su suma seguida de un salto de línea.
       answer: |
@@ -40,7 +40,7 @@ weeks:
       hint: Usa scanf para leer ambos enteros y printf para escribir la suma exacta.
     - id: c-1-judge-paridad
       language: C
-      week: 1
+      module: 1
       mode: judge_c
       prompt: Escribe un programa completo que lea un entero. Si es par imprime PAR\n, en caso contrario imprime IMPAR\n.
       answer: |
@@ -72,7 +72,7 @@ weeks:
       hint: Puedes usar el operador módulo (%).
     - id: p-1-judge-suma
       language: Pseudocode
-      week: 1
+      module: 1
       mode: judge_pseudo
       prompt: Escribe un algoritmo que lea dos enteros y muestre su suma seguida de un salto de línea.
       answer: |-
@@ -102,7 +102,7 @@ weeks:
       hint: Usa readInteger y writeInteger con salida exacta.
     - id: p-1-judge-cuenta-atras
       language: Pseudocode
-      week: 1
+      module: 1
       mode: judge_pseudo
       prompt: Escribe un algoritmo que lea un entero n e imprima n, n-1, ..., 1 usando for con step -1.
       answer: |-
@@ -133,21 +133,21 @@ weeks:
       hint: Recuerda que en pseudocódigo no existe downto; usa step -1.
     - id: c-1-max_nombre
       language: C
-      week: 1
+      module: 1
       prompt: Usando la directiva define, declara una constante para el máximo de un nombre "MAX_NOMBRE" con el valor entero 20.
       answer: "#define MAX_NOMBRE 20"
       hint:
       mode: normalize
     - id: c-1-max_drones
       language: C
-      week: 1
+      module: 1
       prompt: Declara una constante para el máximo de drones "MAX_DRONES" con el valor entero 5.
       answer: "#define MAX_DRONES 5"
       hint:
       mode: normalize
     - id: p-1-max_drones
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara una constante para el máximo de drones "MAX_DRONES" con el valor entero 5.
       answer: |-
         const
@@ -157,7 +157,7 @@ weeks:
       mode: normalize
     - id: c-1-const_decimal
       language: C
-      week: 1
+      module: 1
       prompt: Declara una constante local de tipo decimal para la distancia mínima "DISTANCIA_MINIMA", asignale el valor 250.0.
       answer: |
         int main(){
@@ -168,7 +168,7 @@ weeks:
       mode: normalize
     - id: p-1-const_decimal
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara una constante de tipo decimal para la distancia mínima "DISTANCIA_MINIMA", asignale el valor 250.0.
       answer: |-
         const
@@ -178,7 +178,7 @@ weeks:
       mode: normalize
     - id: c-1-const_entera
       language: C
-      week: 1
+      module: 1
       prompt: Declara una constante local de tipo entera para el puntaje inicial INITIAL_SCORE, asignale el valor 0.
       answer: |
         int main(){
@@ -189,7 +189,7 @@ weeks:
       mode: normalize
     - id: p-1-const_entera
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara una constante local de tipo entera para el puntaje inicial INITIAL_SCORE, asignale el valor 0.
       answer: |
         const
@@ -199,7 +199,7 @@ weeks:
       mode: normalize
     - id: c-1-nombredron_20
       language: C
-      week: 1
+      module: 1
       prompt: Declara una cadena de caracteres llamada nombreDron con tamaño 20.
       answer: |
         int main(){
@@ -210,7 +210,7 @@ weeks:
       mode: normalize
     - id: p-1-nombredron_string
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara una variable de tipo string llamada nombreDron.
       answer: |-
         algorithm
@@ -222,7 +222,7 @@ weeks:
       mode: normalize
     - id: c-1-nombredron_max_nombre
       language: C
-      week: 1
+      module: 1
       prompt: Declara una cadena de caracteres llamada nombreDron con tamaño 20, pero esta vez utiliza la constante "MAX_NOMBRE".
       answer: |
         int main(){
@@ -233,7 +233,7 @@ weeks:
       mode: normalize
     - id: c-1-iddron_entera
       language: C
-      week: 1
+      module: 1
       prompt: Declara una variable entera para almacenar el identificador del dron, llamala idDron.
       answer: |
         int main(){
@@ -244,14 +244,14 @@ weeks:
       mode: normalize
     - id: p-1-iddron_entera
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara una variable entera para almacenar el identificador del dron, llamala idDron.
       answer: "algorithm\n  var \n    idDron: integer; \n  end var\nend algorithm"
       hint:
       mode: normalize
     - id: c-1-bateriainicial_float
       language: C
-      week: 1
+      module: 1
       prompt: Declara una variable decimal para la batería inicial del dron, llamala bateriaInicial.
       answer: |
         int main(){
@@ -262,14 +262,14 @@ weeks:
       mode: normalize
     - id: p-1-bateriainicial_real
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara una variable decimal para la batería inicial del dron, llamala bateriaInicial.
       answer: "algorithm\n  var \n    bateriaInicial: real; \n  end var\nend algorithm"
       hint:
       mode: normalize
     - id: c-1-iddron_menos1
       language: C
-      week: 1
+      module: 1
       prompt: Inicializa la variable idDron en -1.
       answer: |
         int main(){
@@ -280,7 +280,7 @@ weeks:
       mode: normalize
     - id: p-1-iddron_menos1
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Inicializa la variable idDron en -1.
       answer: |
         algorithm
@@ -290,7 +290,7 @@ weeks:
       mode: normalize
     - id: c-1-distanciaminima_const
       language: C
-      week: 1
+      module: 1
       prompt: Declara una variable llamada distanciaMinima e inicializala con la constante "DISTANCIA_MINIMA".
       answer: |-
         int main(){
@@ -301,7 +301,7 @@ weeks:
       mode: normalize
     - id: p-1-distanciaminima_const
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara una variable llamada distanciaMinima e inicializala con la constante "DISTANCIA_MINIMA".
       answer: |-
         algorithm
@@ -316,7 +316,7 @@ weeks:
       mode: normalize
     - id: c-1-dronactivo_true
       language: C
-      week: 1
+      module: 1
       prompt: Declara una variable booleana llamada dronActivo e inicialízala a true en la misma linea.
       answer: |
         int main(){
@@ -327,14 +327,14 @@ weeks:
       mode: normalize
     - id: p-1-dronactivo_true
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara una variable booleana llamada dronActivo e inicialízala a true.
       answer: "algorithm\n  var \n    dronActivo: boolean; \n  end var \n\n  dronActivo := true;\n\nend algorithm"
       hint: Recuerda, primero declara (var end var) y luego inicializa.
       mode: normalize
     - id: c-1-categoriadron_a
       language: C
-      week: 1
+      module: 1
       prompt: Declara e inicializa una variable char llamada categoriaDron a "A" en la misma linea.
       answer: |
         int main(){
@@ -345,7 +345,7 @@ weeks:
       mode: normalize
     - id: p-1-categoriadron_a
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara e inicializa una variable char llamada categoriaDron a "A".
       answer: |-
         algorithm
@@ -364,7 +364,7 @@ weeks:
     questions:
     - id: c-1-scanf_nombredron
       language: C
-      week: 1
+      module: 1
       prompt: Lee el nombre del dron desde teclado usando scanf y guardalo en nombreDron.
       answer: |
         int main(){
@@ -375,7 +375,7 @@ weeks:
       mode: normalize
     - id: p-1-readstring_nombredron
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Lee el nombre del dron desde teclado y guardalo en nombreDron.
       answer: |
         algorithm
@@ -385,7 +385,7 @@ weeks:
       mode: normalize
     - id: c-1-scanf_iddron
       language: C
-      week: 1
+      module: 1
       prompt: Lee el identificador del dron desde teclado usando scanf y guardalo en idDron.
       answer: |
         int main(){
@@ -396,7 +396,7 @@ weeks:
       mode: normalize
     - id: p-1-readinteger_iddron
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Lee el identificador del dron desde teclado y guardalo en idDron.
       answer: |
         algorithm
@@ -406,7 +406,7 @@ weeks:
       mode: normalize
     - id: c-1-scanf_bateriai
       language: C
-      week: 1
+      module: 1
       prompt: Lee el valor de la batería inicial desde teclado usando scanf y guárdalo en bateriaInicial.
       answer: |
         int main(){
@@ -417,7 +417,7 @@ weeks:
       mode: normalize
     - id: p-1-readreal_bateriai
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Lee el valor de la batería inicial desde teclado y guárdalo en bateriaInicial.
       answer: |
         algorithm
@@ -427,7 +427,7 @@ weeks:
       mode: normalize
     - id: c-1-scanf_categoriadron
       language: C
-      week: 1
+      module: 1
       prompt: Lee un carácter del usuario desde teclado usando scanf y guárdalo en categoriaDron.
       answer: |
         int main(){
@@ -438,7 +438,7 @@ weeks:
       mode: normalize
     - id: p-1-readcharacter_categoriadron
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Lee un character del usuario desde teclado y guárdalo en categoriaDron.
       answer: |
         algorithm
@@ -448,7 +448,7 @@ weeks:
       mode: normalize
     - id: c-1-printf_nombre_id
       language: C
-      week: 1
+      module: 1
       prompt: |-
         Incluye stdio.h.
 
@@ -471,14 +471,14 @@ weeks:
         output: 'Dron: dron001, ID: 1'
     - id: p-1-writestring_nombre_id
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: 'Imprime el nombre del dron y su identificador. Usa "Dron: x, ID: x" para la impresión, siendo "x" el valor pertinente.'
       answer: "algorithm\n  writeString(\"Dron: \"); \n  writeString(nombreDron); \n  writeString(\", ID: \"); \n  writeInteger(idDron);'\nend algorithm"
       hint: 'Ejemplo de ejecución: "Dron: dron001, ID: 1". Recuerda que en pseudocódigo no puedes imprimir mas de un dato por linea.'
       mode: normalize
     - id: c-1-printf_bateria
       language: C
-      week: 1
+      module: 1
       prompt: |-
         Incluye stdio.h.
 
@@ -500,7 +500,7 @@ weeks:
         output: 'Batería: 85.5'
     - id: p-1-writestring_bateria
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: 'Imprime la batería inicial del dron. Usa "Batería: x" para la impresión, siendo "x" el valor pertinente.'
       answer: |-
         algorithm
@@ -511,7 +511,7 @@ weeks:
       mode: normalize
     - id: c-1-printf_categoria
       language: C
-      week: 1
+      module: 1
       prompt: |-
         Incluye stdio.h.
 
@@ -533,7 +533,7 @@ weeks:
         output: 'Categoría: A'
     - id: p-1-writestring_categoria
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: 'Imprime la categoría del dron como carácter. Usa "Categoría: x" para la impresión, siendo "x" el valor pertinente.'
       answer: |-
         algorithm
@@ -549,14 +549,14 @@ weeks:
     questions:
     - id: c-1-enum_tdrone
       language: C
-      week: 1
+      module: 1
       prompt: Declara un enumerado tDronEstado con los valores PARADO, EN_VUELO y ESTRELLADO.
       answer: "typedef enum { \n  PARADO, \n  EN_VUELO, \n  ESTRELLADO \n} tDronEstado;"
       hint: la palabra reservada es typedef enum, recuerda poner ; a continuación del nombre del enum.
       mode: normalize
     - id: p-1-type_tdrone
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara un enumerado tDronEstado con los valores PARADO, EN_VUELO y ESTRELLADO.
       answer: |-
         type
@@ -566,7 +566,7 @@ weeks:
       mode: normalize
     - id: c-1-estado_en_vuelo
       language: C
-      week: 1
+      module: 1
       prompt: Declara una variable tDronEstado llamada estado e inicialízala a EN_VUELO.
       answer: |
         int main(){
@@ -577,7 +577,7 @@ weeks:
       mode: normalize
     - id: p-1-estado_en_vuelo
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Declara una variable tDronEstado llamada estado e inicialízala a EN_VUELO.
       answer: |-
         algorithm
@@ -592,7 +592,7 @@ weeks:
       mode: normalize
     - id: c-1-lee_estado_enum
       language: C
-      week: 1
+      module: 1
       prompt: Lee el valor del estado del dron desde teclado usando scanf y guárdalo en estado.
       answer: |
         int main(){
@@ -603,7 +603,7 @@ weeks:
       mode: normalize
     - id: p-1-readenum_estado
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Lee el valor del estado del dron desde teclado usando scanf y guárdalo en estado.
       answer: |
         algorithm
@@ -613,7 +613,7 @@ weeks:
       mode: normalize
     - id: c-1-printf_estado_num
       language: C
-      week: 1
+      module: 1
       prompt: |-
         Incluye stdio.h.
 
@@ -635,7 +635,7 @@ weeks:
         output: 'Estado (0=PARADO, 1=EN_VUELO, 2=ESTRELLADO): 1'
     - id: p-1-writestring_estado_num
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: 'Imprime el valor del estado del dron con una explicación. Usa "Estado: x" para la impresión, siendo "x" el valor a enseñar.'
       answer: |-
         algorithm
@@ -646,7 +646,7 @@ weeks:
       mode: normalize
     - id: c-1-incremento_iddron
       language: C
-      week: 1
+      module: 1
       prompt: Incrementa la variable idDron en 1 usando el operador de incremento al finalizar la carrera.
       answer: |
         int main(){
@@ -657,7 +657,7 @@ weeks:
       mode: normalize
     - id: p-1-incrementa_iddron
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Incrementa la variable idDron en 1 al finalizar la carrera.
       answer: |
         algorithm
@@ -667,7 +667,7 @@ weeks:
       mode: normalize
     - id: c-1-compuesto_bateria
       language: C
-      week: 1
+      module: 1
       prompt: Resta 10.5 a la bateríaInicial usando operador compuesto.
       answer: |
         int main(){
@@ -679,7 +679,7 @@ weeks:
       mode: normalize
     - id: p-1-resta_bateria
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Resta 10.5 a la bateríaInicial .
       answer: |
         algorithm
@@ -689,7 +689,7 @@ weeks:
       mode: normalize
     - id: c-1-suficiente_bool
       language: C
-      week: 1
+      module: 1
       prompt: Calcula si la batería es suficiente usando un operador relacional y guarda el resultado en en una variable booleana "suficiente". Diremos que la batería es suficiente si tiene al menos un 20%
       answer: |
         int main(){
@@ -700,7 +700,7 @@ weeks:
       mode: normalize
     - id: p-1-suficiente_bool
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Calcula si la batería es suficiente usando un operador relacional y guarda el resultado en en una variable booleana "suficiente". Diremos que la batería es suficiente si tiene al menos un 20%. Necesitarás este operador "≥".
       answer: |-
         algorithm
@@ -715,7 +715,7 @@ weeks:
       mode: normalize
     - id: c-1-ternario_en_servicio
       language: C
-      week: 1
+      module: 1
       prompt: |-
         Incluye stdio.h y stdbool.h.
 
@@ -738,7 +738,7 @@ weeks:
         output: En servicio
     - id: c-1-ternario_apto
       language: C
-      week: 1
+      module: 1
       prompt: |-
         Incluye stdio.h y stdbool.h.
 
@@ -761,14 +761,14 @@ weeks:
         output: Apto para siguiente ronda
     - id: c-1-cast_bateriaentera
       language: C
-      week: 1
+      module: 1
       prompt: Convierte bateriaInicial a entero y guárdalo en bateriaEntera.
       answer: "\nint main(){\n  int bateriaEntera = (int)bateriaInicial;              \n  return 0;\n}\n"
       hint: Recuerda que para castear una variable utilizas (tipo)variable.
       mode: normalize
     - id: p-1-cast_bateriaentera
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Convierte bateriaInicial a entero y guárdalo en bateriaEntera.
       answer: |-
         algorithm
@@ -782,7 +782,7 @@ weeks:
       mode: normalize
     - id: c-1-cast_nuevabateria
       language: C
-      week: 1
+      module: 1
       prompt: Convierte bateriaEntera otra vez a decimal y guárdalo en nuevaBateria.
       answer: |
         int main(){
@@ -793,7 +793,7 @@ weeks:
       mode: normalize
     - id: p-1-cast_nuevabateria
       language: Pseudocode
-      week: 1
+      module: 1
       prompt: Convierte bateriaEntera otra vez a decimal y guárdalo en nuevaBateria.
       answer: |-
         algorithm
@@ -817,7 +817,7 @@ weeks:
     questions:
     - id: c-2-include_stdio
       language: C
-      week: 2
+      module: 2
       prompt: Incluye la biblioteca estándar de entrada/salida en C para poder usar printf y scanf.
       answer: "#include <stdio.h>\n"
       hint: 'Empieza por #include'
@@ -829,7 +829,7 @@ weeks:
         }
     - id: c-2-include_stdbool
       language: C
-      week: 2
+      module: 2
       prompt: Incluye la biblioteca necesaria para poder usar variables booleanas en C.
       answer: "#include <stdbool.h>\n"
       hint: El nombre contiene "std"
@@ -841,7 +841,7 @@ weeks:
         }
     - id: c-2-include_string
       language: C
-      week: 2
+      module: 2
       prompt: Incluye la biblioteca necesaria para trabajar con cadenas de caracteres (funciones como strcpy, strcat, strcmp, strlen).
       answer: "#include <string.h>\n"
       hint: La biblioteca clásica para manipulación de strings, el nombre acaba con .h .
@@ -853,7 +853,7 @@ weeks:
         }
     - id: c-2-max_plants_define
       language: C
-      week: 2
+      module: 2
       prompt: Declara una constante MAX_PLANTS con valor 5 usando define.
       answer: "#define MAX_PLANTS 5\n"
       hint:
@@ -865,7 +865,7 @@ weeks:
         }
     - id: p-2-max_plants_const
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: Declara una constante MAX_PLANTS con valor 5.
       answer: |
         const
@@ -880,7 +880,7 @@ weeks:
         }
     - id: c-2-max_name_define
       language: C
-      week: 2
+      module: 2
       prompt: Declara una constante MAX_NAME con valor 25 usando define.
       answer: "#define MAX_NAME 25\n"
       hint:
@@ -892,7 +892,7 @@ weeks:
         }
     - id: c-2-const_temp_minima
       language: C
-      week: 2
+      module: 2
       prompt: Dentro de la función main, declara una constante local de tipo float llamada TEMP_MINIMA con valor 15.0.
       answer: |
         int main() {
@@ -914,7 +914,7 @@ weeks:
         }
     - id: p-2-const_temp_minima
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: Declara una constante de tipo decimal llamada TEMP_MINIMA con valor 15.0.
       answer: |
         const
@@ -929,7 +929,7 @@ weeks:
         }
     - id: c-2-array-nombres-solo
       language: C
-      week: 2
+      module: 2
       prompt: Declara un array de cadenas nombrePlantas para 5 plantas, cada nombre de 20 caracteres.
       answer: |
         int main() {
@@ -945,7 +945,7 @@ weeks:
         }
     - id: p-2-array-nombres-solo
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: Declara un array de strings nombrePlantas para 5 plantas.
       answer: |
         algorithm
@@ -962,7 +962,7 @@ weeks:
         }
     - id: c-2-arr_nombreplanta
       language: C
-      week: 2
+      module: 2
       prompt: |
         Declara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.
 
@@ -984,7 +984,7 @@ weeks:
         }
     - id: p-2-arr_nombreplanta
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: |
         Declara la constante MAX_PLANTS = 5.
 
@@ -1008,7 +1008,7 @@ weeks:
         }
     - id: c-2-arr_sensoresactivos
       language: C
-      week: 2
+      module: 2
       prompt: |
         Incluye la biblioteca necesaria para booleanos.
 
@@ -1030,7 +1030,7 @@ weeks:
         }
     - id: p-2-arr_sensoresactivos
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: |
         Declara la constante MAX_PLANTS = 5.
 
@@ -1054,7 +1054,7 @@ weeks:
         }
     - id: c-2-array-alturas
       language: C
-      week: 2
+      module: 2
       prompt: Declara la constante MAX_PLANTAS = 5 y un array float alturas usando la constante.
       answer: |
         #define MAX_PLANTAS 5
@@ -1072,7 +1072,7 @@ weeks:
         }
     - id: p-2-array-alturas
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: Declara la constante MAX_PLANTAS = 5 y un array real alturas usando la constante.
       answer: |
         const
@@ -1093,7 +1093,7 @@ weeks:
         }
     - id: c-2-array-nombres-alturas
       language: C
-      week: 2
+      module: 2
       prompt: Declara las constantes MAX_PLANTAS = 5 y MAX_NOMBRE = 20. Declara un array de cadenas nombrePlantas y un array float alturas, ambos usando MAX_PLANTAS.
       answer: |
         #define MAX_PLANTAS 5
@@ -1113,7 +1113,7 @@ weeks:
         }
     - id: p-2-array-nombres-alturas
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: Declara la constante MAX_PLANTAS = 5. Declara un array de strings nombrePlantas y un array de reales alturas usando la constante.
       answer: |
         const
@@ -1135,7 +1135,7 @@ weeks:
         }
     - id: c-2-arr_humedad
       language: C
-      week: 2
+      module: 2
       prompt: |
         Declara la constante MAX_PLANTS = 5 y un array de enteros humedad con MAX_PLANTS,
 
@@ -1156,7 +1156,7 @@ weeks:
         }
     - id: p-2-arr_humedad
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: |
         Declara la constante MAX_PLANTS = 5.
 
@@ -1188,7 +1188,7 @@ weeks:
         }
     - id: c-2-inicializa-alturas
       language: C
-      week: 2
+      module: 2
       prompt: Declara la constante MAX_PLANTAS = 5 y un array float alturas, inicializándolo con los valores 11.2, 18.4, 13.0, 17.5, 15.1.
       answer: |
         #define MAX_PLANTAS 5
@@ -1206,7 +1206,7 @@ weeks:
         }
     - id: p-2-inicializa-alturas
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: Declara la constante MAX_PLANTAS = 5 y un array real alturas. Inicializa los 5 valores a 11.2, 18.4, 13.0, 17.5, 15.1.
       answer: |
         const
@@ -1238,7 +1238,7 @@ weeks:
     questions:
     - id: c-2-mat_sensorestemp
       language: C
-      week: 2
+      module: 2
       prompt: |
         Declara las constantes FILAS = 3 y COLUMNAS = 4.
 
@@ -1260,7 +1260,7 @@ weeks:
         }
     - id: p-2-mat_sensorestemp
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: |
         Declara las constantes FILAS = 3 y COLUMNAS = 4.
 
@@ -1285,7 +1285,7 @@ weeks:
         }
     - id: c-2-mat_zonas_bool
       language: C
-      week: 2
+      module: 2
       prompt: "Declara las constantes FILAS = 2 y COLUMNAS = 3.\n\nDentro de main, declara una matriz booleana zonas con FILAS Y COLUMNAS.\n\nInicialízala con los valores: \nfila 1: true, false, false \nfila 2: false, true, false.\n"
       answer: |
         #include <stdbool.h>
@@ -1314,7 +1314,7 @@ weeks:
         }
     - id: p-2-mat_zonas_bool
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: "Declara las constantes FILAS = 2 y COLUMNAS = 3.\n\nDentro del algoritmo principal, declara una matriz booleana zonas con FILAS Y COLUMNAS. \n\nInicialízala con los valores: \nfila 1: true, false, false \nfila 2: false, true, false.\n"
       answer: |
         const
@@ -1344,7 +1344,7 @@ weeks:
         }
     - id: c-2-matriz-inicializa-llaves
       language: C
-      week: 2
+      module: 2
       prompt: "Declara las constantes FILAS = 2 y COLUMNAS = 3. \n\nDentro de la función main, declara e inicializa una matriz de enteros llamada `zonas` con los siguientes valores usando llaves `{}`:\n- fila 1: 1, 0, 0\n- fila 2: 0, 1, 0\n"
       answer: |
         #define FILAS 2
@@ -1366,7 +1366,7 @@ weeks:
         }
     - id: c-2-matriz-inicializa-manual
       language: C
-      week: 2
+      module: 2
       prompt: |
         Declara las constantes FILAS = 2 y COLUMNAS = 3.
 
@@ -1399,7 +1399,7 @@ weeks:
         }
     - id: p-2-matriz-inicializa-const
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: |
         Declara las constantes FILAS = 2 y COLUMNAS = 3.
 
@@ -1437,7 +1437,7 @@ weeks:
         }
     - id: c-2-matriz-ph
       language: C
-      week: 2
+      module: 2
       prompt: |
         Incluye stdio.
 
@@ -1478,7 +1478,7 @@ weeks:
         }
     - id: p-2-matriz-ph
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: |
         Declara las constantes FILAS = 2 y COLUMNAS = 3.
 
@@ -1524,7 +1524,7 @@ weeks:
     questions:
     - id: c-2-inicializa-nombreplanta
       language: C
-      week: 2
+      module: 2
       prompt: "Incluye string\n\nDeclara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.\n\nDentro de main, declara un array de cadenas nombrePlanta para los nombres de las plantas y \nusa strncpy para inicializar el primer elemento a \"Margarita\".\n"
       answer: |
         #include <string.h>
@@ -1545,7 +1545,7 @@ weeks:
         }
     - id: p-2-inicializa-nombreplanta
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: "Declara la constante MAX_PLANTS = 5. \n\nDentro del algoritmo principal, declara un array de strings nombrePlanta y asigna \"Margarita\" al primer elemento.\n"
       answer: |
         const
@@ -1567,7 +1567,7 @@ weeks:
         }
     - id: c-2-inicializa-varios-nombres
       language: C
-      week: 2
+      module: 2
       prompt: "Incluye string.\n\nDeclara las constantes MAX_PLANTS = 5 y MAX_NAME = 25.\n\nDentro de main, declara un array de cadenas nombrePlanta y usa strncpy para inicializar los nombres \n\"Margarita\", \"Rosa\", \"Lirio\", \"Orquídea\", \"Girasol\" en el array.\n"
       answer: |
         #include <string.h>
@@ -1592,7 +1592,7 @@ weeks:
         }
     - id: p-2-inicializa-varios-nombres
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: "Declara la constante MAX_PLANTS = 5. \nDeclara un array de strings nombrePlanta y asigna los nombres \n\"Margarita\", \"Rosa\", \"Lirio\", \"Orquídea\", \"Girasol\" en el array.\n"
       answer: |
         const
@@ -1618,7 +1618,7 @@ weeks:
         }
     - id: c-2-muestra-primer-nombre
       language: C
-      week: 2
+      module: 2
       prompt: |
         Incluye stdio y string.
 
@@ -1653,7 +1653,7 @@ weeks:
         }
     - id: p-2-muestra-primer-nombre
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: "Declara la constante MAX_PLANTS = 5. \n\nDeclara un array de strings nombrePlanta, asigna \"Margarita\" al primer elemento \ny muestra ese nombre con writeString.\n"
       answer: |
         const
@@ -1676,7 +1676,7 @@ weeks:
         }
     - id: c-2-copia-nombre-a-otro
       language: C
-      week: 2
+      module: 2
       prompt: |
         Incluye string.
 
@@ -1704,7 +1704,7 @@ weeks:
         }
     - id: p-2-copia-nombre-a-otro
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: "Declara la constante MAX_PLANTS = 5. \n\nDeclara un array de strings nombrePlanta, asigna \"Margarita\" al primer elemento\ny copia ese nombre al segundo elemento.\n"
       answer: |
         const
@@ -1727,7 +1727,7 @@ weeks:
         }
     - id: c-2-array-temp
       language: C
-      week: 2
+      module: 2
       prompt: "Incluye stdio.\n\nDeclara la constante MAX_PLANTAS = 4 y un array float tempPlantas.\n\nInicializa los valores a 19.2, 20.5, 22.1 y 18.9 usando {}. \n\nImprime el tercer valor con el formato \"Temp: x\".\n"
       answer: |
         #include <stdio.h>
@@ -1753,7 +1753,7 @@ weeks:
         }
     - id: p-2-array-temp
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: "Declara la constante MAX_PLANTAS = 4.\n\nDeclara un array real tempPlantas.\n\nInicializa los valores a 19.2, 20.5, 22.1 y 18.9. \n\nImprime el tercer valor.\n"
       answer: |
         const
@@ -1781,7 +1781,7 @@ weeks:
         }
     - id: c-2-acceso-paralelos
       language: C
-      week: 2
+      module: 2
       prompt: |
         Incluye stdio y string.
 
@@ -1831,7 +1831,7 @@ weeks:
         }
     - id: p-2-acceso-paralelos
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: |
         Declara la constante MAX_PLANTAS = 3.
 
@@ -1873,7 +1873,7 @@ weeks:
         }
     - id: c-2-leer-string
       language: C
-      week: 2
+      module: 2
       prompt: |
         Incluye stdio.
 
@@ -1903,7 +1903,7 @@ weeks:
         }
     - id: p-2-leer-string
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: |
         Dentro del algoritmo principal, declara una variable nombrePlanta de tipo string.
 
@@ -1926,7 +1926,7 @@ weeks:
         }
     - id: c-2-leer-array-int
       language: C
-      week: 2
+      module: 2
       prompt: |
         Incluye stdio.
 
@@ -1960,7 +1960,7 @@ weeks:
         }
     - id: p-2-leer-array-int
       language: Pseudocode
-      week: 2
+      module: 2
       prompt: |
         Declara la constante MAX_PLANTAS = 3.
 
@@ -2002,7 +2002,7 @@ weeks:
     questions:
     - id: c-3-enum-declaracion
       language: C
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX_ANIMALES = 3.
 
@@ -2031,7 +2031,7 @@ weeks:
         }
     - id: p-3-enum-declaracion
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX_ANIMALES = 3.
 
@@ -2065,7 +2065,7 @@ weeks:
         }
     - id: c-3-nombres-strncpy
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye string y stdio
 
@@ -2097,7 +2097,7 @@ weeks:
         }
     - id: p-3-nombres-strings
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX_ANIMALES = 2.
 
@@ -2126,7 +2126,7 @@ weeks:
         }
     - id: c-3-ternario-vacunado
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio y stdbool.
 
@@ -2160,7 +2160,7 @@ weeks:
         }
     - id: c-3-arrays-paralelos
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -2200,7 +2200,7 @@ weeks:
         }
     - id: p-3-arrays-paralelos
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX_ANIMALES = 3.
 
@@ -2258,7 +2258,7 @@ weeks:
         }
     - id: c-3-matriz-booleana
       language: C
-      week: 3
+      module: 3
       prompt: "Incluye stdio y stdbool.\n\nDeclara las constantes FILAS = 2 y COLUMNAS = 3.\n\nDentro de main, declara una matriz de booleanos estadoVacuna con FILAS x COLUMNAS e inicialízala manualmente con: \n  fila 0: true, false, true\n  fila 1: false, true, false\n\nImprime el valor de cada casilla en una línea con printf. \n\nEjemplo: \"Fila 0, Col 0: 1\" (donde 1 es true y 0 es false)\n"
       answer: |
         #include <stdio.h>
@@ -2302,7 +2302,7 @@ weeks:
         }
     - id: p-3-matriz-booleana
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: "Declara las constantes FILAS = 2 y COLUMNAS = 3.\n\nDentro del algoritmo principal, declara una matriz booleana estadoVacuna con FILAS x COLUMNAS e inicialízala manualmente con: \n  fila 1: true, false, true\n  fila 2: false, true, false\n\nImprime el valor de cada casilla, uno por línea, usando writeBoolean.\n\nEjemplo de salida:\n  true\n  false\n  true\n  ...\n"
       answer: |
         const
@@ -2338,7 +2338,7 @@ weeks:
         }
     - id: c-3-lee-edad
       language: C
-      week: 3
+      module: 3
       prompt: "Incluye stdio.\n\nDeclara la constante MAX_ANIMALES = 2.\n\nDentro de main, declara un array de enteros edad. \n\nPide al usuario que introduzca las edades usando scanf, guardando los valores en el primer y segundo elemento del array.\n\nUsa el siguiente formato:\n  \"Introduce la edad del animal 1: \"\n  \"Introduce la edad del animal 2: \"\n"
       answer: |
         #include <stdio.h>
@@ -2365,7 +2365,7 @@ weeks:
         }
     - id: p-3-lee-edad
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX_ANIMALES = 2.
 
@@ -2401,7 +2401,7 @@ weeks:
     questions:
     - id: c-3-if-simple
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -2437,7 +2437,7 @@ weeks:
         }
     - id: p-3-if-simple
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Dentro del algoritmo principal, declara una variable edad, pide el valor al usuario.
 
@@ -2467,7 +2467,7 @@ weeks:
         }
     - id: c-3-if-else
       language: C
-      week: 3
+      module: 3
       prompt: "Incluye stdio.h.\n\nDentro de main, declara una variable vacunado (bool) y pide al usuario un número (0 para no vacunado, 1 para vacunado).\n\nUsa un if else para imprimir \"Vacunado\" o \"No vacunado\". \n\nUsa este formato de pregunta: \"¿El animal está vacunado? (1 = sí, 0 = no): \"\n"
       answer: |
         #include <stdio.h>
@@ -2500,7 +2500,7 @@ weeks:
         }
     - id: p-3-if-else
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: "Dentro del algoritmo principal, declara una variable vacunado (boolean).\n\nPide al usuario que introduzca true o false (usa readBoolean). \n\nUsa un if else para imprimir \"Vacunado\" o \"No vacunado\".\n\nUsa este formato de pregunta: \"¿El animal está vacunado? (true/false): \"\n"
       answer: |
         algorithm
@@ -2526,7 +2526,7 @@ weeks:
         }
     - id: c-3-compara-strcmp
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye string y stdio.
 
@@ -2569,7 +2569,7 @@ weeks:
         }
     - id: p-3-compara-strings
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX_ANIMALES = 2.
 
@@ -2606,7 +2606,7 @@ weeks:
         }
     - id: c-3-if-else-encadenado
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -2646,7 +2646,7 @@ weeks:
         }
     - id: p-3-if-else-encadenado
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Dentro del algoritmo principal, declara una variable edad, pide una edad al usuario y usa if, else, if anidados para imprimir:
         - "Joven" si la edad es menor que 5,
@@ -2682,7 +2682,7 @@ weeks:
         }
     - id: c-3-enum-to-string-ternario
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye string y stdio.
 
@@ -2725,7 +2725,7 @@ weeks:
         }
     - id: p-3-enum-to-string-anidado
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX_ANIMALES = 3.
 
@@ -2776,7 +2776,7 @@ weeks:
         }
     - id: c-3-switch
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.h.
 
@@ -2825,7 +2825,7 @@ weeks:
         }
     - id: p-3-switch
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Dentro del algoritmo principal, crea una variable entera opcion y pide al usuario un entero entre 1 y 3.
 
@@ -2876,7 +2876,7 @@ weeks:
     questions:
     - id: c-3-for-indice-basico
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.h.
 
@@ -2926,7 +2926,7 @@ weeks:
         }
     - id: p-3-for-indice-basico
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAXIMO = 10.
 
@@ -2963,7 +2963,7 @@ weeks:
         }
     - id: c-3-for-array-imprimir
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -3006,7 +3006,7 @@ weeks:
         }
     - id: p-3-for-array-imprimir
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX_DATOS = 4.
 
@@ -3050,7 +3050,7 @@ weeks:
         }
     - id: c-3-for-leer-array
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -3099,7 +3099,7 @@ weeks:
         }
     - id: p-3-for-leer-array
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAXIMO = 3.
 
@@ -3151,7 +3151,7 @@ weeks:
         }
     - id: c-3-while-indice-basico
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -3196,7 +3196,7 @@ weeks:
         }
     - id: p-3-while-indice-basico
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAXIMO = 10.
 
@@ -3230,7 +3230,7 @@ weeks:
         }
     - id: c-3-do-while-indice-basico
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -3275,7 +3275,7 @@ weeks:
         }
     - id: p-3-do-while-indice-basico
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAXIMO = 10.
 
@@ -3309,7 +3309,7 @@ weeks:
         }
     - id: c-3-for-suma-array
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -3357,7 +3357,7 @@ weeks:
         }
     - id: p-3-for-suma-array
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX = 4.
 
@@ -3409,7 +3409,7 @@ weeks:
         }
     - id: c-3-for-strncpy-paralelo
       language: C
-      week: 3
+      module: 3
       prompt: "Incluye stdio y string.\n\nDeclara la constante MAX = 3 y MAX_NOMBRE = 12.\n\nDentro de main, declara un array de cadenas nombres con MAX y MAX_NOMBRE.\n\nDeclara otro array de cadenas ejemplos con MAX y MAX_NOMBRE e inicializalo con los siguientes nombres usando { }: \nAna\", \"Luis\" y \"Eva\"\n\nDeclara una variable i para utilizar en los bucles.\n\nUsa strncpy para inicializar los nombres con \"Ana\", \"Luis\" y \"Eva\" usando un bucle for.\n\nDespués, imprime cada nombre, uno por línea con otro bucle for.\n\nEjemplo de ejecución:\n  Ana\n  Luis\n  Eva\n"
       answer: |
         #include <stdio.h>
@@ -3443,7 +3443,7 @@ weeks:
         }
     - id: p-3-for-array-paralelo
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara la constante MAX = 3.
 
@@ -3485,7 +3485,7 @@ weeks:
         }
     - id: c-3-for-matriz-manual
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -3519,7 +3519,7 @@ weeks:
         }
     - id: p-3-for-matriz-manual
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara las constantes FILAS = 2 y COLUMNAS = 3.
 
@@ -3546,7 +3546,7 @@ weeks:
         }
     - id: c-3-for-matriz-inicializa-llaves
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -3598,7 +3598,7 @@ weeks:
         }
     - id: p-3-for-matriz-inicializa-manual
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara las constantes FILAS = 2 y COLUMNAS = 2.
 
@@ -3649,7 +3649,7 @@ weeks:
         }
     - id: c-3-for-suma-matriz
       language: C
-      week: 3
+      module: 3
       prompt: |
         Incluye stdio.
 
@@ -3703,7 +3703,7 @@ weeks:
         }
     - id: p-3-for-suma-matriz
       language: Pseudocode
-      week: 3
+      module: 3
       prompt: |
         Declara las constantes FILAS = 2 y COLUMNAS = 2.
 
@@ -3767,7 +3767,7 @@ weeks:
     questions:
     - id: c-4-atraccion-basica
       language: C
-      week: 4
+      module: 4
       prompt: |
         Crea un tipo de dato llamado tAtraccion para una atracción de parque con los siguientes campos exactos:
         - Una cadena de caracteres llamada nombre con tamaño máximo definido por la constante MAX_NOMBRE (valor 30).
@@ -3799,7 +3799,7 @@ weeks:
         }
     - id: p-4-atraccion-basica
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Crea un tipo de dato llamado tAtraccion para una atracción de parque con los siguientes campos exactos:
         - Un texto llamado nombre.
@@ -3830,7 +3830,7 @@ weeks:
         }
     - id: c-4-atraccion-con-tipo
       language: C
-      week: 4
+      module: 4
       prompt: |
         Crea un tipo enumerado llamado tTipoAtraccion con los valores MONTANA_RUSA, CARRUSEL y SIMULADOR.
         Crea un tipo tAtraccion con:
@@ -3865,7 +3865,7 @@ weeks:
         }
     - id: p-4-atraccion-con-tipo
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Crea un tipo enumerado llamado tTipoAtraccion con los valores MONTANA_RUSA, CARRUSEL y SIMULADOR.
         Crea un tipo tAtraccion con:
@@ -3899,7 +3899,7 @@ weeks:
         }
     - id: c-4-atracciones-lista
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_NOMBRE (30) y MAX_ATRACCIONES (5).
 
@@ -3930,7 +3930,7 @@ weeks:
         }
     - id: p-4-atracciones-lista
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_ATRACCIONES con valor 5.
 
@@ -3965,7 +3965,7 @@ weeks:
         }
     - id: c-4-atraccion-horario
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_HORA (6) y MAX_NOMBRE (30).
 
@@ -4006,7 +4006,7 @@ weeks:
         }
     - id: p-4-atraccion-horario
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Crea un tipo tHorario con:
         - Un texto llamado apertura.
@@ -4044,7 +4044,7 @@ weeks:
         }
     - id: c-4-ficha-seguridad
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_NOMBRE con valor 30.
 
@@ -4078,7 +4078,7 @@ weeks:
         }
     - id: p-4-ficha-seguridad
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Crea un tipo tFichaSeguridad con:
         - Un texto llamado inspector.
@@ -4109,7 +4109,7 @@ weeks:
         }
     - id: c-4-atraccion-restricciones
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_NOMBRE con valor 30.
 
@@ -4158,7 +4158,7 @@ weeks:
         }
     - id: p-4-atraccion-restricciones
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Crea un tipo enumerado tDificultad con los valores BAJA, MEDIA y ALTA.
         Crea un tipo tRestriccion con:
@@ -4201,7 +4201,7 @@ weeks:
         }
     - id: c-4-cartelera-atracciones
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_NOMBRE (20) y MAX_ATRACCIONES (3).
 
@@ -4232,7 +4232,7 @@ weeks:
         }
     - id: p-4-cartelera-atracciones
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_NOMBRE (20) y MAX_ATRACCIONES (3).
 
@@ -4267,7 +4267,7 @@ weeks:
         }
     - id: c-4-mapa-zona
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_NOMBRE (25), FILAS (2) y COLUMNAS (3).
 
@@ -4301,7 +4301,7 @@ weeks:
         }
     - id: p-4-mapa-zona
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes FILAS con valor 2 y COLUMNAS con valor 3.
 
@@ -4337,7 +4337,7 @@ weeks:
         }
     - id: c-4-snack-categoria
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_NOMBRE con valor 20.
 
@@ -4367,7 +4367,7 @@ weeks:
         }
     - id: p-4-snack-categoria
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Crea un tipo tSnack con:
         - Un texto llamado nombre.
@@ -4396,7 +4396,7 @@ weeks:
         }
     - id: c-4-puesto-precios
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_NOMBRE (25) y NUM_PLATOS (4).
 
@@ -4427,7 +4427,7 @@ weeks:
         }
     - id: p-4-puesto-precios
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante NUM_PLATOS con valor 4.
 
@@ -4467,7 +4467,7 @@ weeks:
     questions:
     - id: c-4-atraccion-inicializa-imprime
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_NOMBRE con valor 30.
 
@@ -4521,7 +4521,7 @@ weeks:
         }
     - id: p-4-atraccion-inicializa-imprime
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara el tipo tAtraccion con los campos exactos:
         - nombre: texto
@@ -4568,7 +4568,7 @@ weeks:
         }
     - id: c-4-atraccion-con-enum-imprime
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_NOMBRE con valor 25.
 
@@ -4626,7 +4626,7 @@ weeks:
         }
     - id: p-4-atraccion-con-enum
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara el tipo enumerado tTipoAtraccion con los valores RUEDA, BARCA y SIMULADOR.
         Declara el tipo tAtraccion con:
@@ -4674,7 +4674,7 @@ weeks:
         }
     - id: c-4-atraccion-horario-inicializa
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_NOMBRE (30) y MAX_HORA (6).
 
@@ -4732,7 +4732,7 @@ weeks:
         }
     - id: p-4-atraccion-horario-inicializa
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara tHorario con:
         - apertura: texto
@@ -4782,7 +4782,7 @@ weeks:
         }
     - id: c-4-array-atracciones-suma-capacidad
       language: C
-      week: 4
+      module: 4
       prompt: "Declara las constantes MAX_NOMBRE (20) y MAX_ATRACCIONES (2).\n\nDeclara tAtraccion con:\n- nombre: cadena de tamaño MAX_NOMBRE\n- capacidadMaxima: entero\n\nDentro de main, declara lista (array de tAtraccion con MAX_ATRACCIONES) e inicializa:\n- lista 0 - nombre = \"Lanza\" y lista 0 - capacidadMaxima = 12\n- lista 1 - nombre = \"Náutica\" y lista 1 - capacidadMaxima = 8\n\nDeclara totalCapacidad (entero) y guarda la suma de ambas capacidades. \n\nImprime \"Total: x\".\n"
       answer: |
         #include <stdio.h>
@@ -4823,7 +4823,7 @@ weeks:
         }
     - id: p-4-array-atracciones-suma-capacidad
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: "Declara la constante MAX_ATRACCIONES con valor 2.\n\nDeclara tAtraccion con:\n- nombre: texto\n- capacidadMaxima: entero\n\nEn el bloque principal, declara lista (vector[MAX_ATRACCIONES] de tAtraccion) e inicializa:\n- lista 0 - nombre = \"Lanza\" y lista 0 - capacidadMaxima = 12\n- lista 1 - nombre = \"Náutica\"; lista 1 - capacidadMaxima = 8\n\nDeclara totalCapacidad (entero) como la suma de ambas capacidades. \n\nImprime \"Total: x\".\n"
       answer: |
         const
@@ -4862,7 +4862,7 @@ weeks:
         }
     - id: c-4-precios-promedio
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_NOMBRE (25) y NUM_PRECIOS (3).
 
@@ -4912,7 +4912,7 @@ weeks:
         }
     - id: p-4-precios-promedio
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante NUM_PRECIOS con valor 3.
 
@@ -4962,7 +4962,7 @@ weeks:
         }
     - id: c-4-ficha-booleano-ternario
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_NOMBRE con valor 30.
 
@@ -5013,7 +5013,7 @@ weeks:
         }
     - id: p-4-ficha-booleano
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara tFichaSeguridad con:
         - inspector: texto
@@ -5060,7 +5060,7 @@ weeks:
         }
     - id: c-4-mapa-ocupacion-contar
       language: C
-      week: 4
+      module: 4
       prompt: "Declara las constantes MAX_NOMBRE (20), FILAS (2) y COLUMNAS (2).\n\nDeclara tMapaZona con:\n- nombreZona: cadena de tamaño MAX_NOMBRE\n- ocupacion: matriz booleana de tamaño FILAS x COLUMNAS\n\nEn main, declara mapa1 e inicializa:\n- nombreZona = \"Zona A\"\n- ocupacion 0-0 = true\n- ocupacion 0-1 = false\n- ocupacion 1-0 = true\n- ocupacion 1-1 = true\n\nDeclara ocupadas (entero), inicializa en 0 y cuenta cuántas casillas true hay con if y sumas ++ (sin bucles ni operador ternario). \n\nImprime \"Ocupadas: x\".\n"
       answer: "#include <stdio.h>\n#include <stdbool.h>\n#include <string.h>\n\n#define MAX_NOMBRE 20\n#define FILAS 2\n#define COLUMNAS 2\n\ntypedef struct {\n    char nombreZona[MAX_NOMBRE];\n    bool ocupacion[FILAS][COLUMNAS];\n} tMapaZona;\n\nint main() {\n    tMapaZona mapa1;\n    strncpy(mapa1.nombreZona, \"Zona A\", MAX_NOMBRE);\n    mapa1.ocupacion[0][0] = true;\n    mapa1.ocupacion[0][1] = false;\n    mapa1.ocupacion[1][0] = true;\n    mapa1.ocupacion[1][1] = true;\n\n    int ocupadas = 0;\n    if (mapa1.ocupacion[0][0]) { \n      ocupadas++; \n    }\n    if (mapa1.ocupacion[0][1]) { \n      ocupadas++; \n    }\n    if (mapa1.ocupacion[1][0]) { \n      ocupadas++; \n    }\n    if (mapa1.ocupacion[1][1]) { \n      ocupadas++; \n    }\n\n    printf(\"Ocupadas: %d\\n\", ocupadas);\n    return 0;\n}\n"
       hint: Usa if y acumulación con ++; no uses operador ternario.
@@ -5077,7 +5077,7 @@ weeks:
         }
     - id: p-4-mapa-ocupacion-contar
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: "Declara las constantes FILAS (2) y COLUMNAS (2).\n\nDeclara tMapaZona con:\n- nombreZona: texto\n- ocupacion: matriz booleana FILAS x COLUMNAS\n\nEn el bloque principal, declara mapa1 e inicializa:\n- nombreZona = \"Zona A\"\n- ocupacion 0-0 = true\n- ocupacion 0-1 = false\n- ocupacion 1-0 = true\n- ocupacion 1-1 = true\n\nDeclara ocupadas (entero), inicializa en 0 y cuenta cuántas casillas true hay con if (sin bucles). \n\nImprime \"Ocupadas: x\".\n"
       answer: |
         const
@@ -5132,7 +5132,7 @@ weeks:
         }
     - id: c-4-atraccion-dificultad-a-texto
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_NOMBRE con valor 20.
 
@@ -5191,7 +5191,7 @@ weeks:
         }
     - id: p-4-atraccion-dificultad-texto
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara tDificultad con valores BAJA, MEDIA y ALTA.
         Declara tAtraccion con:
@@ -5248,7 +5248,7 @@ weeks:
         }
     - id: c-4-precio-mayor
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_NOMBRE (20) y NUM_PRECIOS (3).
 
@@ -5276,7 +5276,7 @@ weeks:
         }
     - id: p-4-precio-mayor
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante NUM_PRECIOS (3).
 
@@ -5334,7 +5334,7 @@ weeks:
         }
     - id: c-4-cartelera-inicializa-imprime-primera
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_NOMBRE (20) y MAX_ATRACCIONES (2).
 
@@ -5385,7 +5385,7 @@ weeks:
         }
     - id: p-4-cartelera-inicializa-imprime-primera
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_ATRACCIONES con valor 2.
 
@@ -5440,7 +5440,7 @@ weeks:
     questions:
     - id: c-4-l3-registro-basico-for
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_ATRACCIONES con valor 3 y MAX_NOMBRE con valor 20.
 
@@ -5507,7 +5507,7 @@ weeks:
         }
     - id: p-4-l3-registro-basico-for
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Tema Parque de Atracciones.
 
@@ -5576,7 +5576,7 @@ weeks:
         }
     - id: c-4-l3-suma-duraciones-while
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_ATRACCIONES con valor 3 y MAX_NOMBRE con valor 15.
 
@@ -5631,7 +5631,7 @@ weeks:
         }
     - id: p-4-l3-suma-duraciones-while
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_ATRACCIONES con valor 3.
 
@@ -5686,7 +5686,7 @@ weeks:
         }
     - id: c-4-l3-menu-switch-do-while
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara un tipo enumerado tTipoAtraccion con los valores MONTANA_RUSA, CARRUSEL y SIMULADOR.
 
@@ -5711,7 +5711,7 @@ weeks:
         }
     - id: p-4-l3-menu-switch-do-while
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Crea un menú en un bucle do-while:
         - Pide una opción entera mostrando "Opción (1=Montaña rusa,2=Carrusel,3=Simulador,0=Salir): ".
@@ -5759,7 +5759,7 @@ weeks:
         }
     - id: c-4-l3-strcmp-dos-atracciones
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_NOMBRE con valor 25.
 
@@ -5811,7 +5811,7 @@ weeks:
         }
     - id: p-4-l3-compara-nombres-simple
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Define el tipo tAtraccion con:
         - nombre: texto.
@@ -5856,7 +5856,7 @@ weeks:
         }
     - id: c-4-l3-horarios-for
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_ATRACCIONES con valor 2, MAX_NOMBRE con valor 20 y MAX_HORA con valor 6.
 
@@ -5920,7 +5920,7 @@ weeks:
         }
     - id: p-4-l3-horarios-for
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_ATRACCIONES con valor 2.
 
@@ -5986,7 +5986,7 @@ weeks:
         }
     - id: c-4-l3-contar-mantenimiento-for
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_ATRACCIONES con valor 4 y MAX_NOMBRE con valor 20.
 
@@ -6048,7 +6048,7 @@ weeks:
         }
     - id: p-4-l3-contar-mantenimiento-for
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_ATRACCIONES con valor 4.
 
@@ -6111,7 +6111,7 @@ weeks:
         }
     - id: c-4-l3-switch-por-tipo
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_ATRACCIONES con valor 3 y MAX_NOMBRE con valor 18.
 
@@ -6184,7 +6184,7 @@ weeks:
         }
     - id: p-4-l3-switch-por-tipo
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_ATRACCIONES con valor 3.
 
@@ -6253,7 +6253,7 @@ weeks:
         }
     - id: c-4-l3-entrada-hasta-fin-strcmp
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara las constantes MAX_ATRACCIONES con valor 4 y MAX_NOMBRE con valor 20.
 
@@ -6311,7 +6311,7 @@ weeks:
         }
     - id: p-4-l3-entrada-hasta-vacio
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_ATRACCIONES con valor 4.
 
@@ -6368,7 +6368,7 @@ weeks:
         }
     - id: c-4-l3-promedio-y-ternario
       language: C
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_ATRACCIONES con valor 3.
 
@@ -6421,7 +6421,7 @@ weeks:
         }
     - id: p-4-l3-promedio-simple
       language: Pseudocode
-      week: 4
+      module: 4
       prompt: |
         Declara la constante MAX_ATRACCIONES con valor 3.
 
@@ -6485,7 +6485,7 @@ weeks:
     questions:
     - id: c-5-l1-prototipo-xp
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara el prototipo de una función llamada addXP que reciba dos enteros xp1 y xp2
         y devuelva un entero con la experiencia total del jugador.
@@ -6502,7 +6502,7 @@ weeks:
         }
     - id: p-5-l1-prototipo-xp
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Escribe únicamente el encabezado de una función llamada addXP que reciba dos enteros xp1 y xp2
         y devuelva un entero con la experiencia total.
@@ -6518,7 +6518,7 @@ weeks:
         }
     - id: c-5-l1-prototipo-bonus
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara el prototipo de una función llamada applyBonus que reciba un número decimal base
         y devuelva un número decimal aumentado en 10%.
@@ -6535,7 +6535,7 @@ weeks:
         }
     - id: p-5-l1-prototipo-bonus
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Escribe solo el encabezado de una función llamada applyBonus que reciba un real base
         y devuelva un real aumentado en 10%.
@@ -6551,7 +6551,7 @@ weeks:
         }
     - id: c-5-l1-prototipo-enum-level
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara un tipo enumerado tLevel con los valores NOVATO, GUERRERO y MAESTRO.
         Luego declara el prototipo de una función llamada levelToValue que reciba un tLevel
@@ -6568,7 +6568,7 @@ weeks:
         }
     - id: p-5-l1-prototipo-enum-level
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara un tipo enumerado tLevel con los valores NOVATO, GUERRERO y MAESTRO.
         Luego escribe solo el encabezado de una función llamada levelToValue que reciba un tLevel
@@ -6589,7 +6589,7 @@ weeks:
         }
     - id: c-5-l1-prototipo-struct-item
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_ITEM = 15.
         Declara una estructura tItem con los campos:
@@ -6615,7 +6615,7 @@ weeks:
         }
     - id: p-5-l1-prototipo-struct-item
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara un tipo tItem con los campos:
         - nombre: string
@@ -6641,7 +6641,7 @@ weeks:
         }
     - id: c-5-l1-main-powerup
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara el prototipo de una función llamada calcPowerUp que reciba un entero base
         y devuelva un entero con el doble de poder.
@@ -6666,7 +6666,7 @@ weeks:
         }
     - id: p-5-l1-main-powerup
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Escribe el encabezado de una función llamada calcPowerUp que reciba un entero base
         y devuelva un entero con el doble de poder.
@@ -6694,7 +6694,7 @@ weeks:
         }
     - id: c-5-l1-funcion-critical
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara el prototipo de una función llamada criticalHit que reciba un número decimal dmg
         y devuelva un número decimal.
@@ -6714,7 +6714,7 @@ weeks:
         }
     - id: p-5-l1-funcion-critical
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Escribe el encabezado de una función llamada criticalHit que reciba un real dmg
         y devuelva un real.
@@ -6732,7 +6732,7 @@ weeks:
         }
     - id: c-5-l1-funcion-checkmana
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una estructura tMage con el campo mana (entero).
         Declara el prototipo de una función hasMana que reciba un tMage
@@ -6767,7 +6767,7 @@ weeks:
         }
     - id: p-5-l1-funcion-checkmana
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara un tipo tMage con el campo mana (entero).
         Escribe el encabezado de una función hasMana que reciba un tMage
@@ -6807,7 +6807,7 @@ weeks:
         }
     - id: c-5-l1-funcion-sum-hp
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una estructura tPlayer con los campos:
         - vida: real
@@ -6834,7 +6834,7 @@ weeks:
         }
     - id: p-5-l1-funcion-sum-hp
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara un tipo tPlayer con los campos:
         - vida: real
@@ -6861,7 +6861,7 @@ weeks:
         }
     - id: c-5-l1-main-attack
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara el prototipo de una función llamada attack que reciba dos enteros atk y def
         y devuelva un entero con el daño (atk - def).
@@ -6891,7 +6891,7 @@ weeks:
         }
     - id: p-5-l1-main-attack
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Escribe el encabezado de una función attack que reciba dos enteros atk y def
         y devuelva un entero con el daño (atk - def).
@@ -6926,7 +6926,7 @@ weeks:
     questions:
     - id: c-5-l2-pointer-basic
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara un entero score con valor 500.
         Declara un puntero pScore que apunte a score.
@@ -6947,7 +6947,7 @@ weeks:
         }
     - id: c-5-l2-pointer-dereference
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara un entero health con valor 100.
         Declara un puntero pHealth que apunte a health.
@@ -6970,7 +6970,7 @@ weeks:
         }
     - id: c-5-l2-pointer-print
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara un entero coins con valor 250.
         Declara un puntero pCoins que apunte a coins.
@@ -6996,7 +6996,7 @@ weeks:
         }
     - id: c-5-l2-pointer-address
       language: C
-      week: 5
+      module: 5
       prompt: |-
         Declara un entero stamina con valor 40.
         Declara un puntero pStamina que apunte a stamina.
@@ -7022,7 +7022,7 @@ weeks:
         }
     - id: c-5-l2-pointer-change
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara un entero level con valor 3.
         Declara un puntero pLevel que apunte a level.
@@ -7045,7 +7045,7 @@ weeks:
         }
     - id: c-5-l2-struct-pointer
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una estructura tItem con un campo valor (entero).
         En main declara un objeto pocion con valor=50.
@@ -7071,7 +7071,7 @@ weeks:
         }
     - id: c-5-l2-struct-pointer-access
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una estructura tItem con un campo valor (entero).
         En main declara un objeto espada con valor=100.
@@ -7102,7 +7102,7 @@ weeks:
         }
     - id: c-5-l2-struct-modify
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una estructura tPlayer con un campo hp (entero).
         En main declara un objeto heroe con hp=120.
@@ -7130,7 +7130,7 @@ weeks:
         }
     - id: c-5-l2-array-pointer
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara un array de enteros scores con valores {10, 20, 30}.
         Declara un puntero pScores que apunte al primer elemento del array.
@@ -7156,7 +7156,7 @@ weeks:
         }
     - id: c-5-l2-array-pointer-change
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara un array de enteros inventory con valores {5, 10, 15}.
         Declara un puntero pInv que apunte al primer elemento.
@@ -7184,7 +7184,7 @@ weeks:
     questions:
     - id: c-5-l2-action-welcome
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una acción en C llamada showWelcome que no reciba parámetros.
         Dentro de la acción imprime con printf el mensaje "Bienvenido al RPG".
@@ -7216,7 +7216,7 @@ weeks:
         }
     - id: p-5-l2-action-welcome
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una acción llamada showWelcome que no reciba parámetros.
         Dentro de la acción escribe el mensaje "Bienvenido al RPG".
@@ -7238,7 +7238,7 @@ weeks:
         }
     - id: c-5-l2-action-in-score
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una acción printScore que reciba como entrada un entero score.
         Dentro de la acción muestra con printf "Puntuacion: <score>".
@@ -7271,7 +7271,7 @@ weeks:
         }
     - id: p-5-l2-action-in-score
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una acción printScore que reciba como entrada un entero score.
         Dentro de la acción escribe el mensaje "Puntuacion: " seguido del valor.
@@ -7299,7 +7299,7 @@ weeks:
         }
     - id: c-5-l2-action-out-health
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una acción initHealth que reciba como salida un entero *health.
         Dentro de la acción asigna a *health el valor 100.
@@ -7334,7 +7334,7 @@ weeks:
         }
     - id: p-5-l2-action-out-health
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una acción initHealth que reciba como salida un entero health.
         Dentro de la acción asigna a health el valor 100.
@@ -7362,7 +7362,7 @@ weeks:
         }
     - id: c-5-l2-action-inout-heal
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una acción heal que reciba como entrada/salida un entero *hp.
         Dentro de la acción suma 50 al valor apuntado por hp usando operador compuesto.
@@ -7397,7 +7397,7 @@ weeks:
         }
     - id: p-5-l2-action-inout-heal
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una acción heal que reciba como entrada/salida un entero hp.
         Dentro de la acción suma 50 al valor de hp.
@@ -7426,7 +7426,7 @@ weeks:
         }
     - id: c-5-l2-action-struct-revive
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una estructura tPlayer con los campos:
         - nombre: texto de 20 chars
@@ -7471,7 +7471,7 @@ weeks:
         }
     - id: p-5-l2-action-struct-revive
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara un tipo tPlayer con los campos:
         - nombre: string
@@ -7513,7 +7513,7 @@ weeks:
         }
     - id: c-5-l2-action-array-reset
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una acción resetInventory que reciba como entrada/salida un array de 3 enteros items.
         Dentro de la acción usa un bucle for para poner todos sus valores a 0.
@@ -7548,7 +7548,7 @@ weeks:
         }
     - id: p-5-l2-action-array-reset
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una acción resetInventory que reciba como entrada/salida un array de 3 enteros items.
         Dentro de la acción usa un bucle for que itere 3 veces y ponga en 0 los valores del array.
@@ -7589,7 +7589,7 @@ weeks:
         }
     - id: c-5-l2-action-two-in
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una acción showAttack que reciba dos enteros atk y def como entrada.
         Dentro de la acción declara una variable entera total y calcula atk-def.
@@ -7623,7 +7623,7 @@ weeks:
         }
     - id: p-5-l2-action-two-in
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una acción showAttack que reciba dos enteros atk y def como entrada.
         Dentro de la acción declara una variable entera total y calcula atk-def.
@@ -7658,7 +7658,7 @@ weeks:
         }
     - id: c-5-l2-action-in-out
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una acción grantXP que reciba como entrada un entero base
         y como salida un entero *xp.
@@ -7692,7 +7692,7 @@ weeks:
         }
     - id: p-5-l2-action-in-out
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una acción grantXP que reciba como entrada un entero base
         y como salida un entero xp.
@@ -7722,7 +7722,7 @@ weeks:
         }
     - id: c-5-l2-action-in-inout
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una acción powerUp que reciba como entrada un entero bonus
         y como entrada/salida un entero *atk.
@@ -7756,7 +7756,7 @@ weeks:
         }
     - id: p-5-l2-action-in-inout
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una acción powerUp que reciba como entrada un entero bonus
         y como entrada/salida un entero atk.
@@ -7787,7 +7787,7 @@ weeks:
         }
     - id: c-5-l2-action-struct-inout
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una estructura tEnemy con el campo hp (entero).
         Declara una acción damage que reciba como entrada un entero dmg
@@ -7827,7 +7827,7 @@ weeks:
         }
     - id: p-5-l2-action-struct-inout
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara un tipo tEnemy con el campo hp (entero).
         Declara una acción damage que reciba como entrada un entero dmg
@@ -7877,7 +7877,7 @@ weeks:
     questions:
     - id: c-5-l1-table-enemy
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_ENEMIES = 50.
         Declara una estructura tEnemy con los campos:
@@ -7908,7 +7908,7 @@ weeks:
         }
     - id: p-5-l1-table-enemy
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_ENEMIES = 50.
         Declara un tipo tEnemy con los campos:
@@ -7944,7 +7944,7 @@ weeks:
         }
     - id: c-5-l1-init-enemytable
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara el prototipo e implementación de una función initEnemyTable que reciba
         un puntero a tEnemyTable y lo inicialice con count = 0.
@@ -7963,7 +7963,7 @@ weeks:
         }
     - id: p-5-l1-init-enemytable
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Escribe el encabezado e implementación de una acción initEnemyTable
         que reciba un parámetro de tipo inout tEnemyTable y lo inicialice con count = 0.
@@ -7980,7 +7980,7 @@ weeks:
         }
     - id: c-5-l1-table-item
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_ITEMS = 100.
         Declara una estructura tItem con los campos:
@@ -8011,7 +8011,7 @@ weeks:
         }
     - id: p-5-l1-table-item
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_ITEMS = 100.
         Declara un tipo tItem con los campos:
@@ -8047,7 +8047,7 @@ weeks:
         }
     - id: c-5-l1-main-init-inventory
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara el prototipo e implementación de una función initInventory que ponga count=0.
         En main declara una variable inv de tipo tInventory, inicialízala con initInventory
@@ -8073,7 +8073,7 @@ weeks:
         }
     - id: p-5-l1-main-init-inventory
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Escribe la acción initInventory que ponga count=0 en un tInventory.
         En el bloque principal declara una variable inv de tipo tInventory
@@ -8099,7 +8099,7 @@ weeks:
         }
     - id: c-5-l1-table-player
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_PLAYERS = 20.
         Declara una estructura tPlayer con:
@@ -8137,7 +8137,7 @@ weeks:
         }
     - id: p-5-l1-table-player
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_PLAYERS = 20.
         Declara un tipo tPlayer con:
@@ -8182,7 +8182,7 @@ weeks:
         }
     - id: c-5-l1-table-weapon
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_WEAPONS = 40.
         Declara un enum tWeaponType con los valores SWORD, BOW y STAFF.
@@ -8214,7 +8214,7 @@ weeks:
         }
     - id: p-5-l1-table-weapon
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_WEAPONS = 40.
         Declara un tipo enumerado tWeaponType con valores SWORD, BOW y STAFF.
@@ -8255,7 +8255,7 @@ weeks:
         }
     - id: c-5-l1-init-weapon-main
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara la función initWeaponTable que inicialice count=0 en un tWeaponTable.
         En main declara una variable armas de tipo tWeaponTable e inicialízala con initWeaponTable.
@@ -8280,7 +8280,7 @@ weeks:
         }
     - id: p-5-l1-init-weapon-main
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara la acción initWeaponTable que inicialice count=0 en un tWeaponTable.
         En el bloque principal declara una variable armas de tipo tWeaponTable e inicialízala con initWeaponTable.
@@ -8305,7 +8305,7 @@ weeks:
         }
     - id: c-5-l1-table-npc
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_NPCS = 60.
         Declara una estructura tNPC con:
@@ -8337,7 +8337,7 @@ weeks:
         }
     - id: p-5-l1-table-npc
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_NPCS = 60.
         Declara un tipo tNPC con:
@@ -8373,7 +8373,7 @@ weeks:
         }
     - id: c-5-l1-table-quest
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_QUESTS = 25.
         Declara una estructura tQuest con:
@@ -8411,7 +8411,7 @@ weeks:
         }
     - id: p-5-l1-table-quest
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_QUESTS = 25.
         Declara un tipo tQuest con:
@@ -8456,7 +8456,7 @@ weeks:
         }
     - id: c-5-l1-table-boss
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_BOSSES = 10.
         Declara una estructura tBoss con:
@@ -8497,7 +8497,7 @@ weeks:
         }
     - id: p-5-l1-table-boss
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_BOSSES = 10.
         Declara un tipo tBoss con:
@@ -8546,7 +8546,7 @@ weeks:
     questions:
     - id: c-5-l2-insert-skill
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_SKILLS = 30 y MAX_NAME = 30.
         Declara una estructura tSkill con:
@@ -8585,7 +8585,7 @@ weeks:
         }
     - id: p-5-l2-insert-skill
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_SKILLS = 30.
         Declara un tipo tSkill con:
@@ -8628,7 +8628,7 @@ weeks:
         }
     - id: c-5-l2-insert-potion
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_POTIONS = 50 y MAX_NAME = 30.
         Declara un struct tPotion con:
@@ -8664,7 +8664,7 @@ weeks:
         }
     - id: p-5-l2-insert-potion
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_POTIONS = 50.
         Declara un tipo tPotion con:
@@ -8705,7 +8705,7 @@ weeks:
         }
     - id: c-5-l2-insert-achievement
       language: C
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_ACHIEVEMENTS = 40 y MAX_NAME = 30.
         Declara un struct tAchievement con:
@@ -8741,7 +8741,7 @@ weeks:
         }
     - id: p-5-l2-insert-achievement
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Declara una constante MAX_ACHIEVEMENTS = 40.
         Declara un tipo tAchievement con:
@@ -8782,7 +8782,7 @@ weeks:
         }
     - id: c-5-l2-search-skill
       language: C
-      week: 5
+      module: 5
       prompt: |
         Implementa la función searchSkill que reciba un tSkillTable (table) y un nombre (name),
         y devuelva la posición en el array (o -1 si no existe).
@@ -8814,7 +8814,7 @@ weeks:
         }
     - id: p-5-l2-search-skill
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Implementa una función searchSkill que reciba un tSkillTable (table) y un string (name),
         y devuelva un integer con la posición encontrada o -1 si no existe.
@@ -8851,7 +8851,7 @@ weeks:
         }
     - id: c-5-l2-search-potion
       language: C
-      week: 5
+      module: 5
       prompt: |
         Implementa la función searchPotion que reciba un tPotionTable (table) y un real power,
         y devuelva la posición encontrada o -1 si no existe.
@@ -8882,7 +8882,7 @@ weeks:
         }
     - id: p-5-l2-search-potion
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Implementa una función searchPotion que reciba un tPotionTable (table) y un real (power),
         y devuelva un integer con la posición encontrada o -1 si no existe.
@@ -8919,7 +8919,7 @@ weeks:
         }
     - id: c-5-l2-search-achievement
       language: C
-      week: 5
+      module: 5
       prompt: |
         Implementa la función searchAchievement que reciba un tAchievementTable (table) y un integer points,
         y devuelva la posición de un logro con esos puntos o -1 si no existe.
@@ -8950,7 +8950,7 @@ weeks:
         }
     - id: p-5-l2-search-achievement
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Implementa una función searchAchievement que reciba un tAchievementTable (table) y un integer (points),
         y devuelva un integer con la posición encontrada o -1 si no existe.
@@ -8987,7 +8987,7 @@ weeks:
         }
     - id: c-5-l2-delete-skill
       language: C
-      week: 5
+      module: 5
       prompt: |
         Implementa la función deleteSkill que reciba un puntero a tSkillTable (table) y un string (name).
         Primero busca el nombre con searchSkill. Si se encuentra, desplaza los elementos a la izquierda
@@ -9011,7 +9011,7 @@ weeks:
         }
     - id: p-5-l2-delete-skill
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Implementa una acción deleteSkill que reciba un inout tSkillTable (table) y un string (name).
         Primero busca con searchSkill. Si se encuentra, desplaza todos los elementos a la izquierda
@@ -9041,7 +9041,7 @@ weeks:
         }
     - id: c-5-l2-delete-potion
       language: C
-      week: 5
+      module: 5
       prompt: |
         Implementa la función deletePotion que reciba un puntero a tPotionTable (table) y un real (power).
         Usa searchPotion. Si encuentra el elemento, desplaza hacia la izquierda
@@ -9065,7 +9065,7 @@ weeks:
         }
     - id: p-5-l2-delete-potion
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Implementa una acción deletePotion que reciba un inout tPotionTable (table) y un real (power).
         Usa searchPotion. Si existe, mueve todos los elementos a la izquierda desde pos
@@ -9095,7 +9095,7 @@ weeks:
         }
     - id: c-5-l2-delete-achievement
       language: C
-      week: 5
+      module: 5
       prompt: |
         Implementa la función deleteAchievement que reciba un puntero a tAchievementTable (table) y un integer (points).
         Usa searchAchievement. Si se encuentra, desplaza hacia la izquierda
@@ -9119,7 +9119,7 @@ weeks:
         }
     - id: p-5-l2-delete-achievement
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Implementa una acción deleteAchievement que reciba un inout tAchievementTable (table) y un integer (points).
         Usa searchAchievement. Si existe, desplaza a la izquierda los elementos posteriores
@@ -9149,7 +9149,7 @@ weeks:
         }
     - id: c-5-l2-traverse-skill-sum
       language: C
-      week: 5
+      module: 5
       prompt: |
         Implementa la función sumSkillLevels que reciba un tSkillTable (table)
         y devuelva la suma de todos los niveles de las habilidades.
@@ -9172,7 +9172,7 @@ weeks:
         }
     - id: p-5-l2-traverse-skill-sum
       language: Pseudocode
-      week: 5
+      module: 5
       prompt: |
         Implementa una función sumSkillLevels que reciba un tSkillTable (table)
         y devuelva un integer con la suma de todos los niveles.

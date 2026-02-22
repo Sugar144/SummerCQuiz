@@ -24,7 +24,7 @@ pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
                         // ¿Hay progreso guardado y preguntas pendientes?
                         let lang = app.selected_language.unwrap_or(Language::C);
                         let hay_guardado = app.has_saved_progress;
-                        let hay_pendientes = app.quiz.weeks
+                        let hay_pendientes = app.quiz.modules
                             .iter()
                             .flat_map(|w| &w.levels)
                             .flat_map(|lvl| &lvl.questions)
@@ -64,9 +64,9 @@ pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
                         }
 
                         // Mensaje de nuevas preguntas (filtrar por completadas)
-                        let nuevas = app.quiz.weeks
+                        let nuevas = app.quiz.modules
                             .iter()
-                            .filter(|w| app.is_week_completed(app.quiz.weeks.iter().position(|wk| wk.number == w.number).unwrap_or(0)))
+                            .filter(|w| app.is_module_completed(app.quiz.modules.iter().position(|wk| wk.number == w.number).unwrap_or(0)))
                             .flat_map(|w| &w.levels)
                             .flat_map(|lvl| &lvl.questions)
                             .filter(|q| q.language == lang)

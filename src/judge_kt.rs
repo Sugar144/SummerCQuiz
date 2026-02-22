@@ -1,6 +1,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 mod native_kotlin {
     use crate::judge_c::JudgeResult;
+    use crate::judge_utils::{line_diff, matches_expected_output};
     use crate::model::{JudgeTestCase, Question};
     use std::collections::hash_map::DefaultHasher;
     use std::env;
@@ -11,7 +12,6 @@ mod native_kotlin {
     use std::process::{Command, Stdio};
     use std::thread;
     use std::time::{Duration, Instant};
-    use crate::judge_utils::{line_diff, matches_expected_output};
 
     const TIMEOUT_MS: u64 = 2_000;
     const POLL_MS: u64 = 10;
@@ -59,13 +59,11 @@ mod native_kotlin {
             }
         }
 
-        Err(
-            "No se encontró 'kotlinc' en PATH.\n\
+        Err("No se encontró 'kotlinc' en PATH.\n\
              Linux: instala Kotlin (ej. sdkman) y asegúrate de tener kotlinc.\n\
              Windows: instala Kotlin compiler o usa SDKMAN en WSL.\n\
              También necesitas 'java' (JRE/JDK) para ejecutar el .jar."
-                .into(),
-        )
+            .into())
     }
 
     fn cache_dir() -> Result<PathBuf, std::io::Error> {
@@ -215,5 +213,18 @@ mod native_kotlin {
                 }
             }
         }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub use native_kotlin::grade_kotlin_question;
+
+#[cfg(target_arch = "wasm32")]
+pub fn grade_kotlin_question(
+    _question: &crate::model::Question,
+    _user_code: &str,
+) -> crate::judge_c::JudgeResult {
+    crate::judge_c::JudgeResult::InfrastructureError {
+        message: "El juez Kotlin no está disponible en WASM.".into(),
     }
 }

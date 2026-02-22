@@ -38,7 +38,7 @@ pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
                         .max_height(max_height)
                         .max_width(panel_width)
                         .show(ui, |ui| {
-                            let rows: Vec<QuestionRow> = app.summary_rows_for_week();
+                            let rows: Vec<QuestionRow> = app.summary_rows_for_module();
 
                             if rows.is_empty() {
                                 ui.label("No hay datos de progreso para esta semana.");
@@ -79,9 +79,9 @@ pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
 
                     // Botones de control
                     ui.vertical_centered(|ui| {
-                        let current_week = app.progress().current_week.unwrap_or(0);
-                        let has_next = app.has_next_week();
-                        let is_complete = app.is_week_completed(current_week);
+                        let current_module = app.progress().current_module.unwrap_or(0);
+                        let has_next = app.has_next_module();
+                        let is_complete = app.is_module_completed(current_module);
 
                         if is_complete && has_next {
                             if ui

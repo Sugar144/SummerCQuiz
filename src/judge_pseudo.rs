@@ -68,7 +68,7 @@ pub fn run_pseudo_tests(
 
     let question = Question {
         language: Language::C,
-        week: 0,
+        module: 0,
         prompt: String::new(),
         answer: c_code,
         hint: None,
