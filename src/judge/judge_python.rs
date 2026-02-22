@@ -219,11 +219,8 @@ mod native_python {
 pub use native_python::grade_python_question;
 
 #[cfg(target_arch = "wasm32")]
-pub fn grade_python_question(
-    _question: &crate::model::Question,
-    _user_code: &str,
-) -> JudgeResult {
-     JudgeResult::InfrastructureError {
+pub fn grade_python_question(_question: &crate::model::Question, _user_code: &str) -> JudgeResult {
+    JudgeResult::InfrastructureError {
         message: "El juez Python no está disponible en WASM.".into(),
     }
 }
