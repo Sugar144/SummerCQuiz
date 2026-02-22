@@ -2,8 +2,7 @@
 set -e
 
 # 1) Build
-trunk build --release
-
+trunk build --release --public-url /SummerCQuiz/
 # 2) Sync a gh-pages (worktree)
 rsync -av --delete --exclude=".git" dist/ ../gh-pages/
 
