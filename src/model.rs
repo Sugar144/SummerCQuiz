@@ -5,7 +5,10 @@ pub enum Language {
     C,
     Pseudocode,
     Kotlin,
-    GitGithub
+    Java,
+    Rust,
+    Python,
+    GitGithub,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -16,6 +19,9 @@ pub enum GradingMode {
     JudgeC,
     JudgePseudo,
     JudgeKotlin,
+    JudgeJava,
+    JudgeRust,
+    JudgePython,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -27,9 +33,10 @@ pub struct JudgeTestCase {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Question {
     pub language: Language,
-    pub week: usize,
-    pub prompt: String, // Pregunta
-    pub answer: String, // Respuesta
+    #[serde(alias = "module")]
+    pub module: usize,
+    pub prompt: String,
+    pub answer: String,
     pub hint: Option<String>,
     #[serde(skip)]
     pub number: usize,
@@ -51,7 +58,6 @@ pub struct Question {
     pub fails: u32,
     #[serde(default)]
     pub skips: u32,
-    // NUEVO
     #[serde(default)]
     pub id: Option<String>,
 }
@@ -64,7 +70,7 @@ pub struct Level {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Week {
+pub struct Module {
     pub number: usize,
     pub explanation: String,
     pub levels: Vec<Level>,
@@ -72,7 +78,8 @@ pub struct Week {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Quiz {
-    pub weeks: Vec<Week>,
+    #[serde(alias = "modules")]
+    pub modules: Vec<Module>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -88,7 +95,6 @@ pub enum AppState {
     Summary,
 }
 
-// ¡Implementa Default!
 impl Default for AppState {
     fn default() -> Self {
         AppState::Welcome
@@ -105,7 +111,6 @@ impl Question {
         matches!(self.mode, Some(GradingMode::JudgePseudo)) && !self.tests.is_empty()
     }
 
-    /// Reinicia los contadores y flags de esta pregunta.
     pub fn reset_stats(&mut self) {
         self.is_done = false;
         self.attempts = 0;
@@ -114,8 +119,6 @@ impl Question {
         self.saw_solution = false;
     }
 
-    /// Marca esta pregunta como completada (modo TEST), resetea estadísticas
-    /// y devuelve su `id` clonada si la tuviera.
     pub fn mark_done_test(&mut self) -> Option<String> {
         self.is_done = true;
         self.saw_solution = false;

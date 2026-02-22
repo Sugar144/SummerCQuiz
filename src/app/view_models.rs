@@ -1,17 +1,17 @@
 use super::*;
 
 impl QuizApp {
-    pub fn week_infos(&self) -> Vec<WeekInfo> {
+    pub fn module_infos(&self) -> Vec<ModuleInfo> {
         let lang = self.selected_language.unwrap_or(Language::C);
         self.quiz
-            .weeks
+            .modules
             .iter()
             .enumerate()
             .map(|(wi, wk)| {
-                let unlocked = self.is_week_unlocked(wi);
-                let completed = self.is_week_completed(wi);
+                let unlocked = self.is_module_unlocked(wi);
+                let completed = self.is_module_completed(wi);
                 let new_count = self.nuevas_preguntas_en_semana(wi, lang);
-                WeekInfo {
+                ModuleInfo {
                     idx: wi,
                     number: wk.number,
                     unlocked,
@@ -22,12 +22,13 @@ impl QuizApp {
             .collect()
     }
 
-    pub fn level_infos_in_current_week(&self) -> Option<Vec<LevelInfo>> {
-        let wi = self.progress().current_week?;
+    pub fn level_infos_in_current_module(&self) -> Option<Vec<LevelInfo>> {
+        let wi = self.progress().current_module?;
         let lang = self.selected_language.unwrap_or(Language::C);
-        let week = self.quiz.weeks.get(wi)?;
+        let module = self.quiz.modules.get(wi)?;
         Some(
-            week.levels
+            module
+                .levels
                 .iter()
                 .enumerate()
                 .map(|(li, lvl)| {
@@ -55,15 +56,15 @@ impl QuizApp {
         )
     }
 
-    pub fn summary_rows_for_week(&self) -> Vec<QuestionRow> {
+    pub fn summary_rows_for_module(&self) -> Vec<QuestionRow> {
         let mut rows = Vec::new();
-        let wi = match self.progress().current_week {
+        let wi = match self.progress().current_module {
             Some(w) => w,
             None => return rows,
         };
         let lang = self.selected_language.unwrap_or(Language::C);
-        if let Some(week) = self.quiz.weeks.get(wi) {
-            for lvl in &week.levels {
+        if let Some(module) = self.quiz.modules.get(wi) {
+            for lvl in &module.levels {
                 for (qi, q) in lvl
                     .questions
                     .iter()

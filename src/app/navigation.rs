@@ -6,12 +6,12 @@ impl QuizApp {
         self.state = AppState::LanguageSelect;
     }
 
-    pub fn select_week(&mut self, week_idx: usize) {
+    pub fn select_module(&mut self, module_idx: usize) {
         let language = self.selected_language.unwrap_or(Language::C);
         let quiz = &self.quiz;
 
         // Verifica que la semana exista
-        let week = match quiz.weeks.get(week_idx) {
+        let module = match quiz.modules.get(module_idx) {
             Some(w) => w,
             None => return, // Semana inválida, no hacer nada
         };
@@ -20,7 +20,7 @@ impl QuizApp {
         let unlocked_levels = self
             .progress()
             .unlocked_levels
-            .get(&week_idx)
+            .get(&module_idx)
             .cloned()
             .unwrap_or_else(|| vec![0]);
 
@@ -29,7 +29,7 @@ impl QuizApp {
         let mut found_pending = false;
 
         for &lvl_idx in &unlocked_levels {
-            if let Some(level) = week.levels.get(lvl_idx) {
+            if let Some(level) = module.levels.get(lvl_idx) {
                 for q in &level.questions {
                     if q.language == language {
                         if let Some(id) = &q.id {
@@ -54,28 +54,28 @@ impl QuizApp {
         };
 
         // Llama a select_level para posicionar al usuario en la primera pregunta pendiente del nivel elegido
-        self.select_level(week_idx, select_level);
+        self.select_level(module_idx, select_level);
     }
 
     /// Selecciona nivel y decide si mostrar teoría según el origen.
     pub fn select_level_with_origin(
         &mut self,
-        week_idx: usize,
+        module_idx: usize,
         level_idx: usize,
         entry: LevelEntry,
     ) {
         let language = self.selected_language.unwrap_or(Language::C);
 
         // 0) Validaciones
-        if week_idx >= self.quiz.weeks.len() {
+        if module_idx >= self.quiz.modules.len() {
             return;
         }
-        if level_idx >= self.quiz.weeks[week_idx].levels.len() {
+        if level_idx >= self.quiz.modules[module_idx].levels.len() {
             return;
         }
 
-        let week = &self.quiz.weeks[week_idx];
-        let level = &week.levels[level_idx];
+        let module = &self.quiz.modules[module_idx];
+        let level = &module.levels[level_idx];
 
         // 1) Buscar primera pregunta pendiente de ESTE lenguaje
         let mut first_pending_question: Option<usize> = None;
@@ -90,10 +90,10 @@ impl QuizApp {
             }
         }
 
-        // 2) Si vienes del menú y ya estabas en este (week, level), conserva la pregunta actual;
+        // 2) Si vienes del menú y ya estabas en este (module, level), conserva la pregunta actual;
         //    si no, usa la primera pendiente (o 0 si no hay pendientes).
         let keep_existing_qi = entry == LevelEntry::Menu
-            && self.progress().current_week == Some(week_idx)
+            && self.progress().current_module == Some(module_idx)
             && self.progress().current_level == Some(level_idx);
 
         let select_question = if keep_existing_qi {
@@ -107,7 +107,7 @@ impl QuizApp {
         // 3) Actualizar progreso (sin resetear ronda si vienes del menú)
         {
             let prog = self.progress_mut();
-            prog.current_week = Some(week_idx);
+            prog.current_module = Some(module_idx);
             prog.current_level = Some(level_idx);
             prog.current_in_level = Some(select_question);
 
@@ -118,14 +118,14 @@ impl QuizApp {
         }
 
         // 4) ¿Mostrar teoría?
-        //    - Flow: mostrar si aún no se ha visto (week, level)
+        //    - Flow: mostrar si aún no se ha visto (module, level)
         //    - Restart: forzar mostrar
         //    - Menu: nunca mostrar (entra directo al quiz)
         let should_show_theory = match entry {
             LevelEntry::Flow => !self
                 .progress()
                 .seen_level_theory
-                .contains(&(week_idx, level_idx)),
+                .contains(&(module_idx, level_idx)),
             LevelEntry::Restart => true,
             LevelEntry::Menu => false,
         };
@@ -143,8 +143,8 @@ impl QuizApp {
     }
 
     /// Wrapper para mantener compatibilidad: por defecto trata como Flow.
-    pub fn select_level(&mut self, week_idx: usize, level_idx: usize) {
-        self.select_level_with_origin(week_idx, level_idx, LevelEntry::Flow);
+    pub fn select_level(&mut self, module_idx: usize, level_idx: usize) {
+        self.select_level_with_origin(module_idx, level_idx, LevelEntry::Flow);
     }
 
     /// 1) Continuar (o iniciar) el quiz: selecciona la primera pregunta pendiente si hace falta.
@@ -152,7 +152,7 @@ impl QuizApp {
         // Decidir si hace falta seleccionar semana/nivel/pregunta
         let need_select = {
             let prog = self.progress();
-            prog.current_week.is_none()
+            prog.current_module.is_none()
                 || prog.current_level.is_none()
                 || prog.current_in_level.is_none()
         };
@@ -161,7 +161,7 @@ impl QuizApp {
             // Encuentra la primera pregunta pendiente recorriendo semanas→niveles→preguntas
             let lang = self.selected_language.unwrap_or(Language::C);
 
-            if let Some(wi) = self.quiz.weeks.iter().enumerate().find_map(|(wi, wk)| {
+            if let Some(wi) = self.quiz.modules.iter().enumerate().find_map(|(wi, wk)| {
                 // ¿Algún nivel dentro de wk tiene una pregunta no completada?
                 let has_pending = wk.levels.iter().flat_map(|lvl| &lvl.questions).any(|q| {
                     q.language == lang
@@ -172,12 +172,12 @@ impl QuizApp {
                 });
                 if has_pending { Some(wi) } else { None }
             }) {
-                // select_week usará wi para posicionarse en (li,qi)
-                self.select_week(wi);
+                // select_module usará wi para posicionarse en (li,qi)
+                self.select_module(wi);
                 self.update_input_prefill();
             } else {
                 // Ninguna pendiente: arrancamos en la semana 0
-                self.select_week(0);
+                self.select_module(0);
                 self.update_input_prefill();
             }
         }
@@ -197,21 +197,21 @@ impl QuizApp {
 
     pub fn abrir_menu_semanal(&mut self) {
         self.sync_is_done();
-        self.recalculate_unlocked_weeks();
+        self.recalculate_unlocked_modules();
         self.state = AppState::ModuleMenu;
     }
 
-    pub fn open_week_menu(&mut self) {
+    pub fn open_module_menu(&mut self) {
         // Asegura que los estados estén actualizados
         self.sync_is_done();
-        self.recalculate_unlocked_weeks();
+        self.recalculate_unlocked_modules();
         self.state = AppState::ModuleMenu;
         self.message.clear();
     }
 
     pub fn open_level_menu(&mut self) {
         // 1) Obtener la semana actual
-        let week_idx = match self.progress().current_week {
+        let module_idx = match self.progress().current_module {
             Some(w) => w,
             None => return,
         };
@@ -219,26 +219,26 @@ impl QuizApp {
         // 2) Asegurar estructuras auxiliares
         {
             let prog = self.progress_mut();
-            prog.max_unlocked_level.entry(week_idx).or_insert(0);
+            prog.max_unlocked_level.entry(module_idx).or_insert(0);
         }
 
         // 3) Recalcular niveles desbloqueados (usa borrow mutable interno)
-        self.recalculate_unlocked_levels(week_idx);
+        self.recalculate_unlocked_levels(module_idx);
 
         // 4) Preservar posición si es válida; si no, fijar primer nivel desbloqueado
         let (must_init_level, new_level_opt) = {
             let prog = self.progress();
-            let levels_len = self.quiz.weeks[week_idx].levels.len();
+            let levels_len = self.quiz.modules[module_idx].levels.len();
 
             // ¿tenemos un current_level válido para esta semana y desbloqueado?
-            let keep_current = prog.current_week == Some(week_idx)
+            let keep_current = prog.current_module == Some(module_idx)
                 && prog
                     .current_level
                     .map(|li| {
                         li < levels_len
                             && prog
                                 .unlocked_levels
-                                .get(&week_idx)
+                                .get(&module_idx)
                                 .map(|v| v.contains(&li))
                                 .unwrap_or(false)
                     })
@@ -250,7 +250,7 @@ impl QuizApp {
                 // elegir el primer nivel desbloqueado (o 0 si no hay info)
                 let first_lvl = prog
                     .unlocked_levels
-                    .get(&week_idx)
+                    .get(&module_idx)
                     .and_then(|v| v.first().copied())
                     .unwrap_or(0);
                 (true, Some(first_lvl))
@@ -280,8 +280,8 @@ impl QuizApp {
         self.message.clear();
     }
 
-    pub fn acceder_a_semana(&mut self, week: usize) {
-        self.select_week(week);
+    pub fn acceder_a_semana(&mut self, module: usize) {
+        self.select_module(module);
         self.state = AppState::Quiz;
         self.update_input_prefill();
         self.message.clear();
@@ -299,17 +299,17 @@ impl QuizApp {
     /// Avanzar a la siguiente semana (prepara la UI y estado)
     pub fn avanzar_a_siguiente_semana(&mut self) {
         // 1) Construir la lista de índices de semanas válidas
-        let valid_week_idxs = self.valid_weeks();
+        let valid_module_idxs = self.valid_modules();
 
         // 2) Obtener la posición actual o inicializar en la primera válida
-        let pos = match self.position_or_init_first(&valid_week_idxs) {
+        let pos = match self.position_or_init_first(&valid_module_idxs) {
             Some(p) => p,
             None => return, // ya arrancamos en la primera, nada más que hacer
         };
 
         // 3) Intentar avanzar al siguiente índice
-        if let Some(&next_wi) = valid_week_idxs.get(pos + 1) {
-            if self.is_week_completed(next_wi) {
+        if let Some(&next_wi) = valid_module_idxs.get(pos + 1) {
+            if self.is_module_completed(next_wi) {
                 // siguiente semana ya completada: volvemos al menú
                 self.state = AppState::ModuleMenu;
                 self.message =
@@ -331,13 +331,13 @@ impl QuizApp {
         let lang = self.selected_language.unwrap_or(Language::C);
 
         // 1) Obtener el índice de semana actual
-        let wi = match self.progress().current_week {
+        let wi = match self.progress().current_module {
             Some(w) => w,
             None => return, // Sin semana seleccionada
         };
 
         // 2) Lista de niveles válidos (que contienen preguntas de este idioma)
-        let valid_level_idxs: Vec<usize> = self.quiz.weeks[wi]
+        let valid_level_idxs: Vec<usize> = self.quiz.modules[wi]
             .levels
             .iter()
             .enumerate()
@@ -394,15 +394,15 @@ impl QuizApp {
 
     // Helpers de navegación interna
     fn position_or_init_first(&mut self, valid_idxs: &[usize]) -> Option<usize> {
-        // 1) Intentar leer el week actual
-        if let Some(curr) = self.progress().current_week {
+        // 1) Intentar leer el module actual
+        if let Some(curr) = self.progress().current_module {
             if let Some(pos) = valid_idxs.iter().position(|&wi| wi == curr) {
                 return Some(pos);
             }
         }
-        // 2) Si no hay week o no está en valid_idxs, arrancamos por la primera válida
+        // 2) Si no hay module o no está en valid_idxs, arrancamos por la primera válida
         if let Some(&first) = valid_idxs.first() {
-            self.select_week(first);
+            self.select_module(first);
             self.update_input_prefill();
         }
         None
@@ -410,7 +410,11 @@ impl QuizApp {
 
     pub(crate) fn current_position(&self) -> Option<(usize, usize, usize)> {
         let prog = self.progress();
-        match (prog.current_week, prog.current_level, prog.current_in_level) {
+        match (
+            prog.current_module,
+            prog.current_level,
+            prog.current_in_level,
+        ) {
             (Some(w), Some(l), Some(i)) => Some((w, l, i)),
             _ => None,
         }

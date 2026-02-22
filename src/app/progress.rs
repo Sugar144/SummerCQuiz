@@ -34,8 +34,8 @@ impl QuizApp {
             prog.completed_ids.retain(|id| valid_ids.contains(id));
         }
         let completed = self.progress().completed_ids.clone();
-        for week in &mut self.quiz.weeks {
-            for level in &mut week.levels {
+        for module in &mut self.quiz.modules {
+            for level in &mut module.levels {
                 for q in &mut level.questions {
                     let already = q.is_done;
                     q.is_done =
@@ -49,13 +49,13 @@ impl QuizApp {
 
     pub fn update_input_prefill(&mut self) {
         let progress = self.progress();
-        let week_idx = progress.current_week;
+        let module_idx = progress.current_module;
         let level_idx = progress.current_level;
         let q_idx = progress.current_in_level;
 
-        let prefill = week_idx
-            .and_then(|w| self.quiz.weeks.get(w))
-            .and_then(|week| level_idx.and_then(|l| week.levels.get(l)))
+        let prefill = module_idx
+            .and_then(|w| self.quiz.modules.get(w))
+            .and_then(|module| level_idx.and_then(|l| module.levels.get(l)))
             .and_then(|level| q_idx.and_then(|q| level.questions.get(q)))
             .and_then(|q| q.input_prefill.clone());
 

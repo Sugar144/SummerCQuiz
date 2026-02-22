@@ -18,19 +18,19 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
             .show(ui, |ui| {
                 ui.vertical_centered(|ui| {
                     if let (Some(wi), Some(li), Some(qi)) = (
-                        app.progress().current_week,
+                        app.progress().current_module,
                         app.progress().current_level,
                         app.progress().current_in_level,
                     ) {
-                        let question = app.quiz.weeks[wi].levels[li].questions[qi].clone();
+                        let question = app.quiz.modules[wi].levels[li].questions[qi].clone();
 
-                        let week_number = app.quiz.weeks[wi].number;
+                        let module_number = app.quiz.modules[wi].number;
                         let level_number = li + 1;
                         let round = app.progress().round;
                         // Ronda
                         ui.heading(format!(
                             "📅 Semana {} - ⭐ Nivel {}",
-                            week_number, level_number
+                            module_number, level_number
                         ));
                         ui.heading(format!("🌀 Ronda {}", round));
 
@@ -98,7 +98,6 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                             Language::C => c_syntax(),
                             Language::Pseudocode => pseudo_syntax(),
                             _ => kotlin_syntax(),
-
                         };
                         let max_input_h = 245.0;
                         let min_lines = 15;
@@ -161,13 +160,16 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
 
                         // // Botón de test: marcar semana completa
                         // if ui.button("⚡ Marcar semana como completada (TEST)").clicked() {
-                        //     app.complete_all_week();
+                        //     app.complete_all_module();
                         // }
                         //
                         // ui.add_space(5.0);
                         //
                         // Botón de test: marcar semana completa
-                        if ui.button("⚡ Marcar nivel como completado (TEST)").clicked() {
+                        if ui
+                            .button("⚡ Marcar nivel como completado (TEST)")
+                            .clicked()
+                        {
                             app.complete_all_level();
                         }
 
