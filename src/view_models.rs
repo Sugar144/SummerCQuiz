@@ -1,8 +1,8 @@
 // src/view_models.rs
 
 #[derive(Clone, Debug)]
-pub struct WeekInfo {
-    pub idx: usize,    // índice 0-based en quiz.weeks
+pub struct ModuleInfo {
+    pub idx: usize,    // índice 0-based en quiz.modules
     pub number: usize, // número "humano" (1,2,3…)
     pub unlocked: bool,
     pub completed: bool,
@@ -29,7 +29,7 @@ pub struct QuestionRow {
     pub done: bool,
 }
 
-impl WeekInfo {
+impl ModuleInfo {
     pub fn label(&self) -> String {
         if self.completed && self.new_count == 0 {
             format!("Modulo {} ✅", self.number)

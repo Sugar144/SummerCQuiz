@@ -74,7 +74,6 @@ pub fn normalize_code_kotlin(input: &str) -> String {
     code.replace(char::is_whitespace, "")
 }
 
-
 pub fn c_syntax() -> Syntax {
     Syntax::new("c")
         .with_comment("//")
@@ -124,15 +123,60 @@ pub fn kotlin_syntax() -> Syntax {
         .with_comment("//")
         .with_comment_multiline(["/*", "*/"])
         .with_keywords([
-            "fun", "val", "var", "if", "else", "when", "for", "while", "do",
-            "return", "break", "continue", "in", "is", "as", "try", "catch",
-            "finally", "throw", "class", "object", "interface", "data",
-            "sealed", "enum", "override", "open", "private", "public",
-            "protected", "internal", "companion", "const", "lateinit",
-            "import", "package", "null", "true", "false"
+            "fun",
+            "val",
+            "var",
+            "if",
+            "else",
+            "when",
+            "for",
+            "while",
+            "do",
+            "return",
+            "break",
+            "continue",
+            "in",
+            "is",
+            "as",
+            "try",
+            "catch",
+            "finally",
+            "throw",
+            "class",
+            "object",
+            "interface",
+            "data",
+            "sealed",
+            "enum",
+            "override",
+            "open",
+            "private",
+            "public",
+            "protected",
+            "internal",
+            "companion",
+            "const",
+            "lateinit",
+            "import",
+            "package",
+            "null",
+            "true",
+            "false",
         ])
         .with_types([
-            "Int", "Long", "Double", "Float", "Boolean", "Char", "String",
-            "Unit", "Any", "Nothing", "List", "MutableList", "Map", "Set"
+            "Int",
+            "Long",
+            "Double",
+            "Float",
+            "Boolean",
+            "Char",
+            "String",
+            "Unit",
+            "Any",
+            "Nothing",
+            "List",
+            "MutableList",
+            "Map",
+            "Set",
         ])
 }

@@ -32,13 +32,13 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
                         .max_height(max_height)
                         .max_width(panel_width)
                         .show(ui, |ui| {
-                            let wi = app.progress().current_week.unwrap_or(0);
+                            let wi = app.progress().current_module.unwrap_or(0);
                             let li = app.progress().current_level.unwrap_or(0);
                             let lang = app.selected_language.unwrap_or(Language::C);
                             let completed = &app.progress().completed_ids;
 
                             if let Some(level) =
-                                app.quiz.weeks.get(wi).and_then(|w| w.levels.get(li))
+                                app.quiz.modules.get(wi).and_then(|w| w.levels.get(li))
                             {
                                 Grid::new("level_results_grid")
                                     .striped(true)
@@ -91,14 +91,14 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
 
                     // Botones de control
                     ui.vertical_centered(|ui| {
-                        let wi = app.progress().current_week.unwrap_or(0);
+                        let wi = app.progress().current_module.unwrap_or(0);
                         let li = app.progress().current_level.unwrap_or(0);
-                        let levels = &app.quiz.weeks[wi].levels;
+                        let levels = &app.quiz.modules[wi].levels;
                         let total_levels = levels.len();
                         let is_level_done = app.is_level_completed(wi, li);
                         let has_next_level = li + 1 < total_levels;
-                        let week_done = app.is_week_completed(wi);
-                        let has_next_week = app.has_next_week();
+                        let module_done = app.is_module_completed(wi);
+                        let has_next_module = app.has_next_module();
 
                         if is_level_done && has_next_level {
                             if ui
@@ -112,7 +112,7 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
 
                                 //app.avanzar_a_siguiente_nivel();
                             }
-                        } else if week_done && has_next_week {
+                        } else if module_done && has_next_module {
                             ui.add_space(10.0);
                             ui.label(
                                 "¡Bien hecho! Has completado todos los niveles de esta semana.",
@@ -127,7 +127,7 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
                             {
                                 app.avanzar_a_siguiente_semana();
                             }
-                        } else if week_done && !has_next_week {
+                        } else if module_done && !has_next_module {
                             ui.add_space(10.0);
                             ui.label("¡Bien hecho! Has acabado el quiz.");
                             ui.add_space(10.0);
