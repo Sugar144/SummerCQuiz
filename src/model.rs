@@ -22,6 +22,8 @@ pub enum GradingMode {
     JudgeJava,
     JudgeRust,
     JudgePython,
+    #[serde(alias = "judge_remote")]
+    JudgeRemote,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -48,6 +50,8 @@ pub struct Question {
     pub tests: Vec<JudgeTestCase>,
     #[serde(default)]
     pub judge_harness: Option<String>,
+    #[serde(default)]
+    pub judge_endpoint: Option<String>,
     #[serde(default)]
     pub is_done: bool,
     #[serde(default)]

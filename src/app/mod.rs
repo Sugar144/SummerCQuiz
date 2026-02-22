@@ -119,13 +119,16 @@ impl QuizApp {
         };
 
         // --- Esto es igual que antes ---
-        let signal_path = std::path::Path::new(".update_success");
-        if signal_path.exists() {
-            quiz_app.message = format!(
-                "¡Actualización a versión {} completada!",
-                env!("CARGO_PKG_VERSION")
-            );
-            let _ = std::fs::remove_file(signal_path);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let signal_path = std::path::Path::new(".update_success");
+            if signal_path.exists() {
+                quiz_app.message = format!(
+                    "¡Actualización a versión {} completada!",
+                    env!("CARGO_PKG_VERSION")
+                );
+                let _ = std::fs::remove_file(signal_path);
+            }
         }
 
         quiz_app
