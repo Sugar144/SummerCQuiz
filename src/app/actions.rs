@@ -7,6 +7,7 @@ use crate::judge::judge_java::grade_java_question;
 use crate::judge::judge_kt::grade_kotlin_question;
 use crate::judge::judge_pseudo::{CJudge, PseudoConfig, run_pseudo_tests};
 use crate::judge::judge_python::grade_python_question;
+use crate::judge::judge_remote::grade_remote_question;
 use crate::judge::judge_rust::grade_rust_question;
 use crate::model::GradingMode;
 
@@ -17,7 +18,12 @@ impl QuizApp {
             return;
         }
 
-        // 1) Extraer índices actuales
+        if self.remote_judge_pending.is_some() {
+            self.message =
+                "⏳ Ya hay una evaluación remota en progreso. Espera el resultado.".into();
+            return;
+        }
+
         let (cw, cl, ci) = {
             let prog = self.progress();
             match (
@@ -33,40 +39,91 @@ impl QuizApp {
             }
         };
 
-        // 2) Calcular resultado (normalize o judge_c)
-        let grading_result = {
-            let q = &self.quiz.modules[cw].levels[cl].questions[ci];
-            if q.uses_judge_pseudo() {
-                run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge)
-            } else if matches!(q.mode, Some(GradingMode::JudgeKotlin)) {
-                grade_kotlin_question(q, respuesta)
-            } else if matches!(q.mode, Some(GradingMode::JudgeJava)) {
-                grade_java_question(q, respuesta)
-            } else if matches!(q.mode, Some(GradingMode::JudgeRust)) {
-                grade_rust_question(q, respuesta)
-            } else if matches!(q.mode, Some(GradingMode::JudgePython)) {
-                grade_python_question(q, respuesta)
-            } else if should_use_judge(q) {
-                grade_c_question(q, respuesta)
+        let q = &self.quiz.modules[cw].levels[cl].questions[ci];
+
+        #[cfg(target_arch = "wasm32")]
+        if q.uses_judge_remote() {
+            self.start_remote_judge_submission(cw, cl, ci, respuesta.to_string());
+            return;
+        }
+
+        let grading_result = self.grade_question_sync(q, respuesta);
+        self.apply_grading_result(cw, cl, ci, grading_result);
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    fn grade_question_sync(&self, q: &crate::model::Question, respuesta: &str) -> JudgeResult {
+        if q.uses_judge_pseudo() {
+            run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge)
+        } else if matches!(q.mode, Some(GradingMode::JudgeKotlin)) {
+            grade_kotlin_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeJava)) {
+            grade_java_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeRust)) {
+            grade_rust_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgePython)) {
+            grade_python_question(q, respuesta)
+        } else if q.uses_judge_remote() {
+            grade_remote_question(q, respuesta)
+        } else if should_use_judge(q) {
+            grade_c_question(q, respuesta)
+        } else {
+            let user_code = normalize_code(respuesta);
+            let answer_code = normalize_code(&q.answer);
+            if user_code == answer_code {
+                JudgeResult::Accepted
             } else {
-                let user_code = normalize_code(respuesta);
-                let answer_code = normalize_code(&q.answer);
-                if user_code == answer_code {
-                    JudgeResult::Accepted
-                } else {
-                    JudgeResult::WrongAnswer {
-                        test_index: 0,
-                        input: String::new(),
-                        expected: String::new(),
-                        received: String::new(),
-                        diff: String::new(),
-                    }
+                JudgeResult::WrongAnswer {
+                    test_index: 0,
+                    input: String::new(),
+                    expected: String::new(),
+                    received: String::new(),
+                    diff: String::new(),
                 }
             }
-        };
+        }
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    fn grade_question_sync(&self, q: &crate::model::Question, respuesta: &str) -> JudgeResult {
+        if q.uses_judge_pseudo() {
+            run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge)
+        } else if matches!(q.mode, Some(GradingMode::JudgeKotlin)) {
+            grade_kotlin_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeJava)) {
+            grade_java_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeRust)) {
+            grade_rust_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgePython)) {
+            grade_python_question(q, respuesta)
+        } else if should_use_judge(q) {
+            grade_c_question(q, respuesta)
+        } else {
+            let user_code = normalize_code(respuesta);
+            let answer_code = normalize_code(&q.answer);
+            if user_code == answer_code {
+                JudgeResult::Accepted
+            } else {
+                JudgeResult::WrongAnswer {
+                    test_index: 0,
+                    input: String::new(),
+                    expected: String::new(),
+                    received: String::new(),
+                    diff: String::new(),
+                }
+            }
+        }
+    }
+
+    fn apply_grading_result(
+        &mut self,
+        cw: usize,
+        cl: usize,
+        ci: usize,
+        grading_result: JudgeResult,
+    ) {
         let correcta = matches!(grading_result, JudgeResult::Accepted);
 
-        // 3) Mutar la pregunta: intentos y fails / is_done
         {
             let q = &mut self.quiz.modules[cw].levels[cl].questions[ci];
             q.attempts += 1;
@@ -77,14 +134,12 @@ impl QuizApp {
             }
         }
 
-        // 4) Preparar clonados antes de mutar progress
         let question_id = self.quiz.modules[cw].levels[cl].questions[ci].id.clone();
         let need_update_shown = {
             let prog = self.progress();
             !prog.shown_this_round.contains(&(cl, ci))
         };
 
-        // 5) Bloque mutable de progress: marcar completado, shown_this_round, etc.
         let mut mark_pending = false;
         let mut curr_module = None;
         {
@@ -102,36 +157,29 @@ impl QuizApp {
             }
         }
 
-        // 6) Si era correcta, pasamos a la siguiente pregunta de este nivel
         if mark_pending {
             let next_q = self.next_pending_in_level();
             let prog = self.progress_mut();
             prog.current_in_level = next_q;
         }
 
-        // 7) ¿Terminó nivel o semana?
         if self.progress().current_in_level.is_none() {
             let module_idx = curr_module.unwrap_or(cw);
-            // Completar nivel
             if self.is_level_completed(module_idx, cl) {
                 self.complete_level(module_idx, cl);
 
                 if self.is_module_completed(module_idx) {
-                    // la semana ya acabó, pasamos al resumen semanal
                     self.state = AppState::Summary;
                 } else {
-                    // nivel completo pero quedan más niveles → resumen de nivel
                     self.state = AppState::LevelSummary;
                 }
             }
-            // Completar semana y preparar summary
             if self.is_module_completed(module_idx) {
                 self.complete_module(module_idx);
                 self.state = AppState::Summary;
             }
         }
 
-        // 8) Sincronizar y prefill, luego mensaje
         self.sync_is_done();
         if correcta {
             self.update_input_prefill();
@@ -148,14 +196,45 @@ impl QuizApp {
         };
     }
 
+    #[cfg(target_arch = "wasm32")]
+    fn start_remote_judge_submission(&mut self, cw: usize, cl: usize, ci: usize, source: String) {
+        let question = self.quiz.modules[cw].levels[cl].questions[ci].clone();
+        let (tx, rx) = std::sync::mpsc::channel::<JudgeResult>();
+
+        self.remote_judge_pending = Some(PendingRemoteJudge { cw, cl, ci });
+        self.remote_judge_rx = Some(rx);
+        self.message = "⏳ Evaluando en judge remoto...".into();
+
+        wasm_bindgen_futures::spawn_local(async move {
+            let result = grade_remote_question(&question, &source).await;
+            let _ = tx.send(result);
+        });
+    }
+
+    pub fn poll_remote_judge_result(&mut self) {
+        let maybe_result = self
+            .remote_judge_rx
+            .as_ref()
+            .and_then(|rx| rx.try_recv().ok());
+
+        if let Some(result) = maybe_result {
+            if let Some(pending) = self.remote_judge_pending.take() {
+                self.apply_grading_result(pending.cw, pending.cl, pending.ci, result);
+            }
+            self.remote_judge_rx = None;
+        }
+    }
+
+    pub fn is_remote_judge_pending(&self) -> bool {
+        self.remote_judge_pending.is_some()
+    }
+
     pub fn saltar_pregunta(&mut self) {
-        // 1) Extraer índices actuales (o salir si no hay pregunta)
         let (cw, cl, ci) = match self.current_position() {
             Some(pos) => pos,
             None => return,
         };
 
-        // 2) Registrar estadísticas en la pregunta actual
         {
             let q = &mut self.quiz.modules[cw].levels[cl].questions[ci];
             q.skips += 1;
@@ -163,7 +242,6 @@ impl QuizApp {
             q.saw_solution = false;
         }
 
-        // 3) Marcarla como mostrada en esta ronda
         {
             let prog = self.progress_mut();
             if !prog.shown_this_round.contains(&(cl, ci)) {
@@ -171,20 +249,16 @@ impl QuizApp {
             }
         }
 
-        // 4) Determinar siguiente pregunta con lógica de rondas
         let next_q = self.next_pending_in_level();
 
-        // 5) Actualizar el índice y limpiar el input
         {
             let prog = self.progress_mut();
             prog.current_in_level = next_q;
             prog.input.clear();
         }
 
-        // 6) Si no quedan preguntas pendientes en el nivel tras la ronda:
         self.finalize_level_or_module();
 
-        // 7) Actualizar prefill y mensaje
         self.update_input_prefill();
         self.message = "⏩ Pregunta saltada. La verás en la siguiente ronda.".to_string();
     }
