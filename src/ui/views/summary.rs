@@ -1,7 +1,7 @@
-use egui::{Button, CentralPanel, Context, Grid, ScrollArea};
+use crate::QuizApp;
 use crate::model::AppState;
 use crate::view_models::QuestionRow;
-use crate::QuizApp;
+use egui::{Button, CentralPanel, Context, Grid, ScrollArea};
 
 pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
     // Si no hay lenguaje, volvemos al selector para evitar panics en progress()
@@ -38,7 +38,7 @@ pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
                         .max_height(max_height)
                         .max_width(panel_width)
                         .show(ui, |ui| {
-                            let rows: Vec<QuestionRow> = app.summary_rows_for_week();
+                            let rows: Vec<QuestionRow> = app.summary_rows_for_module();
 
                             if rows.is_empty() {
                                 ui.label("No hay datos de progreso para esta semana.");
@@ -65,7 +65,11 @@ pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
                                         ui.label(r.fails.to_string());
                                         ui.label(r.skips.to_string());
                                         ui.label(if r.saw_solution { "Sí" } else { "No" });
-                                        ui.label(if r.done { "✅ Correcta" } else { "❌ Pendiente" });
+                                        ui.label(if r.done {
+                                            "✅ Correcta"
+                                        } else {
+                                            "❌ Pendiente"
+                                        });
                                         ui.end_row();
                                     }
                                 });
@@ -75,23 +79,35 @@ pub fn ui_summary_view(app: &mut QuizApp, ctx: &Context) {
 
                     // Botones de control
                     ui.vertical_centered(|ui| {
-                        let current_week = app.progress().current_week.unwrap_or(0);
-                        let has_next = app.has_next_week();
-                        let is_complete = app.is_week_completed(current_week);
+                        let current_module = app.progress().current_module.unwrap_or(0);
+                        let has_next = app.has_next_module();
+                        let is_complete = app.is_module_completed(current_module);
 
                         if is_complete && has_next {
-                            if ui.add_sized([button_width, button_height], Button::new("Siguiente Semana")).clicked() {
+                            if ui
+                                .add_sized(
+                                    [button_width, button_height],
+                                    Button::new("Siguiente Semana"),
+                                )
+                                .clicked()
+                            {
                                 app.avanzar_a_siguiente_semana();
                             }
                         } else if is_complete {
                             ui.add_space(10.0);
                             ui.label("¡Bien hecho! Has acabado el quiz.");
                             ui.add_space(10.0);
-                            if ui.add_sized([button_width, button_height], Button::new("Volver")).clicked() {
+                            if ui
+                                .add_sized([button_width, button_height], Button::new("Volver"))
+                                .clicked()
+                            {
                                 app.volver_niveles();
                             }
                         } else {
-                            if ui.add_sized([button_width, button_height], Button::new("Atrás")).clicked() {
+                            if ui
+                                .add_sized([button_width, button_height], Button::new("Atrás"))
+                                .clicked()
+                            {
                                 app.state = AppState::Quiz;
                             }
                         }

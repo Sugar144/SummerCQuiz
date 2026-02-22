@@ -4,19 +4,50 @@ use serde::{Deserialize, Serialize};
 pub enum Language {
     C,
     Pseudocode,
+    Kotlin,
+    Java,
+    Rust,
+    Python,
+    GitGithub,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum GradingMode {
+    Normalize,
+    #[serde(alias = "judge_c_compile")]
+    JudgeC,
+    JudgePseudo,
+    JudgeKotlin,
+    JudgeJava,
+    JudgeRust,
+    JudgePython,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+pub struct JudgeTestCase {
+    pub input: String,
+    pub output: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Question {
     pub language: Language,
-    pub week: usize,
-    pub prompt: String,   // Pregunta
-    pub answer: String,   // Respuesta
+    #[serde(alias = "week")]
+    pub module: usize,
+    pub prompt: String,
+    pub answer: String,
     pub hint: Option<String>,
     #[serde(skip)]
     pub number: usize,
     #[serde(default)]
     pub input_prefill: Option<String>,
+    #[serde(default)]
+    pub mode: Option<GradingMode>,
+    #[serde(default)]
+    pub tests: Vec<JudgeTestCase>,
+    #[serde(default)]
+    pub judge_harness: Option<String>,
     #[serde(default)]
     pub is_done: bool,
     #[serde(default)]
@@ -27,7 +58,6 @@ pub struct Question {
     pub fails: u32,
     #[serde(default)]
     pub skips: u32,
-    // NUEVO
     #[serde(default)]
     pub id: Option<String>,
 }
@@ -40,7 +70,7 @@ pub struct Level {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Week {
+pub struct Module {
     pub number: usize,
     pub explanation: String,
     pub levels: Vec<Level>,
@@ -48,25 +78,23 @@ pub struct Week {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Quiz {
-    pub weeks: Vec<Week>,
+    #[serde(alias = "weeks")]
+    pub modules: Vec<Module>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum AppState {
-
     PendingUpdate,
     LanguageSelect,
     Welcome,
-    WeekMenu,
+    ModuleMenu,
     LevelMenu,
     LevelTheory,
     Quiz,
     LevelSummary,
     Summary,
-
 }
 
-// ¡Implementa Default!
 impl Default for AppState {
     fn default() -> Self {
         AppState::Welcome
@@ -74,7 +102,15 @@ impl Default for AppState {
 }
 
 impl Question {
-    /// Reinicia los contadores y flags de esta pregunta.
+    pub fn uses_judge_c(&self) -> bool {
+        matches!(self.mode, Some(GradingMode::JudgeC))
+            || (self.language == Language::C && !self.tests.is_empty())
+    }
+
+    pub fn uses_judge_pseudo(&self) -> bool {
+        matches!(self.mode, Some(GradingMode::JudgePseudo)) && !self.tests.is_empty()
+    }
+
     pub fn reset_stats(&mut self) {
         self.is_done = false;
         self.attempts = 0;
@@ -83,8 +119,6 @@ impl Question {
         self.saw_solution = false;
     }
 
-    /// Marca esta pregunta como completada (modo TEST), resetea estadísticas
-    /// y devuelve su `id` clonada si la tuviera.
     pub fn mark_done_test(&mut self) -> Option<String> {
         self.is_done = true;
         self.saw_solution = false;

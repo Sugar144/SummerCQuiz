@@ -1,5 +1,14 @@
 use super::*;
 use crate::code_utils::normalize_code;
+use crate::judge::judge_c::{
+    JudgeResult, format_judge_message, grade_c_question, should_use_judge,
+};
+use crate::judge::judge_java::grade_java_question;
+use crate::judge::judge_kt::grade_kotlin_question;
+use crate::judge::judge_pseudo::{CJudge, PseudoConfig, run_pseudo_tests};
+use crate::judge::judge_python::grade_python_question;
+use crate::judge::judge_rust::grade_rust_question;
+use crate::model::GradingMode;
 
 impl QuizApp {
     pub fn procesar_respuesta(&mut self, respuesta: &str) {
@@ -11,7 +20,11 @@ impl QuizApp {
         // 1) Extraer índices actuales
         let (cw, cl, ci) = {
             let prog = self.progress();
-            match (prog.current_week, prog.current_level, prog.current_in_level) {
+            match (
+                prog.current_module,
+                prog.current_level,
+                prog.current_in_level,
+            ) {
                 (Some(w), Some(l), Some(i)) => (w, l, i),
                 _ => {
                     self.message = "Error interno: no hay pregunta seleccionada.".into();
@@ -20,27 +33,52 @@ impl QuizApp {
             }
         };
 
-        // 2) Normalizar código para comparar
-        let user_code = normalize_code(respuesta);
-        let answer_code = {
-            let q = &self.quiz.weeks[cw].levels[cl].questions[ci];
-            normalize_code(&q.answer)
+        // 2) Calcular resultado (normalize o judge_c)
+        let grading_result = {
+            let q = &self.quiz.modules[cw].levels[cl].questions[ci];
+            if q.uses_judge_pseudo() {
+                run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge)
+            } else if matches!(q.mode, Some(GradingMode::JudgeKotlin)) {
+                grade_kotlin_question(q, respuesta)
+            } else if matches!(q.mode, Some(GradingMode::JudgeJava)) {
+                grade_java_question(q, respuesta)
+            } else if matches!(q.mode, Some(GradingMode::JudgeRust)) {
+                grade_rust_question(q, respuesta)
+            } else if matches!(q.mode, Some(GradingMode::JudgePython)) {
+                grade_python_question(q, respuesta)
+            } else if should_use_judge(q) {
+                grade_c_question(q, respuesta)
+            } else {
+                let user_code = normalize_code(respuesta);
+                let answer_code = normalize_code(&q.answer);
+                if user_code == answer_code {
+                    JudgeResult::Accepted
+                } else {
+                    JudgeResult::WrongAnswer {
+                        test_index: 0,
+                        input: String::new(),
+                        expected: String::new(),
+                        received: String::new(),
+                        diff: String::new(),
+                    }
+                }
+            }
         };
+        let correcta = matches!(grading_result, JudgeResult::Accepted);
 
         // 3) Mutar la pregunta: intentos y fails / is_done
         {
-            let q = &mut self.quiz.weeks[cw].levels[cl].questions[ci];
+            let q = &mut self.quiz.modules[cw].levels[cl].questions[ci];
             q.attempts += 1;
-            if user_code == answer_code {
+            if correcta {
                 q.is_done = true;
             } else {
                 q.fails += 1;
             }
         }
-        let correcta = user_code == answer_code;
 
         // 4) Preparar clonados antes de mutar progress
-        let question_id = self.quiz.weeks[cw].levels[cl].questions[ci].id.clone();
+        let question_id = self.quiz.modules[cw].levels[cl].questions[ci].id.clone();
         let need_update_shown = {
             let prog = self.progress();
             !prog.shown_this_round.contains(&(cl, ci))
@@ -48,7 +86,7 @@ impl QuizApp {
 
         // 5) Bloque mutable de progress: marcar completado, shown_this_round, etc.
         let mut mark_pending = false;
-        let mut curr_week = None;
+        let mut curr_module = None;
         {
             let prog = self.progress_mut();
             if need_update_shown {
@@ -60,9 +98,7 @@ impl QuizApp {
                 }
                 prog.input.clear();
                 mark_pending = true;
-                curr_week = prog.current_week;
-            } else {
-                prog.input.clear();
+                curr_module = prog.current_module;
             }
         }
 
@@ -75,12 +111,12 @@ impl QuizApp {
 
         // 7) ¿Terminó nivel o semana?
         if self.progress().current_in_level.is_none() {
-            let week_idx = curr_week.unwrap_or(cw);
+            let module_idx = curr_module.unwrap_or(cw);
             // Completar nivel
-            if self.is_level_completed(week_idx, cl) {
-                self.complete_level(week_idx, cl);
+            if self.is_level_completed(module_idx, cl) {
+                self.complete_level(module_idx, cl);
 
-                if self.is_week_completed(week_idx) {
+                if self.is_module_completed(module_idx) {
                     // la semana ya acabó, pasamos al resumen semanal
                     self.state = AppState::Summary;
                 } else {
@@ -89,19 +125,26 @@ impl QuizApp {
                 }
             }
             // Completar semana y preparar summary
-            if self.is_week_completed(week_idx) {
-                self.complete_week(week_idx);
+            if self.is_module_completed(module_idx) {
+                self.complete_module(module_idx);
                 self.state = AppState::Summary;
             }
         }
 
         // 8) Sincronizar y prefill, luego mensaje
         self.sync_is_done();
-        self.update_input_prefill();
+        if correcta {
+            self.update_input_prefill();
+        }
         self.message = if correcta {
             "✅ ¡Correcto!".into()
         } else {
-            "❌ Incorrecto. Intenta de nuevo.".into()
+            match &grading_result {
+                JudgeResult::WrongAnswer { test_index, .. } if *test_index == 0 => {
+                    "❌ Incorrecto. Intenta de nuevo.".into()
+                }
+                _ => format_judge_message(&grading_result),
+            }
         };
     }
 
@@ -109,12 +152,12 @@ impl QuizApp {
         // 1) Extraer índices actuales (o salir si no hay pregunta)
         let (cw, cl, ci) = match self.current_position() {
             Some(pos) => pos,
-            None      => return,
+            None => return,
         };
 
         // 2) Registrar estadísticas en la pregunta actual
         {
-            let q = &mut self.quiz.weeks[cw].levels[cl].questions[ci];
+            let q = &mut self.quiz.modules[cw].levels[cl].questions[ci];
             q.skips += 1;
             q.attempts += 1;
             q.saw_solution = false;
@@ -139,7 +182,7 @@ impl QuizApp {
         }
 
         // 6) Si no quedan preguntas pendientes en el nivel tras la ronda:
-        self.finalize_level_or_week();
+        self.finalize_level_or_module();
 
         // 7) Actualizar prefill y mensaje
         self.update_input_prefill();
@@ -152,12 +195,12 @@ impl QuizApp {
         // 1) Extraer índices actuales
         let (cw, cl, ci) = match self.current_position() {
             Some(pos) => pos,
-            None      => return,
+            None => return,
         };
 
         // 2) Marcar que vio la solución
         {
-            let q = &mut self.quiz.weeks[cw].levels[cl].questions[ci];
+            let q = &mut self.quiz.modules[cw].levels[cl].questions[ci];
             q.saw_solution = true;
         }
 
@@ -171,20 +214,23 @@ impl QuizApp {
         }
 
         // 4) Si no quedan más preguntas, completar nivel/semana
-        self.finalize_level_or_week();
+        self.finalize_level_or_module();
 
         // 5) Prefill de input
         self.update_input_prefill();
     }
 
     // TEST helpers
-    pub fn complete_all_week(&mut self) {
-        let wi = match self.progress().current_week { Some(w) => w, None => return };
+    pub fn complete_all_module(&mut self) {
+        let wi = match self.progress().current_module {
+            Some(w) => w,
+            None => return,
+        };
         let lang = self.selected_language.unwrap_or(Language::C);
 
         // 1) Marcar cada pregunta y acumular sus IDs
         let mut ids = Vec::new();
-        for lvl in &mut self.quiz.weeks[wi].levels {
+        for lvl in &mut self.quiz.modules[wi].levels {
             for q in &mut lvl.questions {
                 if q.language == lang {
                     if let Some(id) = q.mark_done_test() {
@@ -203,7 +249,7 @@ impl QuizApp {
         }
 
         // 4) Desbloquear lógica de semana
-        self.complete_week(wi);
+        self.complete_module(wi);
 
         // 4) **Sincroniza** para propagar completed_ids → q.is_done
         self.sync_is_done();
@@ -214,13 +260,19 @@ impl QuizApp {
 
     /// Marca *todas* las preguntas del nivel actual como completadas y va al resumen de nivel o al resumen semanal si era el último nivel.
     pub fn complete_all_level(&mut self) {
-        let wi = match self.progress().current_week  { Some(w) => w, None => return };
-        let li = match self.progress().current_level { Some(l) => l, None => return };
+        let wi = match self.progress().current_module {
+            Some(w) => w,
+            None => return,
+        };
+        let li = match self.progress().current_level {
+            Some(l) => l,
+            None => return,
+        };
         let lang = self.selected_language.unwrap_or(Language::C);
 
         // 1) Marcar cada pregunta del nivel y acumular IDs
         let mut ids = Vec::new();
-        for q in &mut self.quiz.weeks[wi].levels[li].questions {
+        for q in &mut self.quiz.modules[wi].levels[li].questions {
             if q.language == lang {
                 if let Some(id) = q.mark_done_test() {
                     ids.push(id);
@@ -248,14 +300,14 @@ impl QuizApp {
     }
 
     // Motores internos
-    pub fn next_pending_in_week(&mut self) -> Option<(usize, usize)> {
+    pub fn next_pending_in_module(&mut self) -> Option<(usize, usize)> {
         let progress = self.progress();
-        let week_idx = progress.current_week?;
+        let module_idx = progress.current_module?;
         let language = self.selected_language.unwrap_or(Language::C);
 
-        let week = self.quiz.weeks.get(week_idx)?;
+        let module = self.quiz.modules.get(module_idx)?;
 
-        for (level_idx, level) in week.levels.iter().enumerate() {
+        for (level_idx, level) in module.levels.iter().enumerate() {
             for (q_idx, q) in level.questions.iter().enumerate() {
                 if q.language == language {
                     if let Some(id) = &q.id {
@@ -273,13 +325,13 @@ impl QuizApp {
     /// Devuelve Some(idx) o None si ya no quedan.
     pub fn next_pending_in_level(&mut self) -> Option<usize> {
         let progress = self.progress();
-        let week_idx = progress.current_week?;
+        let module_idx = progress.current_module?;
         let level_idx = progress.current_level?;
         let language = self.selected_language.unwrap_or(Language::C);
 
         // Busca la semana y el nivel actuales
-        let week: Week = self.quiz.weeks.get(week_idx)?.clone();
-        let level = week.levels.get(level_idx)?;
+        let module: Module = self.quiz.modules.get(module_idx)?.clone();
+        let level = module.levels.get(level_idx)?;
 
         // Haz una copia de shown_this_round para evitar doble borrow
         let shown = progress.shown_this_round.clone();
@@ -303,7 +355,10 @@ impl QuizApp {
         // Si todas ya fueron mostradas en esta ronda pero aún hay pendientes, arranca ronda nueva
         let hay_pendientes = level.questions.iter().enumerate().any(|(_q_idx, q)| {
             q.language == language
-                && q.id.as_ref().map(|id| !self.progress().completed_ids.contains(id)).unwrap_or(false)
+                && q.id
+                    .as_ref()
+                    .map(|id| !self.progress().completed_ids.contains(id))
+                    .unwrap_or(false)
         });
 
         if hay_pendientes {
@@ -329,4 +384,3 @@ impl QuizApp {
         None
     }
 }
-

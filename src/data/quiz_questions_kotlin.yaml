@@ -1,0 +1,578 @@
+---
+modules:
+- number: 1
+  explanation: "Módulo 1 Kotlin"
+  levels:
+  - number: 1
+    explanation:
+      Kotlin: |-
+        ## ENUNCIADO
+
+        Nivel 1 del módulo 1 de Kotlin. Repasa teoría de variables, condicionales y funciones con salida exacta.
+    questions:
+    - id: kotlin-m1-l1-q1
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L1Q1: escribe código correcto para ejercicio básico 1."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l1-q2
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L1Q2: escribe código correcto para ejercicio básico 2."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l1-q3
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L1Q3: escribe código correcto para ejercicio básico 3."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l1-q4
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L1Q4: escribe código correcto para ejercicio básico 4."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l1-q5
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L1Q5: escribe código correcto para ejercicio básico 5."
+      answer: |-
+        // Kotlin normalize snippet 5
+      hint: "Cuida formato y sintaxis."
+      mode: normalize
+  - number: 2
+    explanation:
+      Kotlin: |-
+        ## ENUNCIADO
+
+        Nivel 2 del módulo 1 de Kotlin. Repasa teoría de variables, condicionales y funciones con salida exacta.
+    questions:
+    - id: kotlin-m1-l2-q1
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L2Q1: escribe código correcto para ejercicio básico 1."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l2-q2
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L2Q2: escribe código correcto para ejercicio básico 2."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l2-q3
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L2Q3: escribe código correcto para ejercicio básico 3."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l2-q4
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L2Q4: escribe código correcto para ejercicio básico 4."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l2-q5
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L2Q5: escribe código correcto para ejercicio básico 5."
+      answer: |-
+        // Kotlin normalize snippet 5
+      hint: "Cuida formato y sintaxis."
+      mode: normalize
+  - number: 3
+    explanation:
+      Kotlin: |-
+        ## ENUNCIADO
+
+        Nivel 3 del módulo 1 de Kotlin. Repasa teoría de variables, condicionales y funciones con salida exacta.
+    questions:
+    - id: kotlin-m1-l3-q1
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L3Q1: escribe código correcto para ejercicio básico 1."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l3-q2
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L3Q2: escribe código correcto para ejercicio básico 2."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l3-q3
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L3Q3: escribe código correcto para ejercicio básico 3."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l3-q4
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L3Q4: escribe código correcto para ejercicio básico 4."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m1-l3-q5
+      language: Kotlin
+      module: 1
+      prompt: "[Kotlin] M1L3Q5: escribe código correcto para ejercicio básico 5."
+      answer: |-
+        // Kotlin normalize snippet 5
+      hint: "Cuida formato y sintaxis."
+      mode: normalize
+- number: 2
+  explanation: "Módulo 2 Kotlin"
+  levels:
+  - number: 1
+    explanation:
+      Kotlin: |-
+        ## ENUNCIADO
+
+        Nivel 1 del módulo 2 de Kotlin. Repasa teoría de variables, condicionales y funciones con salida exacta.
+    questions:
+    - id: kotlin-m2-l1-q1
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L1Q1: escribe código correcto para ejercicio básico 1."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l1-q2
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L1Q2: escribe código correcto para ejercicio básico 2."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l1-q3
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L1Q3: escribe código correcto para ejercicio básico 3."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l1-q4
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L1Q4: escribe código correcto para ejercicio básico 4."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l1-q5
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L1Q5: escribe código correcto para ejercicio básico 5."
+      answer: |-
+        // Kotlin normalize snippet 5
+      hint: "Cuida formato y sintaxis."
+      mode: normalize
+  - number: 2
+    explanation:
+      Kotlin: |-
+        ## ENUNCIADO
+
+        Nivel 2 del módulo 2 de Kotlin. Repasa teoría de variables, condicionales y funciones con salida exacta.
+    questions:
+    - id: kotlin-m2-l2-q1
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L2Q1: escribe código correcto para ejercicio básico 1."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l2-q2
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L2Q2: escribe código correcto para ejercicio básico 2."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l2-q3
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L2Q3: escribe código correcto para ejercicio básico 3."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l2-q4
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L2Q4: escribe código correcto para ejercicio básico 4."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l2-q5
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L2Q5: escribe código correcto para ejercicio básico 5."
+      answer: |-
+        // Kotlin normalize snippet 5
+      hint: "Cuida formato y sintaxis."
+      mode: normalize
+  - number: 3
+    explanation:
+      Kotlin: |-
+        ## ENUNCIADO
+
+        Nivel 3 del módulo 2 de Kotlin. Repasa teoría de variables, condicionales y funciones con salida exacta.
+    questions:
+    - id: kotlin-m2-l3-q1
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L3Q1: escribe código correcto para ejercicio básico 1."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l3-q2
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L3Q2: escribe código correcto para ejercicio básico 2."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l3-q3
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L3Q3: escribe código correcto para ejercicio básico 3."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l3-q4
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L3Q4: escribe código correcto para ejercicio básico 4."
+      answer: |-
+        fun main() {
+            val (a, b) = readln().trim().split(" ").map { it.toInt() }
+            println(a + b)
+        }
+      hint: "Cuida formato y sintaxis."
+      mode: judge_kotlin
+      tests:
+      - input: |
+          2 3
+        output: |
+          5
+      - input: |
+          10 -4
+        output: |
+          6
+    - id: kotlin-m2-l3-q5
+      language: Kotlin
+      module: 2
+      prompt: "[Kotlin] M2L3Q5: escribe código correcto para ejercicio básico 5."
+      answer: |-
+        // Kotlin normalize snippet 5
+      hint: "Cuida formato y sintaxis."
+      mode: normalize

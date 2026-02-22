@@ -1,4 +1,3 @@
-
 use summer_quiz::app::QuizApp;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -38,7 +37,7 @@ fn main() -> eframe::Result<()> {
                     // Recalcular bloqueos de semanas según lo completado:
                     if state.selected_language.is_some() {
                         state.sync_is_done();
-                        state.recalculate_unlocked_weeks();
+                        state.recalculate_unlocked_modules();
                     }
                     // Siempre empezar en selector de idioma
                     state.state = AppState::LanguageSelect;
@@ -57,13 +56,10 @@ fn main() -> eframe::Result<()> {
                 app
             };
 
-
-
             Ok(Box::new(app))
         }),
     )
 }
-
 
 // ======== SOLO PARA WEB/WASM ========
 #[cfg(target_arch = "wasm32")]
@@ -91,7 +87,15 @@ fn main() {
             .start(
                 canvas,
                 web_options,
-                Box::new(|_cc| Ok(Box::new(QuizApp::new()))),
+                Box::new(|cc| {
+                    let app: QuizApp = if let Some(storage) = cc.storage {
+                        eframe::get_value::<QuizApp>(storage, eframe::APP_KEY)
+                            .unwrap_or_else(QuizApp::new)
+                    } else {
+                        QuizApp::new()
+                    };
+                    Ok(Box::new(app))
+                }),
                 // ^--- O QuizApp::new() si tu constructor NO usa cc.
             )
             .await;

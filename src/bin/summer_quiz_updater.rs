@@ -1,4 +1,4 @@
-use std::{thread, time::Duration, fs, env};
+use std::{env, fs, thread, time::Duration};
 
 fn main() {
     thread::sleep(Duration::from_secs(2));

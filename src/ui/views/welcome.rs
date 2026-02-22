@@ -1,6 +1,6 @@
-use egui::{Align, Button, CentralPanel, Context, RichText};
-use crate::model::Language;
 use crate::QuizApp;
+use crate::model::Language;
+use egui::{Align, Button, CentralPanel, Context, RichText};
 
 pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
     CentralPanel::default().show(ctx, |ui| {
@@ -24,7 +24,7 @@ pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
                         // ¿Hay progreso guardado y preguntas pendientes?
                         let lang = app.selected_language.unwrap_or(Language::C);
                         let hay_guardado = app.has_saved_progress;
-                        let hay_pendientes = app.quiz.weeks
+                        let hay_pendientes = app.quiz.modules
                             .iter()
                             .flat_map(|w| &w.levels)
                             .flat_map(|lvl| &lvl.questions)
@@ -43,7 +43,7 @@ pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
                         ui.add_space(5.0);
                         let btn_start = ui.add_sized([btn_w, btn_h], Button::new("🔄 Empezar de 0"));
                         ui.add_space(5.0);
-                        let btn_menu  = ui.add_sized([btn_w, btn_h], Button::new("📅 Seleccionar Semana"));
+                        let btn_menu  = ui.add_sized([btn_w, btn_h], Button::new("📅 Seleccionar Modulo"));
                         ui.add_space(5.0);
                         let btn_exit  = ui.add_sized([btn_w, btn_h], Button::new("🔙 Volver"));
 
@@ -64,9 +64,9 @@ pub fn ui_welcome(app: &mut QuizApp, ctx: &Context) {
                         }
 
                         // Mensaje de nuevas preguntas (filtrar por completadas)
-                        let nuevas = app.quiz.weeks
+                        let nuevas = app.quiz.modules
                             .iter()
-                            .filter(|w| app.is_week_completed(app.quiz.weeks.iter().position(|wk| wk.number == w.number).unwrap_or(0)))
+                            .filter(|w| app.is_module_completed(app.quiz.modules.iter().position(|wk| wk.number == w.number).unwrap_or(0)))
                             .flat_map(|w| &w.levels)
                             .flat_map(|lvl| &lvl.questions)
                             .filter(|q| q.language == lang)

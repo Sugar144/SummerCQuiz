@@ -1,8 +1,12 @@
 // src/ui/helpers.rs
-use egui::{Ui, Button, Vec2, Color32};
+use egui::{Button, Color32, Ui, Vec2};
 
 pub fn big_list_button(ui: &mut Ui, label: String, width: f32, height: f32, enabled: bool) -> bool {
-    ui.add_enabled(enabled, Button::new(label).min_size(Vec2::new(width, height))).clicked()
+    ui.add_enabled(
+        enabled,
+        Button::new(label).min_size(Vec2::new(width, height)),
+    )
+    .clicked()
 }
 
 /// Devuelve (clicked_main, clicked_restart).

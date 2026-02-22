@@ -1,7 +1,7 @@
-use egui::{Button, CentralPanel, Context, Grid, ScrollArea};
+use crate::QuizApp;
 use crate::app::LevelEntry;
 use crate::model::{AppState, Language};
-use crate::QuizApp;
+use egui::{Button, CentralPanel, Context, Grid, ScrollArea};
 
 pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
     CentralPanel::default().show(ctx, |ui| {
@@ -32,13 +32,14 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
                         .max_height(max_height)
                         .max_width(panel_width)
                         .show(ui, |ui| {
-                            let wi = app.progress().current_week.unwrap_or(0);
+                            let wi = app.progress().current_module.unwrap_or(0);
                             let li = app.progress().current_level.unwrap_or(0);
                             let lang = app.selected_language.unwrap_or(Language::C);
                             let completed = &app.progress().completed_ids;
 
-                            if let Some(level) = app.quiz.weeks.get(wi)
-                                .and_then(|w| w.levels.get(li)) {
+                            if let Some(level) =
+                                app.quiz.modules.get(wi).and_then(|w| w.levels.get(li))
+                            {
                                 Grid::new("level_results_grid")
                                     .striped(true)
                                     .spacing([8.0, 0.0])
@@ -59,9 +60,10 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
                                             .enumerate()
                                         {
                                             // ¿Completada según completed_ids?
-                                            let done = q.id.as_ref()
-                                                .map(|id| completed.contains(id))
-                                                .unwrap_or(false);
+                                            let done =
+                                                q.id.as_ref()
+                                                    .map(|id| completed.contains(id))
+                                                    .unwrap_or(false);
                                             let status = if done {
                                                 "✅ Correcta"
                                             } else if q.saw_solution {
@@ -89,35 +91,43 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
 
                     // Botones de control
                     ui.vertical_centered(|ui| {
-                        let wi = app.progress().current_week.unwrap_or(0);
+                        let wi = app.progress().current_module.unwrap_or(0);
                         let li = app.progress().current_level.unwrap_or(0);
-                        let levels = &app.quiz.weeks[wi].levels;
+                        let levels = &app.quiz.modules[wi].levels;
                         let total_levels = levels.len();
                         let is_level_done = app.is_level_completed(wi, li);
                         let has_next_level = li + 1 < total_levels;
-                        let week_done = app.is_week_completed(wi);
-                        let has_next_week = app.has_next_week();
+                        let module_done = app.is_module_completed(wi);
+                        let has_next_module = app.has_next_module();
 
                         if is_level_done && has_next_level {
                             if ui
-                                .add_sized([button_width, button_height], Button::new("Siguiente Nivel"))
+                                .add_sized(
+                                    [button_width, button_height],
+                                    Button::new("Siguiente Nivel"),
+                                )
                                 .clicked()
                             {
                                 app.select_level_with_origin(wi, li + 1, LevelEntry::Flow);
 
                                 //app.avanzar_a_siguiente_nivel();
                             }
-                        } else if week_done && has_next_week {
+                        } else if module_done && has_next_module {
                             ui.add_space(10.0);
-                            ui.label("¡Bien hecho! Has completado todos los niveles de esta semana.");
+                            ui.label(
+                                "¡Bien hecho! Has completado todos los niveles de esta semana.",
+                            );
                             ui.add_space(10.0);
                             if ui
-                                .add_sized([button_width, button_height], Button::new("Siguiente semana"))
+                                .add_sized(
+                                    [button_width, button_height],
+                                    Button::new("Siguiente semana"),
+                                )
                                 .clicked()
                             {
                                 app.avanzar_a_siguiente_semana();
                             }
-                        } else if week_done && !has_next_week {
+                        } else if module_done && !has_next_module {
                             ui.add_space(10.0);
                             ui.label("¡Bien hecho! Has acabado el quiz.");
                             ui.add_space(10.0);
@@ -125,7 +135,7 @@ pub fn ui_level_summary(app: &mut QuizApp, ctx: &Context) {
                                 .add_sized([button_width, button_height], Button::new("Volver"))
                                 .clicked()
                             {
-                                app.state = AppState::WeekMenu;
+                                app.state = AppState::ModuleMenu;
                             }
                         } else {
                             if ui
