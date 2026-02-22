@@ -2,7 +2,9 @@ use crate::judge::judge_c::JudgeResult;
 use crate::model::{JudgeTestCase, Language, Question};
 use serde::{Deserialize, Serialize};
 
-const DEFAULT_ENDPOINT: &str = "http://127.0.0.1:8787/api/judge/sync";
+#[cfg(target_arch = "wasm32")]
+const DEFAULT_ENDPOINT: &str = "/api/judge/sync";
+const DEFAULT_NATIVE_ENDPOINT: &str = "http://127.0.0.1:8787/api/judge/sync";
 
 #[derive(Debug, Serialize)]
 struct JudgeRequest {
@@ -49,7 +51,20 @@ fn endpoint_for(question: &Question) -> String {
     question
         .judge_endpoint
         .clone()
-        .unwrap_or_else(|| DEFAULT_ENDPOINT.to_string())
+        .unwrap_or_else(default_endpoint)
+}
+
+#[cfg(target_arch = "wasm32")]
+fn default_endpoint() -> String {
+    DEFAULT_ENDPOINT.to_string()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn default_endpoint() -> String {
+    std::env::var("SUMMER_QUIZ_JUDGE_ENDPOINT")
+        .ok()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| DEFAULT_NATIVE_ENDPOINT.to_string())
 }
 
 fn to_remote_language(lang: Language) -> &'static str {
