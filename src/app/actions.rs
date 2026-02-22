@@ -1,6 +1,8 @@
 use super::*;
 use crate::code_utils::normalize_code;
-use crate::judge::judge_c::{JudgeResult, format_judge_message, grade_c_question, should_use_judge};
+use crate::judge::judge_c::{
+    JudgeResult, format_judge_message, grade_c_question, should_use_judge,
+};
 use crate::judge::judge_java::grade_java_question;
 use crate::judge::judge_kt::grade_kotlin_question;
 use crate::judge::judge_pseudo::{CJudge, PseudoConfig, run_pseudo_tests};

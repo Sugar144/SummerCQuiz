@@ -104,13 +104,13 @@ fn format_pseudo_error(err: &PseudoError) -> String {
     match err {
         PseudoError::LexError { message, line, col } => {
             format!("LexError [{line}:{col}]: {message}")
-        },
+        }
         PseudoError::ParseError { message, line, col } => {
             format!("ParseError [{line}:{col}]: {message}")
-        },
+        }
         PseudoError::UnsupportedFeature { feature, line, col } => {
             format!("UnsupportedFeature [{line}:{col}]: {feature}")
-        },
+        }
         PseudoError::TranspileError { message } => format!("TranspileError: {message}"),
     }
 }
