@@ -142,7 +142,7 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
 
 #[cfg(target_arch = "wasm32")]
 fn wasm_with_local_fallbacks(
-    window: &web_sys::Window,
+    _window: &web_sys::Window,
     primary: &str,
     mut candidates: Vec<String>,
 ) -> Vec<String> {
@@ -469,7 +469,7 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         };
     }
 
-    let endpoints = wasm_with_local_fallbacks(&window,&endpoint, endpoint_candidates(&endpoint));
+    let endpoints = wasm_with_local_fallbacks(&window, &endpoint, endpoint_candidates(&endpoint));
     let security_hint = browser_security_hint(&window, &endpoints);
     let mut last_http_error = None;
     let mut last_fetch_error = None;
