@@ -11,7 +11,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if [[ ! -d "$GH_PAGES_DIR/.git" ]]; then
+if [[ ! -e "$GH_PAGES_DIR/.git" ]]; then
   echo "❌ No se encontró el worktree/repo gh-pages en: $GH_PAGES_DIR"
   exit 1
 fi
