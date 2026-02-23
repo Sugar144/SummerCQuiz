@@ -77,6 +77,7 @@ pub fn run_pseudo_tests(
         mode: Some(GradingMode::JudgeC),
         tests: tests.to_vec(),
         judge_harness: None,
+        judge_endpoint: None,
         is_done: false,
         saw_solution: false,
         attempts: 0,

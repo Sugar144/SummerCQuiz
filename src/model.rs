@@ -22,6 +22,7 @@ pub enum GradingMode {
     JudgeJava,
     JudgeRust,
     JudgePython,
+    JudgeRemote,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
@@ -48,6 +49,8 @@ pub struct Question {
     pub tests: Vec<JudgeTestCase>,
     #[serde(default)]
     pub judge_harness: Option<String>,
+    #[serde(default)]
+    pub judge_endpoint: Option<String>,
     #[serde(default)]
     pub is_done: bool,
     #[serde(default)]
@@ -109,6 +112,22 @@ impl Question {
 
     pub fn uses_judge_pseudo(&self) -> bool {
         matches!(self.mode, Some(GradingMode::JudgePseudo)) && !self.tests.is_empty()
+    }
+
+    pub fn uses_judge_remote(&self) -> bool {
+        matches!(self.mode, Some(GradingMode::JudgeRemote)) && !self.tests.is_empty()
+    }
+
+    pub fn needs_compiler_judge(&self) -> bool {
+        self.uses_judge_c()
+            || self.uses_judge_pseudo()
+            || matches!(
+                self.mode,
+                Some(GradingMode::JudgeKotlin)
+                    | Some(GradingMode::JudgeJava)
+                    | Some(GradingMode::JudgeRust)
+                    | Some(GradingMode::JudgePython)
+            )
     }
 
     pub fn reset_stats(&mut self) {
