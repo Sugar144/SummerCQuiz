@@ -384,6 +384,25 @@ pub fn grade_remote_question(question: &Question, user_code: &str) -> JudgeResul
 }
 
 #[cfg(target_arch = "wasm32")]
+fn is_loopback_http_endpoint(value: &str) -> bool {
+    value.starts_with("http://127.0.0.1:") || value.starts_with("http://localhost:")
+}
+
+#[cfg(target_arch = "wasm32")]
+fn browser_security_hint(window: &web_sys::Window, endpoints: &[String]) -> Option<String> {
+    let protocol = window.location().protocol().ok()?;
+
+    if protocol == "https:" && endpoints.iter().any(|e| is_loopback_http_endpoint(e)) {
+        return Some(
+            "Tu app web está en HTTPS y el judge local en HTTP (localhost/127.0.0.1). El navegador bloquea esto por Mixed Content/Private Network Access. Usa un endpoint HTTPS para el judge o ejecuta la app en HTTP local."
+                .to_string(),
+        );
+    }
+
+    None
+}
+
+#[cfg(target_arch = "wasm32")]
 pub async fn grade_remote_question(question: &Question, user_code: &str) -> JudgeResult {
     use wasm_bindgen::JsCast;
     use wasm_bindgen::JsValue;
@@ -416,11 +435,15 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
     };
 
     let endpoints = wasm_with_local_fallbacks(&endpoint, endpoint_candidates(&endpoint));
+<<<<<<< codex/fix-405-error-in-remote-judge-y0ga4g
+    let security_hint = browser_security_hint(&window, &endpoints);
+=======
+>>>>>>> codex/fix-judge-remote-functionality-for-wasm-cabwrr
     let mut last_http_error = None;
     let mut last_fetch_error = None;
 
-    for candidate in endpoints {
-        let request = match Request::new_with_str_and_init(&candidate, &opts) {
+    for candidate in &endpoints {
+        let request = match Request::new_with_str_and_init(candidate, &opts) {
             Ok(r) => r,
             Err(err) => {
                 last_fetch_error = Some(format!(
@@ -510,9 +533,22 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         };
     }
 
+    let details = last_http_error
+        .or(last_fetch_error)
+        .unwrap_or_else(|| "Judge remoto no respondió correctamente.".to_string());
+
+    let endpoints_text = endpoints.join(", ");
+    let hint_suffix = security_hint
+        .map(|h| format!(" Hint: {h}"))
+        .unwrap_or_default();
+
     JudgeResult::InfrastructureError {
+<<<<<<< codex/fix-405-error-in-remote-judge-y0ga4g
+        message: format!("{details}. Endpoints probados: [{endpoints_text}].{hint_suffix}"),
+=======
         message: last_http_error
             .or(last_fetch_error)
             .unwrap_or_else(|| "Judge remoto no respondió correctamente.".to_string()),
+>>>>>>> codex/fix-judge-remote-functionality-for-wasm-cabwrr
     }
 }
