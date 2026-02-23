@@ -28,6 +28,14 @@ touch .nojekyll
 git add .
 
 if git diff --cached --quiet; then
+  # No hay cambios nuevos en archivos, pero puede haber commits locales pendientes de push
+  git fetch origin >/dev/null 2>&1 || true
+  if git rev-list --count origin/gh-pages..HEAD 2>/dev/null | grep -qv '^0$'; then
+    echo "ℹ️ No hay cambios nuevos, pero hay commits pendientes: pusheando…"
+    git push origin gh-pages
+    exit 0
+  fi
+
   echo "ℹ️ No hay cambios para desplegar"
   exit 0
 fi
