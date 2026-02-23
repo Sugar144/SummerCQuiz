@@ -1,7 +1,5 @@
-use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 use summer_quiz::judge::{
@@ -12,8 +10,6 @@ use summer_quiz::judge::{
     judge_rust::grade_rust_question,
 };
 use summer_quiz::model::{GradingMode, JudgeTestCase, Language, Question};
-
-const MAX_BODY_BYTES: usize = 1_000_000;
 
 #[derive(Debug, Deserialize)]
 struct JudgeRequest {
@@ -54,13 +50,6 @@ enum JudgeResponse {
     },
 }
 
-struct HttpRequest {
-    method: String,
-    path: String,
-    headers: HashMap<String, String>,
-    body: Vec<u8>,
-}
-
 fn main() {
     let bind = std::env::var("JUDGE_BIND").unwrap_or_else(|_| "0.0.0.0:8787".to_string());
     let listener = TcpListener::bind(&bind).expect("no se pudo abrir el puerto del judge server");
@@ -81,183 +70,44 @@ fn main() {
 
 fn handle_connection(mut stream: TcpStream) -> Result<(), String> {
     stream
-        .set_read_timeout(Some(Duration::from_secs(5)))
+        .set_read_timeout(Some(std::time::Duration::from_secs(5)))
         .map_err(|e| e.to_string())?;
 
-    let request = match read_http_request(&mut stream) {
-        Ok(req) => req,
-        Err(err) => {
-            write_text_response(&mut stream, 400, &format!("bad request: {err}"));
-            return Ok(());
-        }
-    };
+    let mut buffer = [0_u8; 64 * 1024];
+    let n = stream
+        .read(&mut buffer)
+        .map_err(|e| format!("no se pudo leer request: {e}"))?;
 
-    if request.method == "OPTIONS" {
-        write_empty_response(&mut stream, 204);
+    let request = String::from_utf8_lossy(&buffer[..n]);
+    let mut lines = request.lines();
+    let first_line = lines.next().ok_or_else(|| "request vacío".to_string())?;
+
+    if first_line.starts_with("OPTIONS ") {
+        write_response(&mut stream, 204, "", "text/plain");
         return Ok(());
     }
 
-    if request.method == "GET" && request.path == "/health" {
-        write_text_response(&mut stream, 200, "ok");
+    if first_line.starts_with("GET /health") {
+        write_response(&mut stream, 200, "ok", "text/plain");
         return Ok(());
     }
 
-    if request.method == "POST" && request.path == "/api/judge/sync" {
-        return handle_judge_sync(&mut stream, request);
-    }
-
-    write_text_response(&mut stream, 404, "not found");
-    Ok(())
-}
-
-fn handle_judge_sync(stream: &mut TcpStream, request: HttpRequest) -> Result<(), String> {
-    let Some(content_type) = request.header("content-type") else {
-        write_json_response(
-            stream,
-            400,
-            &JudgeResponse::InfrastructureError {
-                message: "Falta header Content-Type.".into(),
-            },
-        );
-        return Ok(());
-    };
-
-    if !content_type
-        .to_ascii_lowercase()
-        .contains("application/json")
-    {
-        write_json_response(
-            stream,
-            415,
-            &JudgeResponse::InfrastructureError {
-                message: "Solo se acepta Content-Type: application/json.".into(),
-            },
-        );
+    if !first_line.starts_with("POST /api/judge/sync") {
+        write_response(&mut stream, 404, "not found", "text/plain");
         return Ok(());
     }
 
-    let payload: JudgeRequest = match serde_json::from_slice(&request.body) {
-        Ok(v) => v,
-        Err(err) => {
-            write_json_response(
-                stream,
-                400,
-                &JudgeResponse::InfrastructureError {
-                    message: format!("JSON inválido: {err}"),
-                },
-            );
-            return Ok(());
-        }
-    };
+    let body = request
+        .split("\r\n\r\n")
+        .nth(1)
+        .ok_or_else(|| "faltó body JSON".to_string())?;
 
+    let payload: JudgeRequest = serde_json::from_str(body).map_err(|e| e.to_string())?;
     let response = evaluate(payload);
-    write_json_response(stream, 200, &response);
+    let response_json = serde_json::to_string(&response).map_err(|e| e.to_string())?;
+
+    write_response(&mut stream, 200, &response_json, "application/json");
     Ok(())
-}
-
-fn read_http_request(stream: &mut TcpStream) -> Result<HttpRequest, String> {
-    let mut buffer = Vec::with_capacity(4096);
-    let mut temp = [0_u8; 1024];
-
-    loop {
-        let n = stream
-            .read(&mut temp)
-            .map_err(|e| format!("no se pudo leer request: {e}"))?;
-        if n == 0 {
-            break;
-        }
-        buffer.extend_from_slice(&temp[..n]);
-
-        if find_header_end(&buffer).is_some() {
-            break;
-        }
-
-        if buffer.len() > MAX_BODY_BYTES {
-            return Err("headers demasiado grandes".into());
-        }
-    }
-
-    let header_end = find_header_end(&buffer).ok_or_else(|| "headers incompletos".to_string())?;
-    let header_bytes = &buffer[..header_end];
-    let header_text =
-        std::str::from_utf8(header_bytes).map_err(|_| "headers no son UTF-8 válido".to_string())?;
-
-    let mut lines = header_text.split("\r\n");
-    let request_line = lines
-        .next()
-        .ok_or_else(|| "faltó request line".to_string())?;
-    let mut parts = request_line.split_whitespace();
-    let method = parts
-        .next()
-        .ok_or_else(|| "faltó método HTTP".to_string())?
-        .to_string();
-    let path = parts
-        .next()
-        .ok_or_else(|| "faltó path HTTP".to_string())?
-        .to_string();
-
-    let mut headers = HashMap::new();
-    for line in lines {
-        if line.is_empty() {
-            continue;
-        }
-        let mut kv = line.splitn(2, ':');
-        let key = kv
-            .next()
-            .ok_or_else(|| "header inválido".to_string())?
-            .trim()
-            .to_ascii_lowercase();
-        let value = kv
-            .next()
-            .ok_or_else(|| "header inválido (sin ':')".to_string())?
-            .trim()
-            .to_string();
-        headers.insert(key, value);
-    }
-
-    let mut body = buffer[(header_end + 4)..].to_vec();
-    let expected_len = headers
-        .get("content-length")
-        .and_then(|v| v.parse::<usize>().ok())
-        .unwrap_or(0);
-
-    if expected_len > MAX_BODY_BYTES {
-        return Err("body demasiado grande".into());
-    }
-
-    while body.len() < expected_len {
-        let n = stream
-            .read(&mut temp)
-            .map_err(|e| format!("no se pudo leer body: {e}"))?;
-        if n == 0 {
-            break;
-        }
-        body.extend_from_slice(&temp[..n]);
-    }
-
-    if body.len() < expected_len {
-        return Err("body incompleto".into());
-    }
-    body.truncate(expected_len);
-
-    Ok(HttpRequest {
-        method,
-        path,
-        headers,
-        body,
-    })
-}
-
-fn find_header_end(bytes: &[u8]) -> Option<usize> {
-    bytes.windows(4).position(|w| w == b"\r\n\r\n")
-}
-
-impl HttpRequest {
-    fn header(&self, key: &str) -> Option<&str> {
-        self.headers
-            .get(&key.to_ascii_lowercase())
-            .map(|s| s.as_str())
-    }
 }
 
 fn evaluate(payload: JudgeRequest) -> JudgeResponse {
@@ -358,34 +208,11 @@ fn map_result(result: JudgeResult) -> JudgeResponse {
     }
 }
 
-fn write_empty_response(stream: &mut TcpStream, status: u16) {
-    write_http_response(stream, status, "text/plain", "")
-}
-
-fn write_text_response(stream: &mut TcpStream, status: u16, body: &str) {
-    write_http_response(stream, status, "text/plain; charset=utf-8", body)
-}
-
-fn write_json_response(stream: &mut TcpStream, status: u16, body: &JudgeResponse) {
-    match serde_json::to_string(body) {
-        Ok(json) => write_http_response(stream, status, "application/json", &json),
-        Err(err) => write_http_response(
-            stream,
-            500,
-            "text/plain; charset=utf-8",
-            &format!("error serializando respuesta JSON: {err}"),
-        ),
-    }
-}
-
-fn write_http_response(stream: &mut TcpStream, status: u16, content_type: &str, body: &str) {
+fn write_response(stream: &mut TcpStream, status: u16, body: &str, content_type: &str) {
     let status_text = match status {
         200 => "OK",
         204 => "No Content",
-        400 => "Bad Request",
         404 => "Not Found",
-        415 => "Unsupported Media Type",
-        500 => "Internal Server Error",
         _ => "OK",
     };
 
