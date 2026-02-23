@@ -2,9 +2,21 @@
 <html lang="es">
 <head>
     <meta charset="utf-8" />
+    <meta name="summer-quiz-judge-endpoint" content="" />
     <title>SummerQuiz</title>
     <!-- Solo compila el binario principal para WASM -->
-    <link data-trunk rel="rust" data-bin="summer_quiz_bin" />
+    
+<script type="module">
+import init, * as bindings from '/summer_quiz_bin-5f7d38e009bbf20.js';
+const wasm = await init({ module_or_path: '/summer_quiz_bin-5f7d38e009bbf20_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script>
     <style>
         html, body {
             margin: 0;
@@ -34,7 +46,7 @@
             z-index: 10;
         }
     </style>
-</head>
+<link rel="modulepreload" href="/summer_quiz_bin-5f7d38e009bbf20.js" crossorigin="anonymous" integrity="sha384-AAk2tXtmHLHVxTi/2YjUVzESv6iIREkP6nnIfP5VZzgcDhReXZtXjYNxFpsAOxu0"><link rel="preload" href="/summer_quiz_bin-5f7d38e009bbf20_bg.wasm" crossorigin="anonymous" integrity="sha384-Umcghq5+IA9xXJJzqPkPE/Om6+abZd3RrH25A1r1qttFHG0wUjDe8nNfAf45xLsx" as="fetch" type="application/wasm"></head>
 <body>
 <!-- Canvas para la app -->
 <canvas id="the_canvas_id"></canvas>
