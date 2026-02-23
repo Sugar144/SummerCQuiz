@@ -131,6 +131,31 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
     candidates
 }
 
+#[cfg(target_arch = "wasm32")]
+fn wasm_with_local_fallbacks(primary: &str, mut candidates: Vec<String>) -> Vec<String> {
+    fn push_unique(candidates: &mut Vec<String>, value: String) {
+        if !value.trim().is_empty() && !candidates.iter().any(|c| c == &value) {
+            candidates.push(value);
+        }
+    }
+
+    let primary = primary.trim();
+    let is_absolute = primary.starts_with("http://") || primary.starts_with("https://");
+
+    if !is_absolute {
+        for endpoint in [
+            "http://127.0.0.1:8787/api/judge/sync",
+            "http://127.0.0.1:8787/api/judge",
+            "http://localhost:8787/api/judge/sync",
+            "http://localhost:8787/api/judge",
+        ] {
+            push_unique(&mut candidates, endpoint.to_string());
+        }
+    }
+
+    candidates
+}
+
 #[cfg(test)]
 mod tests {
     use super::endpoint_candidates;
@@ -390,40 +415,49 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         }
     };
 
-    let endpoints = endpoint_candidates(&endpoint);
+    let endpoints = wasm_with_local_fallbacks(&endpoint, endpoint_candidates(&endpoint));
     let mut last_http_error = None;
+    let mut last_fetch_error = None;
 
     for candidate in endpoints {
         let request = match Request::new_with_str_and_init(&candidate, &opts) {
             Ok(r) => r,
             Err(err) => {
-                return JudgeResult::InfrastructureError {
-                    message: format!("No se pudo crear request fetch: {:?}", err),
-                };
+                last_fetch_error = Some(format!(
+                    "No se pudo crear request fetch para {}: {:?}",
+                    candidate, err
+                ));
+                continue;
             }
         };
 
         if let Err(err) = request.headers().set("Content-Type", "application/json") {
-            return JudgeResult::InfrastructureError {
-                message: format!("No se pudo asignar headers del request: {:?}", err),
-            };
+            last_fetch_error = Some(format!(
+                "No se pudo asignar headers del request para {}: {:?}",
+                candidate, err
+            ));
+            continue;
         }
 
         let resp_value = match JsFuture::from(window.fetch_with_request(&request)).await {
             Ok(v) => v,
             Err(err) => {
-                return JudgeResult::InfrastructureError {
-                    message: format!("Fetch judge remoto falló: {:?}", err),
-                };
+                last_fetch_error = Some(format!(
+                    "Fetch judge remoto falló en {}: {:?}",
+                    candidate, err
+                ));
+                continue;
             }
         };
 
         let response: Response = match resp_value.dyn_into() {
             Ok(r) => r,
             Err(_) => {
-                return JudgeResult::InfrastructureError {
-                    message: "La respuesta fetch no es un Response válido.".into(),
-                };
+                last_fetch_error = Some(format!(
+                    "La respuesta fetch en {} no es un Response válido.",
+                    candidate
+                ));
+                continue;
             }
         };
 
@@ -438,12 +472,11 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         }) {
             Ok(text) => text,
             Err(err) => {
-                return JudgeResult::InfrastructureError {
-                    message: format!(
-                        "No se pudo leer body de respuesta del judge remoto: {:?}",
-                        err
-                    ),
-                };
+                last_fetch_error = Some(format!(
+                    "No se pudo leer body de respuesta del judge remoto en {}: {:?}",
+                    candidate, err
+                ));
+                continue;
             }
         };
 
@@ -479,6 +512,7 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
 
     JudgeResult::InfrastructureError {
         message: last_http_error
+            .or(last_fetch_error)
             .unwrap_or_else(|| "Judge remoto no respondió correctamente.".to_string()),
     }
 }
