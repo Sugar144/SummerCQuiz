@@ -89,6 +89,7 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
 
         for suffix in ["/api/judge/sync", "/api/judge", "/judge/sync", "/judge"] {
             push_unique(candidates, format!("{base}{suffix}"));
+            push_unique(candidates, format!("{base}{suffix}/"));
         }
     }
 
@@ -120,8 +121,16 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
         push_unique(&mut candidates, format!("{base}/api/judge"));
     }
 
+    if let Some(base) = primary.strip_suffix("/api/judge/sync/") {
+        push_unique(&mut candidates, format!("{base}/api/judge/"));
+    }
+
     if let Some(base) = primary.strip_suffix("/judge/sync") {
         push_unique(&mut candidates, format!("{base}/judge"));
+    }
+
+    if let Some(base) = primary.strip_suffix("/judge/sync/") {
+        push_unique(&mut candidates, format!("{base}/judge/"));
     }
 
     if let Some(base) = primary.strip_suffix("/sync") {
@@ -132,7 +141,11 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
 }
 
 #[cfg(target_arch = "wasm32")]
-fn wasm_with_local_fallbacks(primary: &str, mut candidates: Vec<String>) -> Vec<String> {
+fn wasm_with_local_fallbacks(
+    _window: &web_sys::Window,
+    primary: &str,
+    mut candidates: Vec<String>,
+) -> Vec<String> {
     fn push_unique(candidates: &mut Vec<String>, value: String) {
         if !value.trim().is_empty() && !candidates.iter().any(|c| c == &value) {
             candidates.push(value);
@@ -180,6 +193,8 @@ mod tests {
         let candidates = endpoint_candidates("/api/judge/sync/");
         assert!(candidates.iter().any(|c| c == "/api/judge/sync"));
         assert!(candidates.iter().any(|c| c == "/api/judge"));
+        assert!(candidates.iter().any(|c| c == "/api/judge/sync/"));
+        assert!(candidates.iter().any(|c| c == "/api/judge/"));
     }
 }
 
@@ -394,7 +409,7 @@ fn browser_security_hint(window: &web_sys::Window, endpoints: &[String]) -> Opti
 
     if protocol == "https:" && endpoints.iter().any(|e| is_loopback_http_endpoint(e)) {
         return Some(
-            "Tu app web está en HTTPS y el judge local en HTTP (localhost/127.0.0.1). El navegador bloquea esto por Mixed Content/Private Network Access. Usa un endpoint HTTPS para el judge o ejecuta la app en HTTP local."
+            "Tu app web está en HTTPS y el judge local en HTTP (localhost/127.0.0.1). El navegador bloquea esto por Mixed Content/Private Network Access. Para seguir trabajando en local ahora, abre la app en HTTP (no HTTPS). Luego puedes migrar a un judge HTTPS en producción."
                 .to_string(),
         );
     }
@@ -434,7 +449,20 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         }
     };
 
-    let endpoints = wasm_with_local_fallbacks(&endpoint, endpoint_candidates(&endpoint));
+    if window
+        .location()
+        .protocol()
+        .ok()
+        .as_deref()
+        == Some("https:")
+        && endpoint.trim_start().starts_with("http://")
+    {
+        return JudgeResult::InfrastructureError {
+            message: "Endpoint remoto configurado con HTTP mientras la app corre en HTTPS. Para desarrollo local inmediato, abre la app en HTTP; para producción, usa un endpoint HTTPS para el judge remoto.".into(),
+        };
+    }
+
+    let endpoints = wasm_with_local_fallbacks(&window, &endpoint, endpoint_candidates(&endpoint));
     let security_hint = browser_security_hint(&window, &endpoints);
     let mut last_http_error = None;
     let mut last_fetch_error = None;
