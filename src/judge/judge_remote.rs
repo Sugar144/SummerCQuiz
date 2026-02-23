@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 #[cfg(target_arch = "wasm32")]
 const DEFAULT_ENDPOINT: &str = "/api/judge/sync";
+#[cfg(not(target_arch = "wasm32"))]
 const DEFAULT_NATIVE_ENDPOINT: &str = "http://127.0.0.1:8787/api/judge/sync";
 
 #[derive(Debug, Serialize)]
@@ -56,7 +57,62 @@ fn endpoint_for(question: &Question) -> String {
 
 #[cfg(target_arch = "wasm32")]
 fn default_endpoint() -> String {
-    DEFAULT_ENDPOINT.to_string()
+    endpoint_from_build_env()
+        .or_else(endpoint_from_querystring)
+        .or_else(endpoint_from_meta)
+        .or_else(endpoint_from_local_storage)
+        .unwrap_or_else(|| DEFAULT_ENDPOINT.to_string())
+}
+
+#[cfg(target_arch = "wasm32")]
+fn normalize_endpoint(value: &str) -> Option<String> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn endpoint_from_build_env() -> Option<String> {
+    option_env!("SUMMER_QUIZ_JUDGE_ENDPOINT").and_then(normalize_endpoint)
+}
+
+#[cfg(target_arch = "wasm32")]
+fn endpoint_from_querystring() -> Option<String> {
+    let window = web_sys::window()?;
+    let search = window.location().search().ok()?;
+    let params = web_sys::UrlSearchParams::new_with_str(&search).ok()?;
+
+    params
+        .get("judge_endpoint")
+        .as_deref()
+        .and_then(normalize_endpoint)
+}
+
+#[cfg(target_arch = "wasm32")]
+fn endpoint_from_meta() -> Option<String> {
+    let window = web_sys::window()?;
+    let document = window.document()?;
+    let meta = document
+        .query_selector("meta[name='summer-quiz-judge-endpoint']")
+        .ok()??;
+
+    meta.get_attribute("content")
+        .as_deref()
+        .and_then(normalize_endpoint)
+}
+
+#[cfg(target_arch = "wasm32")]
+fn endpoint_from_local_storage() -> Option<String> {
+    let window = web_sys::window()?;
+    let storage = window.local_storage().ok()??;
+    storage
+        .get_item("summer_quiz_judge_endpoint")
+        .ok()?
+        .as_deref()
+        .and_then(normalize_endpoint)
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -183,7 +239,7 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         }
     };
 
-    let mut opts = RequestInit::new();
+    let opts = RequestInit::new();
     opts.set_method("POST");
     opts.set_mode(RequestMode::Cors);
     opts.set_body(&JsValue::from_str(&payload_json));
