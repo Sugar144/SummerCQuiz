@@ -131,6 +131,31 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
     candidates
 }
 
+#[cfg(target_arch = "wasm32")]
+fn wasm_with_local_fallbacks(primary: &str, mut candidates: Vec<String>) -> Vec<String> {
+    fn push_unique(candidates: &mut Vec<String>, value: String) {
+        if !value.trim().is_empty() && !candidates.iter().any(|c| c == &value) {
+            candidates.push(value);
+        }
+    }
+
+    let primary = primary.trim();
+    let is_absolute = primary.starts_with("http://") || primary.starts_with("https://");
+
+    if !is_absolute {
+        for endpoint in [
+            "http://127.0.0.1:8787/api/judge/sync",
+            "http://127.0.0.1:8787/api/judge",
+            "http://localhost:8787/api/judge/sync",
+            "http://localhost:8787/api/judge",
+        ] {
+            push_unique(&mut candidates, endpoint.to_string());
+        }
+    }
+
+    candidates
+}
+
 #[cfg(test)]
 mod tests {
     use super::endpoint_candidates;
@@ -390,7 +415,7 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         }
     };
 
-    let endpoints = endpoint_candidates(&endpoint);
+    let endpoints = wasm_with_local_fallbacks(&endpoint, endpoint_candidates(&endpoint));
     let mut last_http_error = None;
 
     for candidate in endpoints {
