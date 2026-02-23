@@ -89,6 +89,7 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
 
         for suffix in ["/api/judge/sync", "/api/judge", "/judge/sync", "/judge"] {
             push_unique(candidates, format!("{base}{suffix}"));
+            push_unique(candidates, format!("{base}{suffix}/"));
         }
     }
 
@@ -120,8 +121,16 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
         push_unique(&mut candidates, format!("{base}/api/judge"));
     }
 
+    if let Some(base) = primary.strip_suffix("/api/judge/sync/") {
+        push_unique(&mut candidates, format!("{base}/api/judge/"));
+    }
+
     if let Some(base) = primary.strip_suffix("/judge/sync") {
         push_unique(&mut candidates, format!("{base}/judge"));
+    }
+
+    if let Some(base) = primary.strip_suffix("/judge/sync/") {
+        push_unique(&mut candidates, format!("{base}/judge/"));
     }
 
     if let Some(base) = primary.strip_suffix("/sync") {
@@ -132,7 +141,11 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
 }
 
 #[cfg(target_arch = "wasm32")]
-fn wasm_with_local_fallbacks(primary: &str, mut candidates: Vec<String>) -> Vec<String> {
+fn wasm_with_local_fallbacks(
+    window: &web_sys::Window,
+    primary: &str,
+    mut candidates: Vec<String>,
+) -> Vec<String> {
     fn push_unique(candidates: &mut Vec<String>, value: String) {
         if !value.trim().is_empty() && !candidates.iter().any(|c| c == &value) {
             candidates.push(value);
@@ -143,13 +156,20 @@ fn wasm_with_local_fallbacks(primary: &str, mut candidates: Vec<String>) -> Vec<
     let is_absolute = primary.starts_with("http://") || primary.starts_with("https://");
 
     if !is_absolute {
+        let protocol = window
+            .location()
+            .protocol()
+            .unwrap_or_else(|_| "http:".to_string());
+
+        let scheme = if protocol == "https:" { "https" } else { "http" };
+
         for endpoint in [
-            "http://127.0.0.1:8787/api/judge/sync",
-            "http://127.0.0.1:8787/api/judge",
-            "http://localhost:8787/api/judge/sync",
-            "http://localhost:8787/api/judge",
+            format!("{scheme}://127.0.0.1:8787/api/judge/sync"),
+            format!("{scheme}://127.0.0.1:8787/api/judge"),
+            format!("{scheme}://localhost:8787/api/judge/sync"),
+            format!("{scheme}://localhost:8787/api/judge"),
         ] {
-            push_unique(&mut candidates, endpoint.to_string());
+            push_unique(&mut candidates, endpoint);
         }
     }
 
@@ -180,6 +200,8 @@ mod tests {
         let candidates = endpoint_candidates("/api/judge/sync/");
         assert!(candidates.iter().any(|c| c == "/api/judge/sync"));
         assert!(candidates.iter().any(|c| c == "/api/judge"));
+        assert!(candidates.iter().any(|c| c == "/api/judge/sync/"));
+        assert!(candidates.iter().any(|c| c == "/api/judge/"));
     }
 }
 
@@ -434,7 +456,20 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         }
     };
 
-    let endpoints = wasm_with_local_fallbacks(&endpoint, endpoint_candidates(&endpoint));
+    if window
+        .location()
+        .protocol()
+        .ok()
+        .as_deref()
+        == Some("https:")
+        && endpoint.trim_start().starts_with("http://")
+    {
+        return JudgeResult::InfrastructureError {
+            message: "Endpoint remoto configurado con HTTP mientras la app corre en HTTPS. Usa un endpoint HTTPS para evitar Mixed Content/Private Network Access.".into(),
+        };
+    }
+
+    let endpoints = wasm_with_local_fallbacks(&window, &endpoint, endpoint_candidates(&endpoint));
     let security_hint = browser_security_hint(&window, &endpoints);
     let mut last_http_error = None;
     let mut last_fetch_error = None;
