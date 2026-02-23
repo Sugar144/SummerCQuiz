@@ -416,7 +416,7 @@ fn browser_security_hint(window: &web_sys::Window, endpoints: &[String]) -> Opti
 
     if protocol == "https:" && endpoints.iter().any(|e| is_loopback_http_endpoint(e)) {
         return Some(
-            "Tu app web está en HTTPS y el judge local en HTTP (localhost/127.0.0.1). El navegador bloquea esto por Mixed Content/Private Network Access. Usa un endpoint HTTPS para el judge o ejecuta la app en HTTP local."
+            "Tu app web está en HTTPS y el judge local en HTTP (localhost/127.0.0.1). El navegador bloquea esto por Mixed Content/Private Network Access. Para seguir trabajando en local ahora, abre la app en HTTP (no HTTPS). Luego puedes migrar a un judge HTTPS en producción."
                 .to_string(),
         );
     }
@@ -465,11 +465,11 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         && endpoint.trim_start().starts_with("http://")
     {
         return JudgeResult::InfrastructureError {
-            message: "Endpoint remoto configurado con HTTP mientras la app corre en HTTPS. Usa un endpoint HTTPS para evitar Mixed Content/Private Network Access.".into(),
+            message: "Endpoint remoto configurado con HTTP mientras la app corre en HTTPS. Para desarrollo local inmediato, abre la app en HTTP; para producción, usa un endpoint HTTPS para el judge remoto.".into(),
         };
     }
 
-    let endpoints = wasm_with_local_fallbacks(&window, &endpoint, endpoint_candidates(&endpoint));
+    let endpoints = wasm_with_local_fallbacks(&endpoint, endpoint_candidates(&endpoint));
     let security_hint = browser_security_hint(&window, &endpoints);
     let mut last_http_error = None;
     let mut last_fetch_error = None;
