@@ -156,13 +156,20 @@ fn wasm_with_local_fallbacks(
     let is_absolute = primary.starts_with("http://") || primary.starts_with("https://");
 
     if !is_absolute {
+        let protocol = window
+            .location()
+            .protocol()
+            .unwrap_or_else(|_| "http:".to_string());
+
+        let scheme = if protocol == "https:" { "https" } else { "http" };
+
         for endpoint in [
-            "http://127.0.0.1:8787/api/judge/sync",
-            "http://127.0.0.1:8787/api/judge",
-            "http://localhost:8787/api/judge/sync",
-            "http://localhost:8787/api/judge",
+            format!("{scheme}://127.0.0.1:8787/api/judge/sync"),
+            format!("{scheme}://127.0.0.1:8787/api/judge"),
+            format!("{scheme}://localhost:8787/api/judge/sync"),
+            format!("{scheme}://localhost:8787/api/judge"),
         ] {
-            push_unique(&mut candidates, endpoint.to_string());
+            push_unique(&mut candidates, endpoint);
         }
     }
 
