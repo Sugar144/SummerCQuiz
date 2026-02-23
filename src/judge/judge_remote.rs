@@ -83,12 +83,21 @@ fn endpoint_from_build_env() -> Option<String> {
 fn endpoint_from_querystring() -> Option<String> {
     let window = web_sys::window()?;
     let search = window.location().search().ok()?;
-    let params = web_sys::UrlSearchParams::new_with_str(&search).ok()?;
+    let query = search.strip_prefix('?').unwrap_or(search.as_str());
 
-    params
-        .get("judge_endpoint")
-        .as_deref()
-        .and_then(normalize_endpoint)
+    for pair in query.split('&') {
+        let (key, value) = match pair.split_once('=') {
+            Some((k, v)) => (k, v),
+            None => (pair, ""),
+        };
+
+        if key == "judge_endpoint" {
+            let decoded = js_sys::decode_uri_component(value).ok()?;
+            return normalize_endpoint(&decoded);
+        }
+    }
+
+    None
 }
 
 #[cfg(target_arch = "wasm32")]

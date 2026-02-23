@@ -3551,6 +3551,7 @@ dependencies = [
  "egui",
  "egui_code_editor",
  "egui_commonmark",
+ "js-sys",
  "log",
  "reqwest",
  "self_update",
