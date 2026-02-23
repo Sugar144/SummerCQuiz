@@ -55,6 +55,31 @@ fn endpoint_for(question: &Question) -> String {
         .unwrap_or_else(default_endpoint)
 }
 
+fn endpoint_candidates(primary: &str) -> Vec<String> {
+    fn push_unique(candidates: &mut Vec<String>, value: String) {
+        if !value.trim().is_empty() && !candidates.iter().any(|c| c == &value) {
+            candidates.push(value);
+        }
+    }
+
+    let mut candidates = Vec::new();
+    push_unique(&mut candidates, primary.to_string());
+
+    if let Some(base) = primary.strip_suffix("/api/judge/sync") {
+        push_unique(&mut candidates, format!("{base}/api/judge"));
+    }
+
+    if let Some(base) = primary.strip_suffix("/judge/sync") {
+        push_unique(&mut candidates, format!("{base}/judge"));
+    }
+
+    if let Some(base) = primary.strip_suffix("/sync") {
+        push_unique(&mut candidates, base.to_string());
+    }
+
+    candidates
+}
+
 #[cfg(target_arch = "wasm32")]
 fn default_endpoint() -> String {
     endpoint_from_build_env()
@@ -202,32 +227,56 @@ fn build_request(question: &Question, source: &str) -> JudgeRequest {
 pub fn grade_remote_question(question: &Question, user_code: &str) -> JudgeResult {
     let endpoint = endpoint_for(question);
     let payload = build_request(question, user_code);
-
     let client = reqwest::blocking::Client::new();
-    let response = match client.post(&endpoint).json(&payload).send() {
-        Ok(response) => response,
-        Err(err) => {
+
+    let endpoints = endpoint_candidates(&endpoint);
+    let mut last_http_error = None;
+
+    for candidate in endpoints {
+        let response = match client.post(&candidate).json(&payload).send() {
+            Ok(response) => response,
+            Err(err) => {
+                return JudgeResult::InfrastructureError {
+                    message: format!("Error conectando con judge remoto: {err}"),
+                };
+            }
+        };
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let body = response.text().unwrap_or_default();
+            last_http_error = Some(format!(
+                "Judge remoto devolvió HTTP {} en {}{}",
+                status,
+                candidate,
+                if body.trim().is_empty() {
+                    String::new()
+                } else {
+                    format!(". Body: {}", body.trim())
+                }
+            ));
+
+            if matches!(status.as_u16(), 404 | 405) {
+                continue;
+            }
+
             return JudgeResult::InfrastructureError {
-                message: format!("Error conectando con judge remoto: {err}"),
+                message: last_http_error
+                    .unwrap_or_else(|| "Judge remoto devolvió un error HTTP.".to_string()),
             };
         }
-    };
 
-    if !response.status().is_success() {
-        return JudgeResult::InfrastructureError {
-            message: format!(
-                "Judge remoto devolvió HTTP {} en {}",
-                response.status(),
-                endpoint
-            ),
+        return match response.json::<JudgeResponse>() {
+            Ok(body) => map_response(body),
+            Err(err) => JudgeResult::InfrastructureError {
+                message: format!("Respuesta JSON inválida del judge remoto: {err}"),
+            },
         };
     }
 
-    match response.json::<JudgeResponse>() {
-        Ok(body) => map_response(body),
-        Err(err) => JudgeResult::InfrastructureError {
-            message: format!("Respuesta JSON inválida del judge remoto: {err}"),
-        },
+    JudgeResult::InfrastructureError {
+        message: last_http_error
+            .unwrap_or_else(|| "Judge remoto no respondió correctamente.".to_string()),
     }
 }
 
@@ -254,21 +303,6 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
     opts.set_mode(RequestMode::Cors);
     opts.set_body(&JsValue::from_str(&payload_json));
 
-    let request = match Request::new_with_str_and_init(&endpoint, &opts) {
-        Ok(r) => r,
-        Err(err) => {
-            return JudgeResult::InfrastructureError {
-                message: format!("No se pudo crear request fetch: {:?}", err),
-            };
-        }
-    };
-
-    if let Err(err) = request.headers().set("Content-Type", "application/json") {
-        return JudgeResult::InfrastructureError {
-            message: format!("No se pudo asignar headers del request: {:?}", err),
-        };
-    }
-
     let window = match web_sys::window() {
         Some(w) => w,
         None => {
@@ -278,58 +312,95 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         }
     };
 
-    let resp_value = match JsFuture::from(window.fetch_with_request(&request)).await {
-        Ok(v) => v,
-        Err(err) => {
+    let endpoints = endpoint_candidates(&endpoint);
+    let mut last_http_error = None;
+
+    for candidate in endpoints {
+        let request = match Request::new_with_str_and_init(&candidate, &opts) {
+            Ok(r) => r,
+            Err(err) => {
+                return JudgeResult::InfrastructureError {
+                    message: format!("No se pudo crear request fetch: {:?}", err),
+                };
+            }
+        };
+
+        if let Err(err) = request.headers().set("Content-Type", "application/json") {
             return JudgeResult::InfrastructureError {
-                message: format!("Fetch judge remoto falló: {:?}", err),
+                message: format!("No se pudo asignar headers del request: {:?}", err),
             };
         }
-    };
 
-    let response: Response = match resp_value.dyn_into() {
-        Ok(r) => r,
-        Err(_) => {
-            return JudgeResult::InfrastructureError {
-                message: "La respuesta fetch no es un Response válido.".into(),
-            };
-        }
-    };
+        let resp_value = match JsFuture::from(window.fetch_with_request(&request)).await {
+            Ok(v) => v,
+            Err(err) => {
+                return JudgeResult::InfrastructureError {
+                    message: format!("Fetch judge remoto falló: {:?}", err),
+                };
+            }
+        };
 
-    if !response.ok() {
-        return JudgeResult::InfrastructureError {
-            message: format!(
-                "Judge remoto devolvió HTTP {} en {}",
+        let response: Response = match resp_value.dyn_into() {
+            Ok(r) => r,
+            Err(_) => {
+                return JudgeResult::InfrastructureError {
+                    message: "La respuesta fetch no es un Response válido.".into(),
+                };
+            }
+        };
+
+        let text_js = match response.text() {
+            Ok(promise) => JsFuture::from(promise).await,
+            Err(err) => Err(err),
+        };
+
+        let text = match text_js.and_then(|v| {
+            v.as_string()
+                .ok_or_else(|| JsValue::from_str("response.text() no devolvió string"))
+        }) {
+            Ok(text) => text,
+            Err(err) => {
+                return JudgeResult::InfrastructureError {
+                    message: format!(
+                        "No se pudo leer body de respuesta del judge remoto: {:?}",
+                        err
+                    ),
+                };
+            }
+        };
+
+        if !response.ok() {
+            last_http_error = Some(format!(
+                "Judge remoto devolvió HTTP {} en {}{}",
                 response.status(),
-                endpoint
-            ),
+                candidate,
+                if text.trim().is_empty() {
+                    String::new()
+                } else {
+                    format!(". Body: {}", text.trim())
+                }
+            ));
+
+            if matches!(response.status(), 404 | 405) {
+                continue;
+            }
+
+            return JudgeResult::InfrastructureError {
+                message: last_http_error
+                    .unwrap_or_else(|| "Judge remoto devolvió un error HTTP.".to_string()),
+            };
+        }
+
+        return match serde_json::from_str::<JudgeResponse>(&text) {
+            Ok(body) => map_response(body),
+            Err(err) => JudgeResult::InfrastructureError {
+                message: format!("Respuesta JSON inválida del judge remoto: {err}"),
+            },
         };
     }
 
-    let text_js = match response.text() {
-        Ok(promise) => JsFuture::from(promise).await,
-        Err(err) => Err(err),
-    };
-
-    let text = match text_js.and_then(|v| {
-        v.as_string()
-            .ok_or_else(|| JsValue::from_str("response.text() no devolvió string"))
-    }) {
-        Ok(text) => text,
-        Err(err) => {
-            return JudgeResult::InfrastructureError {
-                message: format!(
-                    "No se pudo leer body de respuesta del judge remoto: {:?}",
-                    err
-                ),
-            };
-        }
-    };
-
-    match serde_json::from_str::<JudgeResponse>(&text) {
-        Ok(body) => map_response(body),
-        Err(err) => JudgeResult::InfrastructureError {
-            message: format!("Respuesta JSON inválida del judge remoto: {err}"),
-        },
+    JudgeResult::InfrastructureError {
+        message: last_http_error
+            .unwrap_or_else(|| "Judge remoto no respondió correctamente.".to_string()),
     }
 }
