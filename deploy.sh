@@ -21,8 +21,7 @@ fi
 trunk build --release --public-url /SummerCQuiz/ --dist "$DIST_DIR"
 
 # 2) Sync al worktree gh-pages
-rsync -av --delete --exclude=".git" "$DIST_DIR/" "$GH_PAGES_DIR/"
-
+rsync -av --delete --exclude=".git" --exclude=".nojekyll" "$DIST_DIR/" "$GH_PAGES_DIR/"
 # 3) Commit & push
 cd "$GH_PAGES_DIR"
 touch .nojekyll
