@@ -93,6 +93,7 @@ fn endpoint_from_querystring() -> Option<String> {
 
         if key == "judge_endpoint" {
             let decoded = js_sys::decode_uri_component(value).ok()?;
+            let decoded = decoded.as_string()?;
             return normalize_endpoint(&decoded);
         }
     }
