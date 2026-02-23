@@ -92,7 +92,7 @@ fn handle_connection(mut stream: TcpStream) -> Result<(), String> {
         return Ok(());
     }
 
-    if !first_line.starts_with("POST /api/judge/sync") {
+    if !is_supported_judge_route(first_line) {
         write_response(&mut stream, 404, "not found", "text/plain");
         return Ok(());
     }
@@ -108,6 +108,17 @@ fn handle_connection(mut stream: TcpStream) -> Result<(), String> {
 
     write_response(&mut stream, 200, &response_json, "application/json");
     Ok(())
+}
+
+fn is_supported_judge_route(first_line: &str) -> bool {
+    [
+        "POST /api/judge/sync",
+        "POST /api/judge",
+        "POST /judge/sync",
+        "POST /judge",
+    ]
+    .iter()
+    .any(|prefix| first_line.starts_with(prefix))
 }
 
 fn evaluate(payload: JudgeRequest) -> JudgeResponse {
