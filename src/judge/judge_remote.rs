@@ -142,7 +142,7 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
 
 #[cfg(target_arch = "wasm32")]
 fn wasm_with_local_fallbacks(
-    _window: &web_sys::Window,
+    window: &web_sys::Window,
     primary: &str,
     mut candidates: Vec<String>,
 ) -> Vec<String> {
