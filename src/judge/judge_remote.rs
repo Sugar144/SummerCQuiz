@@ -435,10 +435,7 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
     };
 
     let endpoints = wasm_with_local_fallbacks(&endpoint, endpoint_candidates(&endpoint));
-<<<<<<< codex/fix-405-error-in-remote-judge-y0ga4g
     let security_hint = browser_security_hint(&window, &endpoints);
-=======
->>>>>>> codex/fix-judge-remote-functionality-for-wasm-cabwrr
     let mut last_http_error = None;
     let mut last_fetch_error = None;
 
@@ -543,12 +540,7 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         .unwrap_or_default();
 
     JudgeResult::InfrastructureError {
-<<<<<<< codex/fix-405-error-in-remote-judge-y0ga4g
         message: format!("{details}. Endpoints probados: [{endpoints_text}].{hint_suffix}"),
-=======
-        message: last_http_error
-            .or(last_fetch_error)
-            .unwrap_or_else(|| "Judge remoto no respondió correctamente.".to_string()),
->>>>>>> codex/fix-judge-remote-functionality-for-wasm-cabwrr
+
     }
 }

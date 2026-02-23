@@ -11,11 +11,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-<<<<<<< codex/fix-405-error-in-remote-judge-y0ga4g
-if [[ ! -d "$GH_PAGES_DIR/.git" ]]; then
-=======
+
 if [[ ! -e "$GH_PAGES_DIR/.git" ]]; then
->>>>>>> codex/fix-judge-remote-functionality-for-wasm-cabwrr
   echo "❌ No se encontró el worktree/repo gh-pages en: $GH_PAGES_DIR"
   exit 1
 fi
