@@ -2,22 +2,25 @@ use crate::judge::judge_c::JudgeResult;
 use crate::model::{JudgeTestCase, Language, Question};
 use serde::{Deserialize, Serialize};
 
-// ---------------------------------------------------------------------------
-// Protocol types (shared between client and server)
-// ---------------------------------------------------------------------------
+#[cfg(target_arch = "wasm32")]
+const DEFAULT_ENDPOINT: &str = "/api/judge/sync";
+#[cfg(not(target_arch = "wasm32"))]
+const DEFAULT_NATIVE_ENDPOINT: &str = "http://127.0.0.1:8787/api/judge/sync";
 
 #[derive(Debug, Serialize)]
-pub struct JudgeRequest {
-    pub language: String,
-    pub source: String,
-    pub tests: Vec<JudgeTestCase>,
+struct JudgeRequest {
+    language: String,
+    source: String,
+    tests: Vec<JudgeTestCase>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub harness: Option<String>,
+    harness: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    question_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "status", rename_all = "snake_case")]
-pub enum JudgeResponse {
+enum JudgeResponse {
     Accepted,
     CompileError {
         stderr: String,
@@ -45,61 +48,185 @@ pub enum JudgeResponse {
     },
 }
 
-// ---------------------------------------------------------------------------
-// Endpoint resolution
-// ---------------------------------------------------------------------------
-
-fn resolve_endpoint(question: &Question) -> Option<String> {
-    if let Some(ep) = &question.judge_endpoint {
-        let trimmed = ep.trim();
-        if !trimmed.is_empty() {
-            return Some(trimmed.to_string());
-        }
-    }
-    global_endpoint()
+fn endpoint_for(question: &Question) -> String {
+    question
+        .judge_endpoint
+        .clone()
+        .unwrap_or_else(default_endpoint)
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-fn global_endpoint() -> Option<String> {
-    std::env::var("SUMMER_QUIZ_JUDGE_URL")
-        .ok()
-        .filter(|s| !s.trim().is_empty())
-}
-
-#[cfg(target_arch = "wasm32")]
-fn global_endpoint() -> Option<String> {
-    if let Some(url) = option_env!("SUMMER_QUIZ_JUDGE_URL") {
-        let trimmed = url.trim();
-        if !trimmed.is_empty() {
-            return Some(trimmed.to_string());
+fn endpoint_candidates(primary: &str) -> Vec<String> {
+    fn push_unique(candidates: &mut Vec<String>, value: String) {
+        if !value.trim().is_empty() && !candidates.iter().any(|c| c == &value) {
+            candidates.push(value);
         }
     }
 
-    if let Some(url) = endpoint_from_meta() {
-        return Some(url);
+    fn trim_trailing_slashes(value: &str) -> String {
+        let trimmed = value.trim();
+        if trimmed == "/" {
+            return trimmed.to_string();
+        }
+
+        trimmed.trim_end_matches('/').to_string()
     }
 
-    if let Some(url) = endpoint_from_querystring() {
-        return Some(url);
+    fn split_origin(value: &str) -> Option<(&str, &str)> {
+        let scheme = value.find("://")?;
+        let path_start = value[scheme + 3..].find('/').map(|i| i + scheme + 3);
+        match path_start {
+            Some(i) => Some((&value[..i], &value[i..])),
+            None => Some((value, "")),
+        }
     }
 
-    endpoint_from_local_storage()
+    fn push_suffixes(candidates: &mut Vec<String>, base: &str) {
+        let base = if base == "/" {
+            String::new()
+        } else {
+            base.to_string()
+        };
+
+        for suffix in ["/api/judge/sync", "/api/judge", "/judge/sync", "/judge"] {
+            push_unique(candidates, format!("{base}{suffix}"));
+            push_unique(candidates, format!("{base}{suffix}/"));
+        }
+    }
+
+    let mut candidates = Vec::new();
+    let primary = trim_trailing_slashes(primary);
+    push_unique(&mut candidates, primary.clone());
+
+    if primary.starts_with("http://") || primary.starts_with("https://") {
+        if let Some((origin, path)) = split_origin(&primary) {
+            if path.is_empty() {
+                push_suffixes(&mut candidates, origin);
+            } else if matches!(
+                path,
+                "/api/judge/sync" | "/api/judge" | "/judge/sync" | "/judge"
+            ) {
+                push_suffixes(&mut candidates, origin);
+            }
+        }
+    } else if primary == "/" || primary.is_empty() {
+        push_suffixes(&mut candidates, "");
+    } else if matches!(
+        primary.as_str(),
+        "/api/judge/sync" | "/api/judge" | "/judge/sync" | "/judge"
+    ) {
+        push_suffixes(&mut candidates, "");
+    }
+
+    if let Some(base) = primary.strip_suffix("/api/judge/sync") {
+        push_unique(&mut candidates, format!("{base}/api/judge"));
+    }
+
+    if let Some(base) = primary.strip_suffix("/api/judge/sync/") {
+        push_unique(&mut candidates, format!("{base}/api/judge/"));
+    }
+
+    if let Some(base) = primary.strip_suffix("/judge/sync") {
+        push_unique(&mut candidates, format!("{base}/judge"));
+    }
+
+    if let Some(base) = primary.strip_suffix("/judge/sync/") {
+        push_unique(&mut candidates, format!("{base}/judge/"));
+    }
+
+    if let Some(base) = primary.strip_suffix("/sync") {
+        push_unique(&mut candidates, base.to_string());
+    }
+
+    candidates
 }
 
 #[cfg(target_arch = "wasm32")]
-fn endpoint_from_meta() -> Option<String> {
-    let window = web_sys::window()?;
-    let document = window.document()?;
-    let meta = document
-        .query_selector("meta[name='summer-quiz-judge-url']")
-        .ok()??;
-    let content = meta.get_attribute("content")?;
-    let trimmed = content.trim();
+fn wasm_with_local_fallbacks(
+    window: &web_sys::Window,
+    primary: &str,
+    mut candidates: Vec<String>,
+) -> Vec<String> {
+    fn push_unique(candidates: &mut Vec<String>, value: String) {
+        if !value.trim().is_empty() && !candidates.iter().any(|c| c == &value) {
+            candidates.push(value);
+        }
+    }
+
+    let primary = primary.trim();
+    let is_absolute = primary.starts_with("http://") || primary.starts_with("https://");
+
+    if !is_absolute {
+        let protocol = window
+            .location()
+            .protocol()
+            .unwrap_or_else(|_| "http:".to_string());
+
+        let scheme = if protocol == "https:" { "https" } else { "http" };
+
+        for endpoint in [
+            format!("{scheme}://127.0.0.1:8787/api/judge/sync"),
+            format!("{scheme}://127.0.0.1:8787/api/judge"),
+            format!("{scheme}://localhost:8787/api/judge/sync"),
+            format!("{scheme}://localhost:8787/api/judge"),
+        ] {
+            push_unique(&mut candidates, endpoint);
+        }
+    }
+
+    candidates
+}
+
+#[cfg(test)]
+mod tests {
+    use super::endpoint_candidates;
+
+    #[test]
+    fn endpoint_candidates_include_common_paths_for_origin() {
+        let candidates = endpoint_candidates("http://127.0.0.1:8787");
+        assert!(
+            candidates
+                .iter()
+                .any(|c| c == "http://127.0.0.1:8787/api/judge/sync")
+        );
+        assert!(
+            candidates
+                .iter()
+                .any(|c| c == "http://127.0.0.1:8787/api/judge")
+        );
+    }
+
+    #[test]
+    fn endpoint_candidates_normalize_trailing_slash() {
+        let candidates = endpoint_candidates("/api/judge/sync/");
+        assert!(candidates.iter().any(|c| c == "/api/judge/sync"));
+        assert!(candidates.iter().any(|c| c == "/api/judge"));
+        assert!(candidates.iter().any(|c| c == "/api/judge/sync/"));
+        assert!(candidates.iter().any(|c| c == "/api/judge/"));
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn default_endpoint() -> String {
+    endpoint_from_build_env()
+        .or_else(endpoint_from_querystring)
+        .or_else(endpoint_from_meta)
+        .or_else(endpoint_from_local_storage)
+        .unwrap_or_else(|| DEFAULT_ENDPOINT.to_string())
+}
+
+#[cfg(target_arch = "wasm32")]
+fn normalize_endpoint(value: &str) -> Option<String> {
+    let trimmed = value.trim();
     if trimmed.is_empty() {
         None
     } else {
         Some(trimmed.to_string())
     }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn endpoint_from_build_env() -> Option<String> {
+    option_env!("SUMMER_QUIZ_JUDGE_ENDPOINT").and_then(normalize_endpoint)
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -109,37 +236,54 @@ fn endpoint_from_querystring() -> Option<String> {
     let query = search.strip_prefix('?').unwrap_or(search.as_str());
 
     for pair in query.split('&') {
-        let (key, value) = pair.split_once('=').unwrap_or((pair, ""));
-        if key == "judge_url" {
+        let (key, value) = match pair.split_once('=') {
+            Some((k, v)) => (k, v),
+            None => (pair, ""),
+        };
+
+        if key == "judge_endpoint" {
             let decoded = js_sys::decode_uri_component(value).ok()?;
             let decoded = decoded.as_string()?;
-            let trimmed = decoded.trim();
-            if !trimmed.is_empty() {
-                return Some(trimmed.to_string());
-            }
+            return normalize_endpoint(&decoded);
         }
     }
+
     None
+}
+
+#[cfg(target_arch = "wasm32")]
+fn endpoint_from_meta() -> Option<String> {
+    let window = web_sys::window()?;
+    let document = window.document()?;
+    let meta = document
+        .query_selector("meta[name='summer-quiz-judge-endpoint']")
+        .ok()??;
+
+    meta.get_attribute("content")
+        .as_deref()
+        .and_then(normalize_endpoint)
 }
 
 #[cfg(target_arch = "wasm32")]
 fn endpoint_from_local_storage() -> Option<String> {
     let window = web_sys::window()?;
     let storage = window.local_storage().ok()??;
-    let value = storage.get_item("summer_quiz_judge_url").ok()??;
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_string())
-    }
+    storage
+        .get_item("summer_quiz_judge_endpoint")
+        .ok()?
+        .as_deref()
+        .and_then(normalize_endpoint)
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+#[cfg(not(target_arch = "wasm32"))]
+fn default_endpoint() -> String {
+    std::env::var("SUMMER_QUIZ_JUDGE_ENDPOINT")
+        .ok()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| DEFAULT_NATIVE_ENDPOINT.to_string())
+}
 
-fn language_tag(lang: Language) -> &'static str {
+fn to_remote_language(lang: Language) -> &'static str {
     match lang {
         Language::C => "c",
         Language::Pseudocode => "pseudocode",
@@ -148,15 +292,6 @@ fn language_tag(lang: Language) -> &'static str {
         Language::Rust => "rust",
         Language::Python => "python",
         Language::GitGithub => "git_github",
-    }
-}
-
-fn build_request(question: &Question, source: &str) -> JudgeRequest {
-    JudgeRequest {
-        language: language_tag(question.language).to_string(),
-        source: source.to_string(),
-        tests: question.tests.clone(),
-        harness: question.judge_harness.clone(),
     }
 }
 
@@ -203,57 +338,91 @@ fn map_response(resp: JudgeResponse) -> JudgeResult {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Native (blocking) implementation
-// ---------------------------------------------------------------------------
-
-#[cfg(not(target_arch = "wasm32"))]
-pub fn grade_remote_question(question: &Question, user_code: &str) -> JudgeResult {
-    let endpoint = match resolve_endpoint(question) {
-        Some(ep) => ep,
-        None => {
-            return JudgeResult::InfrastructureError {
-                message: "No hay endpoint de judge remoto configurado. \
-                          Establece la variable de entorno SUMMER_QUIZ_JUDGE_URL."
-                    .into(),
-            };
-        }
-    };
-
-    let payload = build_request(question, user_code);
-    let client = reqwest::blocking::Client::new();
-
-    let response = match client.post(&endpoint).json(&payload).send() {
-        Ok(r) => r,
-        Err(err) => {
-            return JudgeResult::InfrastructureError {
-                message: format!("Error conectando con judge remoto en {endpoint}: {err}"),
-            };
-        }
-    };
-
-    if !response.status().is_success() {
-        let status = response.status();
-        let body = response.text().unwrap_or_default();
-        return JudgeResult::InfrastructureError {
-            message: format!(
-                "Judge remoto devolvió HTTP {status} en {endpoint}. {}",
-                body.trim()
-            ),
-        };
-    }
-
-    match response.json::<JudgeResponse>() {
-        Ok(body) => map_response(body),
-        Err(err) => JudgeResult::InfrastructureError {
-            message: format!("Respuesta JSON inválida del judge remoto: {err}"),
-        },
+fn build_request(question: &Question, source: &str) -> JudgeRequest {
+    JudgeRequest {
+        language: to_remote_language(question.language).to_string(),
+        source: source.to_string(),
+        tests: question.tests.clone(),
+        harness: question.judge_harness.clone(),
+        question_id: question.id.clone(),
     }
 }
 
-// ---------------------------------------------------------------------------
-// WASM (async) implementation
-// ---------------------------------------------------------------------------
+#[cfg(not(target_arch = "wasm32"))]
+pub fn grade_remote_question(question: &Question, user_code: &str) -> JudgeResult {
+    let endpoint = endpoint_for(question);
+    let payload = build_request(question, user_code);
+    let client = reqwest::blocking::Client::new();
+
+    let endpoints = endpoint_candidates(&endpoint);
+    let mut last_http_error = None;
+
+    for candidate in endpoints {
+        let response = match client.post(&candidate).json(&payload).send() {
+            Ok(response) => response,
+            Err(err) => {
+                return JudgeResult::InfrastructureError {
+                    message: format!("Error conectando con judge remoto: {err}"),
+                };
+            }
+        };
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let body = response.text().unwrap_or_default();
+            last_http_error = Some(format!(
+                "Judge remoto devolvió HTTP {} en {}{}",
+                status,
+                candidate,
+                if body.trim().is_empty() {
+                    String::new()
+                } else {
+                    format!(". Body: {}", body.trim())
+                }
+            ));
+
+            if matches!(status.as_u16(), 404 | 405) {
+                continue;
+            }
+
+            return JudgeResult::InfrastructureError {
+                message: last_http_error
+                    .unwrap_or_else(|| "Judge remoto devolvió un error HTTP.".to_string()),
+            };
+        }
+
+        return match response.json::<JudgeResponse>() {
+            Ok(body) => map_response(body),
+            Err(err) => JudgeResult::InfrastructureError {
+                message: format!("Respuesta JSON inválida del judge remoto: {err}"),
+            },
+        };
+    }
+
+    JudgeResult::InfrastructureError {
+        message: last_http_error
+            .unwrap_or_else(|| "Judge remoto no respondió correctamente.".to_string()),
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn is_loopback_http_endpoint(value: &str) -> bool {
+    value.starts_with("http://127.0.0.1:") || value.starts_with("http://localhost:")
+}
+
+#[cfg(target_arch = "wasm32")]
+fn browser_security_hint(window: &web_sys::Window, endpoints: &[String]) -> Option<String> {
+    let protocol = window.location().protocol().ok()?;
+
+    if protocol == "https:" && endpoints.iter().any(|e| is_loopback_http_endpoint(e)) {
+        return Some(
+            "Tu app web está en HTTPS y el judge local en HTTP (localhost/127.0.0.1). El navegador bloquea esto por Mixed Content/Private Network Access. Para seguir trabajando en local ahora, abre la app en HTTP (no HTTPS). Luego puedes migrar a un judge HTTPS en producción."
+                .to_string(),
+        );
+    }
+
+    None
+}
 
 #[cfg(target_arch = "wasm32")]
 pub async fn grade_remote_question(question: &Question, user_code: &str) -> JudgeResult {
@@ -262,25 +431,13 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
     use wasm_bindgen_futures::JsFuture;
     use web_sys::{Request, RequestInit, RequestMode, Response};
 
-    let endpoint = match resolve_endpoint(question) {
-        Some(ep) => ep,
-        None => {
-            return JudgeResult::InfrastructureError {
-                message: "No hay endpoint de judge remoto configurado. \
-                          Añade <meta name=\"summer-quiz-judge-url\" \
-                          content=\"https://tu-server/api/judge\"> en index.html, \
-                          o pasa ?judge_url=... en la URL."
-                    .into(),
-            };
-        }
-    };
-
+    let endpoint = endpoint_for(question);
     let payload = build_request(question, user_code);
     let payload_json = match serde_json::to_string(&payload) {
         Ok(v) => v,
         Err(err) => {
             return JudgeResult::InfrastructureError {
-                message: format!("No se pudo serializar payload del judge: {err}"),
+                message: format!("No se pudo serializar payload del judge remoto: {err}"),
             };
         }
     };
@@ -289,21 +446,6 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
     opts.set_method("POST");
     opts.set_mode(RequestMode::Cors);
     opts.set_body(&JsValue::from_str(&payload_json));
-
-    let request = match Request::new_with_str_and_init(&endpoint, &opts) {
-        Ok(r) => r,
-        Err(err) => {
-            return JudgeResult::InfrastructureError {
-                message: format!("No se pudo crear request fetch para {endpoint}: {err:?}"),
-            };
-        }
-    };
-
-    if let Err(err) = request.headers().set("Content-Type", "application/json") {
-        return JudgeResult::InfrastructureError {
-            message: format!("No se pudo asignar Content-Type: {err:?}"),
-        };
-    }
 
     let window = match web_sys::window() {
         Some(w) => w,
@@ -314,60 +456,126 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         }
     };
 
-    let resp_value = match JsFuture::from(window.fetch_with_request(&request)).await {
-        Ok(v) => v,
-        Err(err) => {
-            return JudgeResult::InfrastructureError {
-                message: format!(
-                    "Fetch al judge remoto falló ({endpoint}): {err:?}. \
-                     Verifica que el server esté corriendo y accesible por HTTPS."
-                ),
-            };
-        }
-    };
-
-    let response: Response = match resp_value.dyn_into() {
-        Ok(r) => r,
-        Err(_) => {
-            return JudgeResult::InfrastructureError {
-                message: "La respuesta fetch no es un Response válido.".into(),
-            };
-        }
-    };
-
-    let text = match response.text() {
-        Ok(promise) => match JsFuture::from(promise).await {
-            Ok(v) => v.as_string().unwrap_or_default(),
-            Err(err) => {
-                return JudgeResult::InfrastructureError {
-                    message: format!("No se pudo leer body de respuesta: {err:?}"),
-                };
-            }
-        },
-        Err(err) => {
-            return JudgeResult::InfrastructureError {
-                message: format!("No se pudo obtener body de respuesta: {err:?}"),
-            };
-        }
-    };
-
-    if !response.ok() {
+    if window
+        .location()
+        .protocol()
+        .ok()
+        .as_deref()
+        == Some("https:")
+        && endpoint.trim_start().starts_with("http://")
+    {
         return JudgeResult::InfrastructureError {
-            message: format!(
-                "Judge remoto devolvió HTTP {} en {endpoint}. {}",
-                response.status(),
-                text.trim()
-            ),
+            message: "Endpoint remoto configurado con HTTP mientras la app corre en HTTPS. Para desarrollo local inmediato, abre la app en HTTP; para producción, usa un endpoint HTTPS para el judge remoto.".into(),
         };
     }
 
-    match serde_json::from_str::<JudgeResponse>(&text) {
-        Ok(body) => map_response(body),
-        Err(err) => JudgeResult::InfrastructureError {
-            message: format!(
-                "Respuesta JSON inválida del judge remoto: {err}. Body: {}",
-                text.trim()
-            ),
-        },
+    let endpoints = wasm_with_local_fallbacks(&window, &endpoint, endpoint_candidates(&endpoint));
+    let security_hint = browser_security_hint(&window, &endpoints);
+    let mut last_http_error = None;
+    let mut last_fetch_error = None;
+
+    for candidate in &endpoints {
+        let request = match Request::new_with_str_and_init(candidate, &opts) {
+            Ok(r) => r,
+            Err(err) => {
+                last_fetch_error = Some(format!(
+                    "No se pudo crear request fetch para {}: {:?}",
+                    candidate, err
+                ));
+                continue;
+            }
+        };
+
+        if let Err(err) = request.headers().set("Content-Type", "application/json") {
+            last_fetch_error = Some(format!(
+                "No se pudo asignar headers del request para {}: {:?}",
+                candidate, err
+            ));
+            continue;
+        }
+
+        let resp_value = match JsFuture::from(window.fetch_with_request(&request)).await {
+            Ok(v) => v,
+            Err(err) => {
+                last_fetch_error = Some(format!(
+                    "Fetch judge remoto falló en {}: {:?}",
+                    candidate, err
+                ));
+                continue;
+            }
+        };
+
+        let response: Response = match resp_value.dyn_into() {
+            Ok(r) => r,
+            Err(_) => {
+                last_fetch_error = Some(format!(
+                    "La respuesta fetch en {} no es un Response válido.",
+                    candidate
+                ));
+                continue;
+            }
+        };
+
+        let text_js = match response.text() {
+            Ok(promise) => JsFuture::from(promise).await,
+            Err(err) => Err(err),
+        };
+
+        let text = match text_js.and_then(|v| {
+            v.as_string()
+                .ok_or_else(|| JsValue::from_str("response.text() no devolvió string"))
+        }) {
+            Ok(text) => text,
+            Err(err) => {
+                last_fetch_error = Some(format!(
+                    "No se pudo leer body de respuesta del judge remoto en {}: {:?}",
+                    candidate, err
+                ));
+                continue;
+            }
+        };
+
+        if !response.ok() {
+            last_http_error = Some(format!(
+                "Judge remoto devolvió HTTP {} en {}{}",
+                response.status(),
+                candidate,
+                if text.trim().is_empty() {
+                    String::new()
+                } else {
+                    format!(". Body: {}", text.trim())
+                }
+            ));
+
+            if matches!(response.status(), 404 | 405) {
+                continue;
+            }
+
+            return JudgeResult::InfrastructureError {
+                message: last_http_error
+                    .unwrap_or_else(|| "Judge remoto devolvió un error HTTP.".to_string()),
+            };
+        }
+
+        return match serde_json::from_str::<JudgeResponse>(&text) {
+            Ok(body) => map_response(body),
+            Err(err) => JudgeResult::InfrastructureError {
+                message: format!("Respuesta JSON inválida del judge remoto: {err}"),
+            },
+        };
+    }
+
+    let details = last_http_error
+        .or(last_fetch_error)
+        .unwrap_or_else(|| "Judge remoto no respondió correctamente.".to_string());
+
+    let endpoints_text = endpoints.join(", ");
+    let hint_suffix = security_hint
+        .map(|h| format!(" Hint: {h}"))
+        .unwrap_or_default();
+
+    JudgeResult::InfrastructureError {
+        message: format!("{details}. Endpoints probados: [{endpoints_text}].{hint_suffix}"),
+
     }
 }

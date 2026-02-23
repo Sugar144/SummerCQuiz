@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub fn normalize_newlines(value: &str) -> String {
     value.replace("\r\n", "\n")
 }

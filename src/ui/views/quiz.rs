@@ -173,14 +173,18 @@ pub fn ui_quiz(app: &mut QuizApp, ctx: &Context) {
                             app.complete_all_level();
                         }
 
+                        if app.is_remote_judge_pending() {
+                            ui.label("⏳ Judge remoto en progreso, espera el resultado...");
+                        }
+
                         // Botones enviar/saltar
                         let (enviar, saltar) =
                             two_button_row(ui, panel_width, "Enviar", "Saltar pregunta");
-                        if enviar {
+                        if enviar && !app.is_remote_judge_pending() {
                             let input = app.progress().input.clone();
                             app.procesar_respuesta(&input);
                         }
-                        if saltar {
+                        if saltar && !app.is_remote_judge_pending() {
                             app.saltar_pregunta();
                         }
 

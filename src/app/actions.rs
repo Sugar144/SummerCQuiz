@@ -41,55 +41,82 @@ impl QuizApp {
 
         let q = &self.quiz.modules[cw].levels[cl].questions[ci];
 
-        // In WASM, any question requiring a compiler must go to the remote judge
         #[cfg(target_arch = "wasm32")]
-        if q.uses_judge_remote() || q.needs_compiler_judge() {
-            self.start_remote_judge(cw, cl, ci, respuesta.to_string());
+        if q.uses_judge_remote()
+            || should_use_judge(q)
+            || matches!(q.mode, Some(GradingMode::JudgeKotlin))
+            || matches!(q.mode, Some(GradingMode::JudgeJava))
+            || matches!(q.mode, Some(GradingMode::JudgeRust))
+            || matches!(q.mode, Some(GradingMode::JudgePython))
+        {
+            self.start_remote_judge_submission(cw, cl, ci, respuesta.to_string());
             return;
         }
 
-        let grading_result = self.grade_locally(q, respuesta);
+        let grading_result = self.grade_question_sync(q, respuesta);
         self.apply_grading_result(cw, cl, ci, grading_result);
     }
 
-    fn grade_locally(&self, q: &Question, respuesta: &str) -> JudgeResult {
+    #[cfg(not(target_arch = "wasm32"))]
+    fn grade_question_sync(&self, q: &crate::model::Question, respuesta: &str) -> JudgeResult {
         if q.uses_judge_pseudo() {
-            return run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge);
-        }
-
-        if matches!(q.mode, Some(GradingMode::JudgeKotlin)) {
-            return grade_kotlin_question(q, respuesta);
-        }
-        if matches!(q.mode, Some(GradingMode::JudgeJava)) {
-            return grade_java_question(q, respuesta);
-        }
-        if matches!(q.mode, Some(GradingMode::JudgeRust)) {
-            return grade_rust_question(q, respuesta);
-        }
-        if matches!(q.mode, Some(GradingMode::JudgePython)) {
-            return grade_python_question(q, respuesta);
-        }
-
-        #[cfg(not(target_arch = "wasm32"))]
-        if q.uses_judge_remote() {
-            return grade_remote_question(q, respuesta);
-        }
-
-        if should_use_judge(q) {
-            return grade_c_question(q, respuesta);
-        }
-
-        let user_code = normalize_code(respuesta);
-        let answer_code = normalize_code(&q.answer);
-        if user_code == answer_code {
-            JudgeResult::Accepted
+            run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge)
+        } else if matches!(q.mode, Some(GradingMode::JudgeKotlin)) {
+            grade_kotlin_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeJava)) {
+            grade_java_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeRust)) {
+            grade_rust_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgePython)) {
+            grade_python_question(q, respuesta)
+        } else if q.uses_judge_remote() {
+            grade_remote_question(q, respuesta)
+        } else if should_use_judge(q) {
+            grade_c_question(q, respuesta)
         } else {
-            JudgeResult::WrongAnswer {
-                test_index: 0,
-                input: String::new(),
-                expected: String::new(),
-                received: String::new(),
-                diff: String::new(),
+            let user_code = normalize_code(respuesta);
+            let answer_code = normalize_code(&q.answer);
+            if user_code == answer_code {
+                JudgeResult::Accepted
+            } else {
+                JudgeResult::WrongAnswer {
+                    test_index: 0,
+                    input: String::new(),
+                    expected: String::new(),
+                    received: String::new(),
+                    diff: String::new(),
+                }
+            }
+        }
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    fn grade_question_sync(&self, q: &crate::model::Question, respuesta: &str) -> JudgeResult {
+        if q.uses_judge_pseudo() {
+            run_pseudo_tests(respuesta, &q.tests, &PseudoConfig::default(), &CJudge)
+        } else if matches!(q.mode, Some(GradingMode::JudgeKotlin)) {
+            grade_kotlin_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeJava)) {
+            grade_java_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgeRust)) {
+            grade_rust_question(q, respuesta)
+        } else if matches!(q.mode, Some(GradingMode::JudgePython)) {
+            grade_python_question(q, respuesta)
+        } else if should_use_judge(q) {
+            grade_c_question(q, respuesta)
+        } else {
+            let user_code = normalize_code(respuesta);
+            let answer_code = normalize_code(&q.answer);
+            if user_code == answer_code {
+                JudgeResult::Accepted
+            } else {
+                JudgeResult::WrongAnswer {
+                    test_index: 0,
+                    input: String::new(),
+                    expected: String::new(),
+                    received: String::new(),
+                    diff: String::new(),
+                }
             }
         }
     }
@@ -175,12 +202,8 @@ impl QuizApp {
         };
     }
 
-    // ------------------------------------------------------------------
-    // Remote judge (async via WASM spawn_local + mpsc channel)
-    // ------------------------------------------------------------------
-
     #[cfg(target_arch = "wasm32")]
-    fn start_remote_judge(&mut self, cw: usize, cl: usize, ci: usize, source: String) {
+    fn start_remote_judge_submission(&mut self, cw: usize, cl: usize, ci: usize, source: String) {
         let question = self.quiz.modules[cw].levels[cl].questions[ci].clone();
         let (tx, rx) = std::sync::mpsc::channel::<JudgeResult>();
 
@@ -211,10 +234,6 @@ impl QuizApp {
     pub fn is_remote_judge_pending(&self) -> bool {
         self.remote_judge_pending.is_some()
     }
-
-    // ------------------------------------------------------------------
-    // Navigation
-    // ------------------------------------------------------------------
 
     pub fn saltar_pregunta(&mut self) {
         let (cw, cl, ci) = match self.current_position() {
@@ -250,17 +269,22 @@ impl QuizApp {
         self.message = "⏩ Pregunta saltada. La verás en la siguiente ronda.".to_string();
     }
 
+    /// Marca la solución vista y avanza a la siguiente pendiente dentro del nivel;
+    /// si era la última, completa nivel/semana y puede ir al resumen.
     pub fn avanzar_a_siguiente_pregunta(&mut self) {
+        // 1) Extraer índices actuales
         let (cw, cl, ci) = match self.current_position() {
             Some(pos) => pos,
             None => return,
         };
 
+        // 2) Marcar que vio la solución
         {
             let q = &mut self.quiz.modules[cw].levels[cl].questions[ci];
             q.saw_solution = true;
         }
 
+        // 3) Avanzar al siguiente pendiente en el nivel
         let next_q = self.next_pending_in_level();
         {
             let prog = self.progress_mut();
@@ -269,14 +293,14 @@ impl QuizApp {
             prog.show_solution = false;
         }
 
+        // 4) Si no quedan más preguntas, completar nivel/semana
         self.finalize_level_or_module();
+
+        // 5) Prefill de input
         self.update_input_prefill();
     }
 
-    // ------------------------------------------------------------------
-    // Test / debug helpers
-    // ------------------------------------------------------------------
-
+    // TEST helpers
     pub fn complete_all_module(&mut self) {
         let wi = match self.progress().current_module {
             Some(w) => w,
@@ -284,6 +308,7 @@ impl QuizApp {
         };
         let lang = self.selected_language.unwrap_or(Language::C);
 
+        // 1) Marcar cada pregunta y acumular sus IDs
         let mut ids = Vec::new();
         for lvl in &mut self.quiz.modules[wi].levels {
             for q in &mut lvl.questions {
@@ -295,6 +320,7 @@ impl QuizApp {
             }
         }
 
+        // 2) Añadir a completed_ids
         {
             let prog = self.progress_mut();
             for id in ids {
@@ -302,11 +328,17 @@ impl QuizApp {
             }
         }
 
+        // 4) Desbloquear lógica de semana
         self.complete_module(wi);
+
+        // 4) **Sincroniza** para propagar completed_ids → q.is_done
         self.sync_is_done();
+
+        // 5) Ir al resumen semanal
         self.state = AppState::Summary;
     }
 
+    /// Marca *todas* las preguntas del nivel actual como completadas y va al resumen de nivel o al resumen semanal si era el último nivel.
     pub fn complete_all_level(&mut self) {
         let wi = match self.progress().current_module {
             Some(w) => w,
@@ -318,6 +350,7 @@ impl QuizApp {
         };
         let lang = self.selected_language.unwrap_or(Language::C);
 
+        // 1) Marcar cada pregunta del nivel y acumular IDs
         let mut ids = Vec::new();
         for q in &mut self.quiz.modules[wi].levels[li].questions {
             if q.language == lang {
@@ -327,6 +360,7 @@ impl QuizApp {
             }
         }
 
+        // 2) Añadir a completed_ids
         {
             let prog = self.progress_mut();
             for id in ids {
@@ -334,15 +368,18 @@ impl QuizApp {
             }
         }
 
+        // 4) Disparar lógica de completar nivel (desbloquear siguiente nivel o semana)
         self.complete_level(wi, li);
+
+        // 4) **Sincroniza** para propagar completed_ids → q.is_done
         self.sync_is_done();
+
+        // 5) Si esa acción completó la semana entera, vamos al resumen semanal;
+        //    en caso contrario, abrimos el resumen de nivel.
         self.state = AppState::LevelSummary;
     }
 
-    // ------------------------------------------------------------------
-    // Level navigation helpers
-    // ------------------------------------------------------------------
-
+    // Motores internos
     pub fn next_pending_in_module(&mut self) -> Option<(usize, usize)> {
         let progress = self.progress();
         let module_idx = progress.current_module?;
@@ -364,23 +401,29 @@ impl QuizApp {
         None
     }
 
+    /// Busca el índice de la próxima pregunta pendiente dentro del nivel actual.
+    /// Devuelve Some(idx) o None si ya no quedan.
     pub fn next_pending_in_level(&mut self) -> Option<usize> {
         let progress = self.progress();
         let module_idx = progress.current_module?;
         let level_idx = progress.current_level?;
         let language = self.selected_language.unwrap_or(Language::C);
 
+        // Busca la semana y el nivel actuales
         let module: Module = self.quiz.modules.get(module_idx)?.clone();
         let level = module.levels.get(level_idx)?;
 
+        // Haz una copia de shown_this_round para evitar doble borrow
         let shown = progress.shown_this_round.clone();
 
+        // Busca una pregunta pendiente no mostrada aún en esta ronda
         for (q_idx, q) in level.questions.iter().enumerate() {
             if q.language == language {
                 if let Some(id) = &q.id {
                     if !self.progress().completed_ids.contains(id)
                         && !shown.contains(&(level_idx, q_idx))
                     {
+                        // Marca como mostrada en esta ronda
                         let progress = self.progress_mut();
                         progress.shown_this_round.push((level_idx, q_idx));
                         return Some(q_idx);
@@ -389,6 +432,7 @@ impl QuizApp {
             }
         }
 
+        // Si todas ya fueron mostradas en esta ronda pero aún hay pendientes, arranca ronda nueva
         let hay_pendientes = level.questions.iter().enumerate().any(|(_q_idx, q)| {
             q.language == language
                 && q.id
@@ -404,6 +448,7 @@ impl QuizApp {
                 progress.shown_this_round.clear();
             }
 
+            // Busca de nuevo (ahora con shown_this_round vacío)
             for (q_idx, q) in level.questions.iter().enumerate() {
                 if q.language == language {
                     if let Some(id) = &q.id {

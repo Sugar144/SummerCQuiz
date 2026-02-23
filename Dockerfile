@@ -1,29 +1,38 @@
-# ============================================================
-# summer_quiz judge server – multi-stage Docker build
-# ============================================================
-# Build:  docker build -t summer-quiz-judge .
-# Run:    docker run -p 8787:8787 summer-quiz-judge
-# ============================================================
+# Judge server for production (Hetzner/VPS)
+# Builds the Rust binary and runs it with required toolchains.
 
-# --- Stage 1: compile the server binary ----------------------
-FROM rust:1.85-bookworm AS builder
+FROM rust:1.85-slim-bookworm
+
 WORKDIR /app
 COPY . .
-RUN cargo build --release --bin summer_quiz_judge_server
 
-# --- Stage 2: minimal runtime with compilers ----------------
-FROM debian:bookworm-slim
+# Toolchains needed by the judges (adjust if you don't need some languages)
+#
+# Kotlin: we install the official compiler zip because Debian repos often don't
+# ship a recent `kotlinc`.
+ARG KOTLIN_VERSION=2.3.10
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl unzip \
     gcc libc6-dev \
     python3 \
     default-jdk-headless \
-    ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/target/release/summer_quiz_judge_server /usr/local/bin/
+# Install Kotlin compiler (kotlinc) to /opt/kotlin and symlink into PATH
+RUN curl -fsSL -o /tmp/kotlin.zip \
+      "https://github.com/JetBrains/kotlin/releases/download/v${KOTLIN_VERSION}/kotlin-compiler-${KOTLIN_VERSION}.zip" \
+  && mkdir -p /opt/kotlin \
+  && unzip -q /tmp/kotlin.zip -d /opt/kotlin \
+  && ln -sf /opt/kotlin/kotlinc/bin/kotlinc /usr/local/bin/kotlinc \
+  && rm -f /tmp/kotlin.zip
+
+# Build only the judge server binary
+RUN cargo build --release --bin summer_quiz_judge_server
 
 ENV JUDGE_BIND=0.0.0.0:8787
 EXPOSE 8787
 
-CMD ["summer_quiz_judge_server"]
+CMD ["./target/release/summer_quiz_judge_server"]
+

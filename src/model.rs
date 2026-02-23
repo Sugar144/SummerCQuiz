@@ -118,18 +118,6 @@ impl Question {
         matches!(self.mode, Some(GradingMode::JudgeRemote)) && !self.tests.is_empty()
     }
 
-    pub fn needs_compiler_judge(&self) -> bool {
-        self.uses_judge_c()
-            || self.uses_judge_pseudo()
-            || matches!(
-                self.mode,
-                Some(GradingMode::JudgeKotlin)
-                    | Some(GradingMode::JudgeJava)
-                    | Some(GradingMode::JudgeRust)
-                    | Some(GradingMode::JudgePython)
-            )
-    }
-
     pub fn reset_stats(&mut self) {
         self.is_done = false;
         self.attempts = 0;

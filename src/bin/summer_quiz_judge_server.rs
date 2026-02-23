@@ -1,11 +1,9 @@
-use axum::http::StatusCode;
-use axum::routing::{get, post};
-use axum::{Json, Router};
-use serde::{Deserialize, Serialize};
-use tower_http::cors::CorsLayer;
+use std::io::{Read, Write};
+use std::net::{TcpListener, TcpStream};
 
+use serde::{Deserialize, Serialize};
 use summer_quiz::judge::{
-    judge_c::{grade_c_question, JudgeResult},
+    judge_c::{JudgeResult, grade_c_question},
     judge_java::grade_java_question,
     judge_kt::grade_kotlin_question,
     judge_python::grade_python_question,
@@ -13,16 +11,13 @@ use summer_quiz::judge::{
 };
 use summer_quiz::model::{GradingMode, JudgeTestCase, Language, Question};
 
-// ---------------------------------------------------------------------------
-// Protocol types (mirror of judge_remote.rs)
-// ---------------------------------------------------------------------------
-
 #[derive(Debug, Deserialize)]
 struct JudgeRequest {
     language: String,
     source: String,
     tests: Vec<JudgeTestCase>,
     harness: Option<String>,
+    question_id: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -55,51 +50,79 @@ enum JudgeResponse {
     },
 }
 
-// ---------------------------------------------------------------------------
-// Server
-// ---------------------------------------------------------------------------
-
-#[tokio::main]
-async fn main() {
+fn main() {
     let bind = std::env::var("JUDGE_BIND").unwrap_or_else(|_| "0.0.0.0:8787".to_string());
-
-    let app = Router::new()
-        .route("/api/judge", post(handle_judge))
-        .route("/health", get(|| async { "ok" }))
-        .layer(CorsLayer::permissive());
-
-    let listener = tokio::net::TcpListener::bind(&bind)
-        .await
-        .unwrap_or_else(|e| panic!("No se pudo abrir {bind}: {e}"));
+    let listener = TcpListener::bind(&bind).expect("no se pudo abrir el puerto del judge server");
 
     println!("summer_quiz judge server escuchando en http://{bind}");
 
-    axum::serve(listener, app)
-        .await
-        .expect("server error");
+    for stream in listener.incoming() {
+        match stream {
+            Ok(stream) => {
+                if let Err(err) = handle_connection(stream) {
+                    eprintln!("error en conexión judge: {err}");
+                }
+            }
+            Err(err) => eprintln!("error aceptando conexión: {err}"),
+        }
+    }
 }
 
-async fn handle_judge(
-    Json(payload): Json<JudgeRequest>,
-) -> Result<Json<JudgeResponse>, (StatusCode, String)> {
-    let result = tokio::task::spawn_blocking(move || evaluate(payload))
-        .await
-        .map_err(|e| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Task panicked: {e}"),
-            )
-        })?;
+fn handle_connection(mut stream: TcpStream) -> Result<(), String> {
+    stream
+        .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+        .map_err(|e| e.to_string())?;
 
-    Ok(Json(result))
+    let mut buffer = [0_u8; 64 * 1024];
+    let n = stream
+        .read(&mut buffer)
+        .map_err(|e| format!("no se pudo leer request: {e}"))?;
+
+    let request = String::from_utf8_lossy(&buffer[..n]);
+    let mut lines = request.lines();
+    let first_line = lines.next().ok_or_else(|| "request vacío".to_string())?;
+
+    if first_line.starts_with("OPTIONS ") {
+        write_response(&mut stream, 204, "", "text/plain");
+        return Ok(());
+    }
+
+    if first_line.starts_with("GET /health") {
+        write_response(&mut stream, 200, "ok", "text/plain");
+        return Ok(());
+    }
+
+    if !is_supported_judge_route(first_line) {
+        write_response(&mut stream, 404, "not found", "text/plain");
+        return Ok(());
+    }
+
+    let body = request
+        .split("\r\n\r\n")
+        .nth(1)
+        .ok_or_else(|| "faltó body JSON".to_string())?;
+
+    let payload: JudgeRequest = serde_json::from_str(body).map_err(|e| e.to_string())?;
+    let response = evaluate(payload);
+    let response_json = serde_json::to_string(&response).map_err(|e| e.to_string())?;
+
+    write_response(&mut stream, 200, &response_json, "application/json");
+    Ok(())
 }
 
-// ---------------------------------------------------------------------------
-// Evaluation
-// ---------------------------------------------------------------------------
+fn is_supported_judge_route(first_line: &str) -> bool {
+    [
+        "POST /api/judge/sync",
+        "POST /api/judge",
+        "POST /judge/sync",
+        "POST /judge",
+    ]
+    .iter()
+    .any(|prefix| first_line.starts_with(prefix))
+}
 
 fn evaluate(payload: JudgeRequest) -> JudgeResponse {
-    let question = match build_question(&payload) {
+    let question = match map_request_to_question(&payload) {
         Ok(q) => q,
         Err(message) => return JudgeResponse::InfrastructureError { message },
     };
@@ -111,16 +134,16 @@ fn evaluate(payload: JudgeRequest) -> JudgeResponse {
         Some(GradingMode::JudgeRust) => grade_rust_question(&question, &payload.source),
         Some(GradingMode::JudgePython) => grade_python_question(&question, &payload.source),
         _ => JudgeResult::InfrastructureError {
-            message: "Lenguaje no soportado por el judge server.".into(),
+            message: "Lenguaje no soportado por el judge remoto.".into(),
         },
     };
 
     map_result(result)
 }
 
-fn build_question(payload: &JudgeRequest) -> Result<Question, String> {
+fn map_request_to_question(payload: &JudgeRequest) -> Result<Question, String> {
     if payload.tests.is_empty() {
-        return Err("Se requiere al menos un test para evaluar.".into());
+        return Err("Se requiere al menos un test para evaluar en remoto.".into());
     }
 
     let (language, mode) = match payload.language.trim().to_ascii_lowercase().as_str() {
@@ -129,7 +152,7 @@ fn build_question(payload: &JudgeRequest) -> Result<Question, String> {
         "java" => (Language::Java, GradingMode::JudgeJava),
         "rust" => (Language::Rust, GradingMode::JudgeRust),
         "python" => (Language::Python, GradingMode::JudgePython),
-        other => return Err(format!("Lenguaje no soportado: {other}")),
+        other => return Err(format!("Lenguaje remoto no soportado: {other}")),
     };
 
     Ok(Question {
@@ -149,7 +172,7 @@ fn build_question(payload: &JudgeRequest) -> Result<Question, String> {
         attempts: 0,
         fails: 0,
         skips: 0,
-        id: None,
+        id: payload.question_id.clone(),
     })
 }
 
@@ -194,4 +217,22 @@ fn map_result(result: JudgeResult) -> JudgeResponse {
             JudgeResponse::InfrastructureError { message }
         }
     }
+}
+
+fn write_response(stream: &mut TcpStream, status: u16, body: &str, content_type: &str) {
+    let status_text = match status {
+        200 => "OK",
+        204 => "No Content",
+        404 => "Not Found",
+        _ => "OK",
+    };
+
+    let response = format!(
+        "HTTP/1.1 {status} {status_text}\r\nContent-Type: {content_type}\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: POST, GET, OPTIONS\r\nAccess-Control-Allow-Headers: Content-Type\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+        body.len(),
+        body
+    );
+
+    let _ = stream.write_all(response.as_bytes());
+    let _ = stream.flush();
 }
