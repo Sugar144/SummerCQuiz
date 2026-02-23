@@ -1,0 +1,6 @@
+# Backend judge (HTTPS) for your domain
+api.check4fun.app {
+  encode gzip zstd
+  reverse_proxy judge:8787
+}
+
