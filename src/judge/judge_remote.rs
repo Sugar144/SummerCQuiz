@@ -62,8 +62,59 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
         }
     }
 
+    fn trim_trailing_slashes(value: &str) -> String {
+        let trimmed = value.trim();
+        if trimmed == "/" {
+            return trimmed.to_string();
+        }
+
+        trimmed.trim_end_matches('/').to_string()
+    }
+
+    fn split_origin(value: &str) -> Option<(&str, &str)> {
+        let scheme = value.find("://")?;
+        let path_start = value[scheme + 3..].find('/').map(|i| i + scheme + 3);
+        match path_start {
+            Some(i) => Some((&value[..i], &value[i..])),
+            None => Some((value, "")),
+        }
+    }
+
+    fn push_suffixes(candidates: &mut Vec<String>, base: &str) {
+        let base = if base == "/" {
+            String::new()
+        } else {
+            base.to_string()
+        };
+
+        for suffix in ["/api/judge/sync", "/api/judge", "/judge/sync", "/judge"] {
+            push_unique(candidates, format!("{base}{suffix}"));
+        }
+    }
+
     let mut candidates = Vec::new();
-    push_unique(&mut candidates, primary.to_string());
+    let primary = trim_trailing_slashes(primary);
+    push_unique(&mut candidates, primary.clone());
+
+    if primary.starts_with("http://") || primary.starts_with("https://") {
+        if let Some((origin, path)) = split_origin(&primary) {
+            if path.is_empty() {
+                push_suffixes(&mut candidates, origin);
+            } else if matches!(
+                path,
+                "/api/judge/sync" | "/api/judge" | "/judge/sync" | "/judge"
+            ) {
+                push_suffixes(&mut candidates, origin);
+            }
+        }
+    } else if primary == "/" || primary.is_empty() {
+        push_suffixes(&mut candidates, "");
+    } else if matches!(
+        primary.as_str(),
+        "/api/judge/sync" | "/api/judge" | "/judge/sync" | "/judge"
+    ) {
+        push_suffixes(&mut candidates, "");
+    }
 
     if let Some(base) = primary.strip_suffix("/api/judge/sync") {
         push_unique(&mut candidates, format!("{base}/api/judge"));
@@ -78,6 +129,33 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
     }
 
     candidates
+}
+
+#[cfg(test)]
+mod tests {
+    use super::endpoint_candidates;
+
+    #[test]
+    fn endpoint_candidates_include_common_paths_for_origin() {
+        let candidates = endpoint_candidates("http://127.0.0.1:8787");
+        assert!(
+            candidates
+                .iter()
+                .any(|c| c == "http://127.0.0.1:8787/api/judge/sync")
+        );
+        assert!(
+            candidates
+                .iter()
+                .any(|c| c == "http://127.0.0.1:8787/api/judge")
+        );
+    }
+
+    #[test]
+    fn endpoint_candidates_normalize_trailing_slash() {
+        let candidates = endpoint_candidates("/api/judge/sync/");
+        assert!(candidates.iter().any(|c| c == "/api/judge/sync"));
+        assert!(candidates.iter().any(|c| c == "/api/judge"));
+    }
 }
 
 #[cfg(target_arch = "wasm32")]
