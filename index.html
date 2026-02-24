@@ -9,8 +9,8 @@
     <!-- Solo compila el binario principal para WASM -->
     
 <script type="module">
-import init, * as bindings from '/summer_quiz_bin-7969a479ac05a5db.js';
-const wasm = await init({ module_or_path: '/summer_quiz_bin-7969a479ac05a5db_bg.wasm' });
+import init, * as bindings from '/summer_quiz_bin-b71f5ae5ef1d7a47.js';
+const wasm = await init({ module_or_path: '/summer_quiz_bin-b71f5ae5ef1d7a47_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -48,7 +48,7 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
             z-index: 10;
         }
     </style>
-<link rel="modulepreload" href="/summer_quiz_bin-7969a479ac05a5db.js" crossorigin="anonymous" integrity="sha384-gYa8sMEzSpsjF3aWiUOOSao+MeMnpUO1ni90e12BgBYiH0svXqGgRljMq2BK9Rk7"><link rel="preload" href="/summer_quiz_bin-7969a479ac05a5db_bg.wasm" crossorigin="anonymous" integrity="sha384-ASe9hFdDyKTl4R8pXpYX9cOyMWd2u/LkRjaFPKaTBvTIod8aEnRCFCsbvnREUq7U" as="fetch" type="application/wasm"></head>
+<link rel="modulepreload" href="/summer_quiz_bin-b71f5ae5ef1d7a47.js" crossorigin="anonymous" integrity="sha384-wRzFJzZQsbFV7AdTV7kMKrBmisoMsZ+BQYyjp5TisdEnLoOh8opwC3wS2Tw86pAI"><link rel="preload" href="/summer_quiz_bin-b71f5ae5ef1d7a47_bg.wasm" crossorigin="anonymous" integrity="sha384-S2kwpnEX9SF3xs3ZGCZI2S7qKNmFgze+ti3ua3Gehf82vdG8lFl4d+d9+e8HZsII" as="fetch" type="application/wasm"></head>
 <body>
 <!-- Canvas para la app -->
 <canvas id="the_canvas_id"></canvas>
