@@ -1,11 +1,11 @@
-use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
-use std::time::Duration;
-
-
+use axum::http::StatusCode;
+use axum::routing::{get, post};
+use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
+use tower_http::cors::CorsLayer;
+
 use summer_quiz::judge::{
-    judge_c::{JudgeResult, grade_c_question},
+    judge_c::{grade_c_question, JudgeResult},
     judge_java::grade_java_question,
     judge_kt::grade_kotlin_question,
     judge_python::grade_python_question,
@@ -19,6 +19,7 @@ struct JudgeRequest {
     source: String,
     tests: Vec<JudgeTestCase>,
     harness: Option<String>,
+    #[allow(dead_code)]
     question_id: Option<String>,
 }
 
@@ -52,130 +53,49 @@ enum JudgeResponse {
     },
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let bind = std::env::var("JUDGE_BIND").unwrap_or_else(|_| "0.0.0.0:8787".to_string());
-    let listener = TcpListener::bind(&bind).expect("no se pudo abrir el puerto del judge server");
+
+    let app = Router::new()
+        .route("/api/judge/sync", post(handle_judge))
+        .route("/api/judge", post(handle_judge))
+        .route("/judge/sync", post(handle_judge))
+        .route("/judge", post(handle_judge))
+        .route("/health", get(|| async { "ok" }))
+        .layer(CorsLayer::permissive());
+
+    let listener = tokio::net::TcpListener::bind(&bind)
+        .await
+        .unwrap_or_else(|e| panic!("No se pudo abrir {bind}: {e}"));
 
     println!("summer_quiz judge server escuchando en http://{bind}");
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                if let Err(err) = handle_connection(stream) {
-                    eprintln!("error en conexión judge: {err}");
-                }
-            }
-            Err(err) => eprintln!("error aceptando conexión: {err}"),
-        }
-    }
+    axum::serve(listener, app)
+        .await
+        .expect("server error");
 }
 
+async fn handle_judge(
+    Json(payload): Json<JudgeRequest>,
+) -> Result<Json<JudgeResponse>, (StatusCode, String)> {
+    // spawn_blocking: compilation/execution is CPU-bound and blocking;
+    // this prevents it from stalling the async runtime so other requests
+    // (including CORS preflight) are handled concurrently.
+    let result = tokio::task::spawn_blocking(move || evaluate(payload))
+        .await
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Task panicked: {e}"),
+            )
+        })?;
 
-fn handle_connection(mut stream: TcpStream) -> Result<(), String> {
-    stream
-        .set_read_timeout(Some(Duration::from_secs(10)))
-        .map_err(|e| e.to_string())?;
-
-    // 1) Leer hasta tener headers completos
-    let mut buf = Vec::with_capacity(64 * 1024);
-    let mut tmp = [0u8; 8192];
-
-    let header_end;
-    loop {
-        let n = stream.read(&mut tmp).map_err(|e| format!("no se pudo leer: {e}"))?;
-        if n == 0 {
-            return Err("cliente cerró conexión antes de enviar request".into());
-        }
-        buf.extend_from_slice(&tmp[..n]);
-
-        if let Some(pos) = find_subslice(&buf, b"\r\n\r\n") {
-            header_end = pos + 4;
-            break;
-        }
-
-        if buf.len() > 256 * 1024 {
-            return Err("headers demasiado grandes".into());
-        }
-    }
-
-    let (header_bytes, mut rest) = buf.split_at(header_end);
-    let header_str = String::from_utf8_lossy(header_bytes);
-    let mut lines = header_str.lines();
-    let first_line = lines.next().ok_or_else(|| "request vacío".to_string())?;
-
-    // 2) OPTIONS /health y rutas
-    if first_line.starts_with("OPTIONS ") {
-        write_response(&mut stream, 204, "", "text/plain");
-        return Ok(());
-    }
-    if first_line.starts_with("GET /health") {
-        write_response(&mut stream, 200, "ok", "text/plain");
-        return Ok(());
-    }
-    if !is_supported_judge_route(first_line) {
-        write_response(&mut stream, 404, "not found", "text/plain");
-        return Ok(());
-    }
-
-    // 3) Content-Length
-    let content_length = parse_content_length(&header_str).unwrap_or(0);
-    if content_length == 0 {
-        return Err("faltó Content-Length o es 0".into());
-    }
-    if content_length > 2 * 1024 * 1024 {
-        return Err("body demasiado grande".into());
-    }
-
-    // 4) Leer body completo (puede venir parcialmente en 'rest')
-    let mut body = Vec::with_capacity(content_length);
-    body.extend_from_slice(rest);
-    while body.len() < content_length {
-        let n = stream.read(&mut tmp).map_err(|e| format!("no se pudo leer body: {e}"))?;
-        if n == 0 {
-            return Err("cliente cerró conexión antes de completar body".into());
-        }
-        body.extend_from_slice(&tmp[..n]);
-        if body.len() > content_length {
-            body.truncate(content_length);
-            break;
-        }
-    }
-
-    let payload: JudgeRequest =
-        serde_json::from_slice(&body).map_err(|e| format!("JSON inválido: {e}"))?;
-    let response = evaluate(payload);
-    let response_json = serde_json::to_string(&response).map_err(|e| e.to_string())?;
-    write_response(&mut stream, 200, &response_json, "application/json");
-    Ok(())
-}
-
-fn parse_content_length(headers: &str) -> Option<usize> {
-    for line in headers.lines() {
-        let (k, v) = line.split_once(':')?;
-        if k.eq_ignore_ascii_case("content-length") {
-            return v.trim().parse::<usize>().ok();
-        }
-    }
-    None
-}
-
-fn find_subslice(haystack: &[u8], needle: &[u8]) -> Option<usize> {
-    haystack.windows(needle.len()).position(|w| w == needle)
-}
-
-fn is_supported_judge_route(first_line: &str) -> bool {
-    [
-        "POST /api/judge/sync",
-        "POST /api/judge",
-        "POST /judge/sync",
-        "POST /judge",
-    ]
-    .iter()
-    .any(|prefix| first_line.starts_with(prefix))
+    Ok(Json(result))
 }
 
 fn evaluate(payload: JudgeRequest) -> JudgeResponse {
-    let question = match map_request_to_question(&payload) {
+    let question = match build_question(&payload) {
         Ok(q) => q,
         Err(message) => return JudgeResponse::InfrastructureError { message },
     };
@@ -187,16 +107,16 @@ fn evaluate(payload: JudgeRequest) -> JudgeResponse {
         Some(GradingMode::JudgeRust) => grade_rust_question(&question, &payload.source),
         Some(GradingMode::JudgePython) => grade_python_question(&question, &payload.source),
         _ => JudgeResult::InfrastructureError {
-            message: "Lenguaje no soportado por el judge remoto.".into(),
+            message: "Lenguaje no soportado por el judge server.".into(),
         },
     };
 
     map_result(result)
 }
 
-fn map_request_to_question(payload: &JudgeRequest) -> Result<Question, String> {
+fn build_question(payload: &JudgeRequest) -> Result<Question, String> {
     if payload.tests.is_empty() {
-        return Err("Se requiere al menos un test para evaluar en remoto.".into());
+        return Err("Se requiere al menos un test para evaluar.".into());
     }
 
     let (language, mode) = match payload.language.trim().to_ascii_lowercase().as_str() {
@@ -205,7 +125,7 @@ fn map_request_to_question(payload: &JudgeRequest) -> Result<Question, String> {
         "java" => (Language::Java, GradingMode::JudgeJava),
         "rust" => (Language::Rust, GradingMode::JudgeRust),
         "python" => (Language::Python, GradingMode::JudgePython),
-        other => return Err(format!("Lenguaje remoto no soportado: {other}")),
+        other => return Err(format!("Lenguaje no soportado: {other}")),
     };
 
     Ok(Question {
@@ -225,7 +145,7 @@ fn map_request_to_question(payload: &JudgeRequest) -> Result<Question, String> {
         attempts: 0,
         fails: 0,
         skips: 0,
-        id: payload.question_id.clone(),
+        id: None,
     })
 }
 
@@ -270,22 +190,4 @@ fn map_result(result: JudgeResult) -> JudgeResponse {
             JudgeResponse::InfrastructureError { message }
         }
     }
-}
-
-fn write_response(stream: &mut TcpStream, status: u16, body: &str, content_type: &str) {
-    let status_text = match status {
-        200 => "OK",
-        204 => "No Content",
-        404 => "Not Found",
-        _ => "OK",
-    };
-
-    let response = format!(
-        "HTTP/1.1 {status} {status_text}\r\nContent-Type: {content_type}\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: POST, GET, OPTIONS\r\nAccess-Control-Allow-Headers: Content-Type\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
-        body.len(),
-        body
-    );
-
-    let _ = stream.write_all(response.as_bytes());
-    let _ = stream.flush();
 }

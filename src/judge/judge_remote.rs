@@ -151,15 +151,6 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
     candidates
 }
 
-#[cfg(target_arch = "wasm32")]
-fn wasm_with_local_fallbacks(
-    _window: &web_sys::Window,
-    _primary: &str,
-    candidates: Vec<String>,
-) -> Vec<String> {
-    // Producción: no añadimos localhost/127.0.0.1
-    candidates
-}
 
 #[cfg(test)]
 mod tests {
@@ -390,47 +381,91 @@ pub fn grade_remote_question(question: &Question, user_code: &str) -> JudgeResul
     }
 }
 
+
 #[cfg(target_arch = "wasm32")]
-fn is_loopback_http_endpoint(value: &str) -> bool {
-    value.starts_with("http://127.0.0.1:") || value.starts_with("http://localhost:")
+const MAX_RETRIES: u32 = 3;
+#[cfg(target_arch = "wasm32")]
+const RETRY_DELAY_MS: i32 = 600;
+
+#[cfg(target_arch = "wasm32")]
+async fn sleep_ms(ms: i32) {
+    let promise = js_sys::Promise::new(&mut |resolve, _| {
+        let _ = web_sys::window()
+            .unwrap()
+            .set_timeout_with_callback_and_timeout_and_arguments_0(&resolve, ms);
+    });
+    let _ = wasm_bindgen_futures::JsFuture::from(promise).await;
 }
 
 #[cfg(target_arch = "wasm32")]
-fn browser_security_hint(window: &web_sys::Window, endpoints: &[String]) -> Option<String> {
-    let protocol = window.location().protocol().ok()?;
-
-    if protocol == "https:" && endpoints.iter().any(|e| is_loopback_http_endpoint(e)) {
-        return Some(
-            "Tu app web está en HTTPS y el judge local en HTTP (localhost/127.0.0.1). El navegador bloquea esto por Mixed Content/Private Network Access. Para seguir trabajando en local ahora, abre la app en HTTP (no HTTPS). Luego puedes migrar a un judge HTTPS en producción."
-                .to_string(),
-        );
-    }
-
-    None
-}
-
-#[cfg(target_arch = "wasm32")]
-pub async fn grade_remote_question(question: &Question, user_code: &str) -> JudgeResult {
+async fn fetch_once(
+    window: &web_sys::Window,
+    endpoint: &str,
+    payload_json: &str,
+) -> Result<JudgeResult, String> {
     use wasm_bindgen::JsCast;
     use wasm_bindgen::JsValue;
     use wasm_bindgen_futures::JsFuture;
     use web_sys::{Request, RequestInit, RequestMode, Response};
 
+    let opts = RequestInit::new();
+    opts.set_method("POST");
+    opts.set_mode(RequestMode::Cors);
+    opts.set_body(&JsValue::from_str(payload_json));
+
+    let request = Request::new_with_str_and_init(endpoint, &opts)
+        .map_err(|e| format!("No se pudo crear request: {e:?}"))?;
+
+    request
+        .headers()
+        .set("Content-Type", "application/json")
+        .map_err(|e| format!("No se pudo asignar Content-Type: {e:?}"))?;
+
+    let resp_value = JsFuture::from(window.fetch_with_request(&request))
+        .await
+        .map_err(|e| format!("NetworkError: {e:?}"))?;
+
+    let response: Response = resp_value
+        .dyn_into()
+        .map_err(|_| "Respuesta no es un Response válido.".to_string())?;
+
+    let text = match response.text() {
+        Ok(promise) => JsFuture::from(promise)
+            .await
+            .and_then(|v| {
+                v.as_string()
+                    .ok_or_else(|| JsValue::from_str("text() no devolvió string"))
+            })
+            .map_err(|e| format!("No se pudo leer body: {e:?}"))?,
+        Err(e) => return Err(format!("No se pudo obtener body: {e:?}")),
+    };
+
+    if !response.ok() {
+        return Err(format!(
+            "HTTP {} en {endpoint}. {}",
+            response.status(),
+            text.trim()
+        ));
+    }
+
+    match serde_json::from_str::<JudgeResponse>(&text) {
+        Ok(body) => Ok(map_response(body)),
+        Err(err) => Err(format!("JSON inválido: {err}. Body: {}", text.trim())),
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+pub async fn grade_remote_question(question: &Question, user_code: &str) -> JudgeResult {
     let endpoint = endpoint_for(question);
     let payload = build_request(question, user_code);
     let payload_json = match serde_json::to_string(&payload) {
         Ok(v) => v,
         Err(err) => {
             return JudgeResult::InfrastructureError {
-                message: format!("No se pudo serializar payload del judge remoto: {err}"),
+                message: format!("No se pudo serializar payload: {err}"),
             };
         }
     };
-
-    let opts = RequestInit::new();
-    opts.set_method("POST");
-    opts.set_mode(RequestMode::Cors);
-    opts.set_body(&JsValue::from_str(&payload_json));
 
     let window = match web_sys::window() {
         Some(w) => w,
@@ -441,126 +476,24 @@ pub async fn grade_remote_question(question: &Question, user_code: &str) -> Judg
         }
     };
 
-    if window
-        .location()
-        .protocol()
-        .ok()
-        .as_deref()
-        == Some("https:")
-        && endpoint.trim_start().starts_with("http://")
-    {
-        return JudgeResult::InfrastructureError {
-            message: "Endpoint remoto configurado con HTTP mientras la app corre en HTTPS. Para desarrollo local inmediato, abre la app en HTTP; para producción, usa un endpoint HTTPS para el judge remoto.".into(),
-        };
-    }
+    let endpoints = endpoint_candidates(&endpoint);
+    let target = endpoints.first().cloned().unwrap_or(endpoint);
+    let mut last_error = String::new();
 
-    let endpoints = wasm_with_local_fallbacks(&window, &endpoint, endpoint_candidates(&endpoint));
-    let security_hint = browser_security_hint(&window, &endpoints);
-    let mut last_http_error = None;
-    let mut last_fetch_error = None;
-
-    for candidate in &endpoints {
-        let request = match Request::new_with_str_and_init(candidate, &opts) {
-            Ok(r) => r,
-            Err(err) => {
-                last_fetch_error = Some(format!(
-                    "No se pudo crear request fetch para {}: {:?}",
-                    candidate, err
-                ));
-                continue;
-            }
-        };
-
-        if let Err(err) = request.headers().set("Content-Type", "application/json") {
-            last_fetch_error = Some(format!(
-                "No se pudo asignar headers del request para {}: {:?}",
-                candidate, err
-            ));
-            continue;
+    for attempt in 0..MAX_RETRIES {
+        if attempt > 0 {
+            sleep_ms(RETRY_DELAY_MS * attempt as i32).await;
         }
 
-        let resp_value = match JsFuture::from(window.fetch_with_request(&request)).await {
-            Ok(v) => v,
-            Err(err) => {
-                last_fetch_error = Some(format!(
-                    "Fetch judge remoto falló en {}: {:?}",
-                    candidate, err
-                ));
-                continue;
-            }
-        };
-
-        let response: Response = match resp_value.dyn_into() {
-            Ok(r) => r,
-            Err(_) => {
-                last_fetch_error = Some(format!(
-                    "La respuesta fetch en {} no es un Response válido.",
-                    candidate
-                ));
-                continue;
-            }
-        };
-
-        let text_js = match response.text() {
-            Ok(promise) => JsFuture::from(promise).await,
-            Err(err) => Err(err),
-        };
-
-        let text = match text_js.and_then(|v| {
-            v.as_string()
-                .ok_or_else(|| JsValue::from_str("response.text() no devolvió string"))
-        }) {
-            Ok(text) => text,
-            Err(err) => {
-                last_fetch_error = Some(format!(
-                    "No se pudo leer body de respuesta del judge remoto en {}: {:?}",
-                    candidate, err
-                ));
-                continue;
-            }
-        };
-
-        if !response.ok() {
-            last_http_error = Some(format!(
-                "Judge remoto devolvió HTTP {} en {}{}",
-                response.status(),
-                candidate,
-                if text.trim().is_empty() {
-                    String::new()
-                } else {
-                    format!(". Body: {}", text.trim())
-                }
-            ));
-
-            if matches!(response.status(), 404 | 405) {
-                continue;
-            }
-
-            return JudgeResult::InfrastructureError {
-                message: last_http_error
-                    .unwrap_or_else(|| "Judge remoto devolvió un error HTTP.".to_string()),
-            };
+        match fetch_once(&window, &target, &payload_json).await {
+            Ok(result) => return result,
+            Err(err) => last_error = err,
         }
-
-        return match serde_json::from_str::<JudgeResponse>(&text) {
-            Ok(body) => map_response(body),
-            Err(err) => JudgeResult::InfrastructureError {
-                message: format!("Respuesta JSON inválida del judge remoto: {err}"),
-            },
-        };
     }
-
-    let details = last_http_error
-        .or(last_fetch_error)
-        .unwrap_or_else(|| "Judge remoto no respondió correctamente.".to_string());
-
-    let endpoints_text = endpoints.join(", ");
-    let hint_suffix = security_hint
-        .map(|h| format!(" Hint: {h}"))
-        .unwrap_or_default();
 
     JudgeResult::InfrastructureError {
-        message: format!("{details}. Endpoints probados: [{endpoints_text}].{hint_suffix}"),
-
+        message: format!(
+            "Judge remoto falló tras {MAX_RETRIES} intentos en {target}. Último error: {last_error}"
+        ),
     }
 }
