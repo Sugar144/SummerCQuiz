@@ -1,7 +1,7 @@
 # Judge server for production (Hetzner/VPS)
 # Builds the Rust binary and runs it with required toolchains.
 
-FROM rust:1.85-slim-bookworm
+FROM rust:1-slim-bookworm
 
 WORKDIR /app
 COPY . .
