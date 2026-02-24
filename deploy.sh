@@ -33,6 +33,9 @@ trunk build --release --public-url / --dist "$DIST_DIR"
 rsync -av --delete --exclude=".git" "$DIST_DIR/" "$GH_PAGES_DIR/"
 touch "$GH_PAGES_DIR/.nojekyll"
 
+# ✅ Mantener dominio custom en cada deploy
+echo "app.check4fun.app" > "$GH_PAGES_DIR/CNAME"
+
 # --- 3) Commit & push ---
 git -C "$GH_PAGES_DIR" add .
 

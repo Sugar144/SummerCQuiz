@@ -55,6 +55,17 @@ fn endpoint_for(question: &Question) -> String {
         .unwrap_or_else(default_endpoint)
 }
 
+#[cfg(target_arch = "wasm32")]
+fn endpoint_candidates(primary: &str) -> Vec<String> {
+    // En navegador: 1 endpoint exacto, sin inventar rutas ni slashes.
+    let p = primary.trim();
+    if p.is_empty() {
+        vec![DEFAULT_ENDPOINT.to_string()]
+    } else {
+        vec![p.trim_end_matches('/').to_string()]
+    }
+}
+#[cfg(not(target_arch = "wasm32"))]
 fn endpoint_candidates(primary: &str) -> Vec<String> {
     fn push_unique(candidates: &mut Vec<String>, value: String) {
         if !value.trim().is_empty() && !candidates.iter().any(|c| c == &value) {
@@ -142,37 +153,11 @@ fn endpoint_candidates(primary: &str) -> Vec<String> {
 
 #[cfg(target_arch = "wasm32")]
 fn wasm_with_local_fallbacks(
-    window: &web_sys::Window,
-    primary: &str,
-    mut candidates: Vec<String>,
+    _window: &web_sys::Window,
+    _primary: &str,
+    candidates: Vec<String>,
 ) -> Vec<String> {
-    fn push_unique(candidates: &mut Vec<String>, value: String) {
-        if !value.trim().is_empty() && !candidates.iter().any(|c| c == &value) {
-            candidates.push(value);
-        }
-    }
-
-    let primary = primary.trim();
-    let is_absolute = primary.starts_with("http://") || primary.starts_with("https://");
-
-    if !is_absolute {
-        let protocol = window
-            .location()
-            .protocol()
-            .unwrap_or_else(|_| "http:".to_string());
-
-        let scheme = if protocol == "https:" { "https" } else { "http" };
-
-        for endpoint in [
-            format!("{scheme}://127.0.0.1:8787/api/judge/sync"),
-            format!("{scheme}://127.0.0.1:8787/api/judge"),
-            format!("{scheme}://localhost:8787/api/judge/sync"),
-            format!("{scheme}://localhost:8787/api/judge"),
-        ] {
-            push_unique(&mut candidates, endpoint);
-        }
-    }
-
+    // Producción: no añadimos localhost/127.0.0.1
     candidates
 }
 

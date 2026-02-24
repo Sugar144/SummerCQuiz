@@ -1,5 +1,7 @@
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
+use std::time::Duration;
+
 
 use serde::{Deserialize, Serialize};
 use summer_quiz::judge::{
@@ -68,46 +70,97 @@ fn main() {
     }
 }
 
+
 fn handle_connection(mut stream: TcpStream) -> Result<(), String> {
     stream
-        .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+        .set_read_timeout(Some(Duration::from_secs(10)))
         .map_err(|e| e.to_string())?;
 
-    let mut buffer = [0_u8; 64 * 1024];
-    let n = stream
-        .read(&mut buffer)
-        .map_err(|e| format!("no se pudo leer request: {e}"))?;
+    // 1) Leer hasta tener headers completos
+    let mut buf = Vec::with_capacity(64 * 1024);
+    let mut tmp = [0u8; 8192];
 
-    let request = String::from_utf8_lossy(&buffer[..n]);
-    let mut lines = request.lines();
+    let header_end;
+    loop {
+        let n = stream.read(&mut tmp).map_err(|e| format!("no se pudo leer: {e}"))?;
+        if n == 0 {
+            return Err("cliente cerró conexión antes de enviar request".into());
+        }
+        buf.extend_from_slice(&tmp[..n]);
+
+        if let Some(pos) = find_subslice(&buf, b"\r\n\r\n") {
+            header_end = pos + 4;
+            break;
+        }
+
+        if buf.len() > 256 * 1024 {
+            return Err("headers demasiado grandes".into());
+        }
+    }
+
+    let (header_bytes, mut rest) = buf.split_at(header_end);
+    let header_str = String::from_utf8_lossy(header_bytes);
+    let mut lines = header_str.lines();
     let first_line = lines.next().ok_or_else(|| "request vacío".to_string())?;
 
+    // 2) OPTIONS /health y rutas
     if first_line.starts_with("OPTIONS ") {
         write_response(&mut stream, 204, "", "text/plain");
         return Ok(());
     }
-
     if first_line.starts_with("GET /health") {
         write_response(&mut stream, 200, "ok", "text/plain");
         return Ok(());
     }
-
     if !is_supported_judge_route(first_line) {
         write_response(&mut stream, 404, "not found", "text/plain");
         return Ok(());
     }
 
-    let body = request
-        .split("\r\n\r\n")
-        .nth(1)
-        .ok_or_else(|| "faltó body JSON".to_string())?;
+    // 3) Content-Length
+    let content_length = parse_content_length(&header_str).unwrap_or(0);
+    if content_length == 0 {
+        return Err("faltó Content-Length o es 0".into());
+    }
+    if content_length > 2 * 1024 * 1024 {
+        return Err("body demasiado grande".into());
+    }
 
-    let payload: JudgeRequest = serde_json::from_str(body).map_err(|e| e.to_string())?;
+    // 4) Leer body completo (puede venir parcialmente en 'rest')
+    let mut body = Vec::with_capacity(content_length);
+    body.extend_from_slice(rest);
+    while body.len() < content_length {
+        let n = stream.read(&mut tmp).map_err(|e| format!("no se pudo leer body: {e}"))?;
+        if n == 0 {
+            return Err("cliente cerró conexión antes de completar body".into());
+        }
+        body.extend_from_slice(&tmp[..n]);
+        if body.len() > content_length {
+            body.truncate(content_length);
+            break;
+        }
+    }
+
+    let payload: JudgeRequest =
+        serde_json::from_slice(&body).map_err(|e| format!("JSON inválido: {e}"))?;
     let response = evaluate(payload);
     let response_json = serde_json::to_string(&response).map_err(|e| e.to_string())?;
-
     write_response(&mut stream, 200, &response_json, "application/json");
     Ok(())
+}
+
+fn parse_content_length(headers: &str) -> Option<usize> {
+    for line in headers.lines() {
+        let (k, v) = line.split_once(':')?;
+        if k.eq_ignore_ascii_case("content-length") {
+            return v.trim().parse::<usize>().ok();
+        }
+    }
+    None
+}
+
+fn find_subslice(haystack: &[u8], needle: &[u8]) -> Option<usize> {
+    haystack.windows(needle.len()).position(|w| w == needle)
 }
 
 fn is_supported_judge_route(first_line: &str) -> bool {
